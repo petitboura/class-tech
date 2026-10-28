@@ -2,5 +2,8 @@
   "hote": "127.0.0.1",
   "port": 8765,
   "delai_lancement_s": 120,
-  "chemin_adb": ""
+  "chemin_adb": "",
+  "url_outils_adb": "https://dl.google.com/android/repository/platform-tools-latest-windows.zip",
+  "dossier_outils_adb": "",
+  "delai_ouverture_page_s": 3
 }

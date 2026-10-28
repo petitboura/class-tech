@@ -20,8 +20,27 @@ ENV_DELAI = "RELAIS_PC_DELAI"
 ENV_ADB = "RELAIS_PC_ADB"
 
 
+def est_version_figee():
+    """Vrai quand le relais tourne en exe fige (PyInstaller)."""
+    return bool(getattr(sys, "frozen", False))
+
+
+def dossier_donnees_figees():
+    """Dossier des donnees embarquees dans l'exe."""
+    return getattr(sys, "_MEIPASS", "")
+
+
+def dossier_exe():
+    """Dossier qui contient l'exe, ou chaine vide hors exe."""
+    if not est_version_figee():
+        return ""
+    return os.path.dirname(os.path.abspath(sys.executable))
+
+
 def dossier_relais():
-    """Dossier qui contient ce script, donc le dossier relais."""
+    """Dossier relais, ou donnees embarquees en exe fige."""
+    if est_version_figee() and dossier_donnees_figees():
+        return dossier_donnees_figees()
     return os.path.dirname(os.path.abspath(__file__))
 
 
@@ -37,6 +56,10 @@ def dossier_backend():
 
 def chemin_fichier_reglages():
     """Chemin complet du fichier reglages.json livré avec le relais."""
+    if est_version_figee():
+        cote_exe = os.path.join(dossier_exe(), NOM_FICHIER_REGLAGES)
+        if cote_exe and os.path.isfile(cote_exe):
+            return cote_exe
     return os.path.join(dossier_relais(), NOM_FICHIER_REGLAGES)
 
 
