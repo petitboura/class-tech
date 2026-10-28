@@ -63,6 +63,7 @@ en S2).
 | D32 | 20:13 | Publier une version PC prête, installée et testée par Bourama | Active | Ordre explicite ; agent publieur lancé (A22), sans le relais (D31 viendra après). |
 | D33 | 20:49 | Laisser le root de côté (ni test, ni rootage) | Active | Téléphone non rooté, rootage trop risqué (efface tout, casse Knox) ; les 19 outils restent cachés. |
 | D34 | 21:35 | Valider 16 nouveaux outils (après) + 10 profonds (d'abord) | Active | Ordre explicite ; profonds = lecture seule niveau technicien ; agent lancé (A23 puis A24). |
+| D35 | ~21:45 | Adapter le diagnostic à iOS (agent A25) | Active | Ordre explicite ; clone frais ios-pont, lecture seule, sans jailbreak. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -91,7 +92,8 @@ en S2).
 | A21 | 19:26–19:33 | enquete-pc/21 | Relance A20, lecture seule | FINI (rapport) : Classinus PC = Electron (NSIS 1 clic, releases classinus-updates-pc, MAJ auto), install `%LOCALAPPDATA%\Programs\classinus-electron`, proposition relais embarqué (A) ou 2e bouton (B), 7 questions ouvertes. Rien modifié. |
 | A22 | 20:13–20:20 | publie-pc/22 | Publier version PC (D32) | FINI (rapport) : tag pc-v1.0.4 sur dernier main distant, release publiée (installeur 125 Mo + latest.yml), aucun changement de code. Vérifié par moi 20:29 (API releases). |
 | A23 | 21:35–21:36 | profonds/23 | Construire 10 profonds (D34) | ÉCHEC technique (réseau agent, 5 essais), rien produit ; relancé A24. |
-| A24 | dès 21:36 | profonds/24 | Relance A23 à l'identique | EN COURS : 10 outils lecture seule, tests simulés, push branche seule. |
+| A24 | 21:36–~21:55 | profonds/24 | Relance A23 à l'identique | ÉCHEC réseau en fin de travail : 4 fichiers écrits non committés (2 nouveaux, 2 modifiés), récupérés par moi, finis en direct. |
+| A25 | ~21:45–~21:55 | ios-pont/25 | Pont iOS + faisabilité 31 (D35) | ÉCHEC réseau (clone frais créé, contenu à vérifier), à relancer quand le réseau agents revient. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -201,6 +203,14 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   téléphone non rooté, risques expliqués et refusés).
 - 21:35–21:36 : D34 validée (16 après, 10 profonds d'abord) ;
   A23 échec réseau (rien écrit, vérifié), A24 relancé.
+- ~21:45 : D35 adaptation iOS (agent A25 lancé, clone frais
+  imposé après l'incident M12).
+- 21:47 : incident M12 : mon commit D34 était parti sur
+  outils-profonds (checkout partagé avec A24) ; rejoué sur main
+  (0c85c01), branche agent remise au propre sans toucher son travail.
+- ~21:55 : A24 + A25 tombés (réseau agents, comme A20/A23) ;
+  travail A24 récupéré (4 fichiers), fini par moi en direct ;
+  A25 à relancer.
 
 ## 5. Règles de tenue de ce journal
 

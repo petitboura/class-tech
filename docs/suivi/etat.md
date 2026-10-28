@@ -32,7 +32,9 @@
    D29 : 5 sensibles confirmés, 4 testés live 19:35 (bip, vibreur,
    photo : perceptions de Bourama attendues ; B18 suspect listing
    caméras) ; retrait en attente OK cible. D30 : relais intégré
-   Classinus PC, câble d'abord.
+   Classinus PC, câble d'abord. D34 : 10 profonds d'abord (A24
+   tombé réseau, travail récupéré, fini en direct), 16 après.
+   D35 : iOS (A25 tombé réseau, à relancer).
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)

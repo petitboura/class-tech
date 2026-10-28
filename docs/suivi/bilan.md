@@ -29,7 +29,7 @@ jour.
   mergés et déployés (protégés par flags + hors catégorie). Risque
   couvert par l'audit en 3 agents exigé par Bourama lui-même.
 
-### Côté Muse, l'IA (11, toutes corrigées)
+### Côté Muse, l'IA (12, toutes corrigées)
 
 - **M1 — Flux routeur présenté comme la prod (04:41).** En réalité
   routeur mort, demander/garder réels. Trouvé par Bourama,
@@ -56,8 +56,12 @@ jour.
 - **M11 — Téléphone affirmé non rooté sans preuve (~10:20).**
   Trouvé par Bourama, corrigé par vérification outil sur son
   ordre (10:30) : non rooté confirmé.
+- **M12 — Commit suivi parti sur la branche de l'agent (~21:45).**
+  Le checkout partagé avait basculé sur outils-profonds.
+  Trouvé par moi (sortie git), corrigé (rejoué sur main,
+  branche remise au propre) ; clone frais imposé aux agents suivants.
 
-Total : 5 détectées par Bourama, 6 par moi, le système ou le runtime.
+Total : 5 détectées par Bourama, 7 par moi, le système ou le runtime.
 Détail bugs techniques dans `journal.md` §6.
 
 ## 3. Ce qu'il a décidé
@@ -76,7 +80,7 @@ Tout le code (readiness, 3 builders, fusion, audits), l'activation
 technique, les vérifications, la documentation. Gardé pour lui : les
 décisions go/no-go, le dashboard Render, le téléphone de test, les
 tests via le chat. Voir `journal.md` §3 pour l'inventaire exact des
-16 agents et leur résultat.
+25 agents et leur résultat.
 
 ## 5. Son rôle
 
