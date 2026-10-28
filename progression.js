@@ -119,7 +119,9 @@
   }
 
   /* Rend [{cle, titre, evenements}] triés selon sens ("recent" ou
-     "ancien"). Le groupe sans heure passe toujours en dernier. */
+     "ancien"). Toutes les tranches entre la première et la dernière
+     heure s'affichent, même vides. Le groupe sans heure passe
+     toujours en dernier. */
   function grouper(texteJournal, sens) {
     var evenements = [];
     morceaux(texteJournal).forEach(function (morceau) {
@@ -139,16 +141,23 @@
       }
     });
     var recent = sens !== "ancien";
-    var cles = Object.keys(parHeure).map(Number).sort(function (a, b) {
-      return recent ? b - a : a - b;
-    });
-    var groupes = cles.map(function (h) {
-      var evts = parHeure[h].sort(function (a, b) {
+    var observees = Object.keys(parHeure).map(Number);
+    var cles = [];
+    if (observees.length > 0) {
+      var mini = Math.min.apply(null, observees);
+      var maxi = Math.max.apply(null, observees);
+      for (var h = mini; h <= maxi; h++) cles.push(h);
+      cles.sort(function (a, b) { return recent ? b - a : a - b; });
+    }
+    var groupes = cles.map(function (heure) {
+      var evts = (parHeure[heure] || []).sort(function (a, b) {
         return recent ? b.tri - a.tri : a.tri - b.tri;
       });
       return {
-        cle: "h" + h,
-        titre: h + "h, " + evts.length + (evts.length > 1 ? " événements" : " événement"),
+        cle: "h" + heure,
+        titre: evts.length === 0
+          ? heure + "h, aucun événement"
+          : heure + "h, " + evts.length + (evts.length > 1 ? " événements" : " événement"),
         evenements: evts
       };
     });
