@@ -57,6 +57,8 @@ en S2).
 | D26 | 10:34 | Relais PC : agent pour dessiner + mettre en place + faire fonctionner | Active | Sans lui produit inutilisable (D14) ; Windows d'abord, choix simples par l'agent, à valider au rapport. |
 | D27 | 10:58 | Relais : installation UNIQUE, utilisateur non technique, zéro étape manuelle | Active | Version A17 (Python+ADB à la main) refusée par Bourama ; on emballe tout, 1 fichier 1 double-clic. |
 | D28 | 11:01 | Relance Muse en --yolo (zéro demande) | Active | Approvals off inefficace (agents déjà lancés + sandbox B5 cassé) ; note reprise build-tmp/REPRISE-YOLO.md. |
+| D29 | 19:10 | Confirmer les 5 outils sensibles (validation live) | Active | Ordre explicite ; 4 testés live 19:35, retrait en attente OK cible. |
+| D30 | 19:29 | Rester sur relais intégré à Classinus PC, câble d'abord | Active | Sans-fil enlève le câble, pas le programme ; appli téléphone seule reste écartée ; wifi en option plus tard. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -81,6 +83,8 @@ en S2).
 | A17 | 10:34–10:53 | relais-pc/17 | Relais PC : dessiner + mettre en place + faire fonctionner (D26) | FINI (rapport) : relais local + doc + preuve live, branche `relais-pc` (`f8afcd0`), main intacte. Vérifié par moi 10:55 : santé OK + batterie réelle via relais. Installation manuelle refusée (D27), reprise A18. |
 | A18 | 10:58–11:01 | relais-install/18 | Installateur unique relais, 1 clic, zéro technique (D27) | INTERROMPU par relance --yolo (D28), rien poussé ; mission archivée dans build-tmp/REPRISE-YOLO.md, à relancer. |
 | A19 | 11:24–15:46 | relais-install/19 | Relance A18 à l'identique (D27) | FINI (rapport) : exe 1 fichier 24,5 Mo + ADB auto, testé dossier propre + vraies données, branche `relais-install` (`afebfdd`), base et main intactes. Vérifié par moi 15:58–16:01 : rebuild depuis clone frais + essai réel (santé OK, vraies données). Limites : exe non signé, 1 téléphone, internet au 1er lancement sans ADB. |
+| A20 | 19:17–19:26 | enquete-pc/20 | Enquête version PC (ordre Bourama) | ÉCHEC technique (réseau agent, 2 essais), rien produit ; relancé A21. |
+| A21 | 19:26–19:33 | enquete-pc/21 | Relance A20, lecture seule | FINI (rapport) : Classinus PC = Electron (NSIS 1 clic, releases classinus-updates-pc, MAJ auto), install `%LOCALAPPDATA%\Programs\classinus-electron`, proposition relais embarqué (A) ou 2e bouton (B), 7 questions ouvertes. Rien modifié. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -157,6 +161,23 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   par relais A17 oublié, B17) : santé OK + vraies données
   (batterie 100 %, SM-A055F). Fusions relais-pc puis
   relais-install dans main, propres, poussées.
+- 19:10–19:12 : D29 (5 sensibles confirmés) + ordres : fermer
+  relais oublié, effacer lignes test, explication libellé
+  demandée (choix 1/2 posé, sans réponse pour l'instant).
+- 19:15 : B17 constaté déjà fermé (port 8765 libre) avant mon
+  geste ; lignes test relues (3 présentes, suppression au
+  dashboard par Bourama, pas d'accès de mon côté).
+- 19:17–19:33 : enquête version PC par agent (A20 échec réseau,
+  A21 rapport) : Electron 1 clic, MAJ auto, dossier install
+  trouvé, proposition embarqué (A) ou 2e bouton (B).
+- 19:19–19:29 : expliqué à Bourama (31 outils citables par
+  Classinus, sans-fil possible, sans-fil n'enlève pas le
+  programme PC) ; D30 rester relais intégré, câble d'abord.
+- ~19:35 : 4 sensibles testés live (serveur local, R92WC0N34BP) :
+  caches VERT non mesuré, bip lancé (oreilles ?), vibreur auto
+  impossible sur ce modèle (appel/alarme ?), appli photo ouverte
+  (photo nette ?, listing suspect B18). Retrait en attente OK
+  cible (fakfak + notifs, sans trace).
 
 ## 5. Règles de tenue de ce journal
 
@@ -187,4 +208,5 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 | B14 | 07:11 | Root joignables malgré false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
 | B15 | ~06:30 | Montage cassé resté en branches | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
 | B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi (11:12, import renommé) | Corrigé et vérifié sur téléphone 11:23 (8 cœurs MT6768) |
-| B17 | ~16:00 | Relais A17 resté allumé, bloque le port 8765 | Moi | Vérif installateur : port occupé (PID 7840, clone relais-pc) | Personne (laissé tel quel) | Ouvert, à fermer par Bourama |
+| B17 | ~16:00 | Relais A17 resté allumé, bloque le port 8765 | Moi | Vérif installateur : port occupé (PID 7840, clone relais-pc) | Personne (déjà fermé avant mon geste) | Fermé, constaté 19:15 (port libre) |
+| B18 | ~19:35 | Liste caméras incohérente (2 annoncées, 5 façades) | Moi | Test live tester_camera : "2 caméras (arrière, avant, arrière, avant, arrière)" | Personne | SUSPECT, non confirmé |

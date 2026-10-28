@@ -26,9 +26,13 @@
    MT6768, test ciblé + 202 verts), poussé. Relais-install fini
    15:46 (exe 1 clic + ADB auto, testé vraies données) et vérifié
    par moi 16:01 (rebuild + essai réel) ; relais-pc et
-   relais-install fusionnés dans main, poussé. Reste : relais A17
-   oublié encore allumé (port 8765, B17, à fermer par Bourama),
-   distribution de l'exe à décider.
+   relais-install fusionnés dans main, poussé. B17 fermé (constaté
+   19:15). Enquête version PC finie 19:33 (A21) : Electron 1 clic,
+   MAJ auto, proposition relais embarqué ou 2e bouton, à trancher.
+   D29 : 5 sensibles confirmés, 4 testés live 19:35 (bip, vibreur,
+   photo : perceptions de Bourama attendues ; B18 suspect listing
+   caméras) ; retrait en attente OK cible. D30 : relais intégré
+   Classinus PC, câble d'abord.
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)
