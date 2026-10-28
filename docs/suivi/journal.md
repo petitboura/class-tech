@@ -65,6 +65,7 @@ en S2).
 | D34 | 21:35 | Valider 16 nouveaux outils (après) + 10 profonds (d'abord) | Active | Ordre explicite ; profonds = lecture seule niveau technicien ; agent lancé (A23 puis A24). |
 | D35 | ~21:45 | Adapter le diagnostic à iOS (agent A25) | Active | Ordre explicite ; clone frais ios-pont, lecture seule, sans jailbreak. |
 | D36 | 23:52 | Relais embarqué construit + fusionné + publié en 1.0.5 | Active | Ordre explicite "vite" ; agent lancé (A27), clone frais, tag pc-v1.0.5. |
+| D37 | 00:55 | Zéro étape : brancher + demander à l'IA, relais auto-démarré | Active | Refus des étapes interface (dont le bouton Lancer obligatoire) ; la carte devient voyant d'état ; agent lancé (A29). |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -98,6 +99,7 @@ en S2).
 | A26 | ~23:20 | merge-profonds/26 | Fusionner profonds dans main | ÉCHEC réseau au démarrage, rien produit ; fusion faite par moi en direct (propre, 213 verts, poussée). |
 | A27 | 23:52–00:44 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | FINI partiel (rapport, vérifié) : code + merge main (04316a0) + tag pc-v1.0.5 OK, release BLOQUÉE (secret CLASS_TECH_LECTURE manquant, à créer par Bourama puis relancer le run). |
 | A28 | dès 00:43 | ios-pont/28 | Relance A25 (D35) | EN COURS : réutilise le clone, pont iOS + faisabilité 31, push branche seule. |
+| A29 | dès 00:55 | relais-auto/29 | Relais auto-démarré + tag 1.0.5 déplacé (D37) | EN COURS : clone frais, démarrage auto, carte en voyant, merge + re-tag. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -222,6 +224,8 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 00:43–00:44 : relais embarqué : code + fusion + tag OK (A27),
   release 1.0.5 BLOQUÉE (secret GitHub manquant, marche donnée
   à Bourama) ; agent iOS relancé (A28).
+- 00:55 : D37 zéro étape (brancher + demander, relais auto,
+  carte en voyant) ; agent A29 lancé (correctif + re-tag 1.0.5).
 - 23:27 : fusion profonds ordonnée puis faite en direct (A26
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
