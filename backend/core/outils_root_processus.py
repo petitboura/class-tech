@@ -44,9 +44,18 @@ def parse_top(texte):
     return processus
 
 
-def formater_processus(processus, limite):
-    """Texte de reponse pour root_lister_processus. Fonction pure."""
+def formater_processus(processus, limite, sortie_brute=""):
+    """Texte de reponse pour root_lister_processus. Fonction pure.
+
+    Si top a repondu mais qu'aucune ligne n'est comprise, on le dit
+    (format inconnu sur ce modele) au lieu d'un vague "illisible".
+    """
     if not processus:
+        if sortie_brute and sortie_brute.strip():
+            return (
+                "Format de la liste des processus non reconnu sur ce "
+                "modele, impossible de classer par CPU."
+            )
         return "Processus illisibles pour le moment."
     details = ", ".join(
         f"{nom} ({cpu:.0f} % CPU)" for _p, cpu, _r, _u, nom in processus[:limite]
@@ -112,7 +121,9 @@ def root_lister_processus(limite: int = 10) -> str:
     if not resultat["ok"]:
         return marquer_non_teste(f"Processus illisibles : {resultat['erreur']}")
     return marquer_non_teste(
-        formater_processus(parse_top(resultat["sortie"]), limite)
+        formater_processus(
+            parse_top(resultat["sortie"]), limite, resultat["sortie"]
+        )
     )
 
 

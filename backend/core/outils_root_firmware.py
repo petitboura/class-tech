@@ -9,6 +9,8 @@ Une lecture reelle et une correction douce :
 Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 """
 
+import re
+
 from core.outils_diagnostic_commun import mcp_diagnostic
 from core.pont_adb import executer_shell
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
@@ -30,7 +32,12 @@ CLES_FIRMWARE = {
 
 
 def parse_getprop_firmware(texte):
-    """Parse `getprop` en dictionnaire. Fonction pure."""
+    """Parse `getprop`, limite aux CLES_FIRMWARE. Fonction pure.
+
+    Ne garde que les cles utiles au diagnostic (audit A) : la
+    constante CLES_FIRMWARE, jusque la ignoree, redevient la source
+    unique, et les centaines d'autres proprietes ne remontent pas.
+    """
     infos = {}
     if not texte:
         return infos
@@ -40,7 +47,7 @@ def parse_getprop_firmware(texte):
             continue
         cle, _, valeur = ligne[1:].partition("]: [")
         valeur = valeur[:-1] if valeur.endswith("]") else valeur
-        if cle:
+        if cle in CLES_FIRMWARE:
             infos[cle] = valeur
     return infos
 
@@ -69,6 +76,9 @@ def formater_firmware(infos, noyau):
     android = infos.get("ro.build.version.release", "")
     if android:
         morceaux.append(f"Android {android}")
+    empreinte = infos.get("ro.build.fingerprint", "")
+    if empreinte:
+        morceaux.append(f"empreinte {empreinte}")
     patch = infos.get("ro.build.version.security_patch", "")
     if patch:
         morceaux.append(f"correctif du {patch}")
@@ -89,6 +99,17 @@ def formater_firmware(infos, noyau):
     if not slot:
         morceaux.append("pas de double slot A/B")
     return "Firmware : " + ", ".join(morceaux) + "."
+
+
+# Forme attendue du slot de demarrage (typiquement _a ou _b).
+# Toute autre valeur bloque la validation : on ne marque jamais
+# comme bon un slot qu'on n'a pas su lire.
+MOTIF_SLOT = re.compile(r"^_[a-z]$")
+
+
+def slot_valide(slot):
+    """Vrai si slot a la forme attendue (_a, _b...). Fonction pure."""
+    return bool(slot and MOTIF_SLOT.match(slot.strip()))
 
 
 def formater_validation_slot(slot, ok_bootctl, erreur=""):
@@ -137,16 +158,21 @@ def root_valider_slot_demarre() -> str:
     if erreur:
         return marquer_non_teste(erreur)
     props = executer_shell("getprop ro.boot.slot_suffix", appareil_id)
+    if not props["ok"]:
+        return marquer_non_teste(f"Slot illisible : {props['erreur']}")
     slot = ""
-    if props["ok"]:
-        brut = props["sortie"].strip()
-        if brut.startswith("["):
-            slot = brut.strip("[]")
-        else:
-            slot = brut.splitlines()[0] if brut else ""
-        slot = slot.strip()
+    brut = props["sortie"].strip()
+    if brut.startswith("["):
+        slot = brut.strip("[]")
+    else:
+        slot = brut.splitlines()[0] if brut else ""
+    slot = slot.strip()
     if not slot:
         return marquer_non_teste(formater_validation_slot("", False))
+    if not slot_valide(slot):
+        return marquer_non_teste(
+            f"Slot illisible ({slot[:20]}), rien valide par prudence."
+        )
     resultat = executer_root("bootctl mark-boot-successful", appareil_id)
     return marquer_non_teste(
         formater_validation_slot(

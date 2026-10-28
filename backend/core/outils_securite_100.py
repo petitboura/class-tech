@@ -39,6 +39,23 @@ def _lire(adb: str, serie: str, morceaux: list[str]) -> str | None:
     return texte if texte and texte != "null" else None
 
 
+def parse_verification_revoke(sortie_dumpsys: str, permissions: list[str]) -> dict[str, bool | None]:
+    """Vérifie chaque permission dans `dumpsys package`. Fonction pure.
+
+    Renvoie {permission: True} si granted=false (retrait confirmé),
+    False si granted=true (toujours accordée), None si la permission
+    n'apparaît pas (jamais demandée ou format inconnu).
+    """
+    etats: dict[str, bool | None] = {perm: None for perm in permissions}
+    if not sortie_dumpsys:
+        return etats
+    for ligne in sortie_dumpsys.splitlines():
+        trouve = re.match(r"\s+(android\.permission\.\w+):\s*granted=(\w+)", ligne)
+        if trouve and trouve.group(1) in etats:
+            etats[trouve.group(1)] = trouve.group(2) != "true"
+    return etats
+
+
 @mcp_diagnostic.tool()
 def lister_permissions_risquees(perimetre: str = "tierces") -> str:
     """Liste les applis détenant des permissions à risque.
@@ -89,11 +106,11 @@ def revoquer_permission(paquet: str, permission: str) -> str:
     for perm in permissions:
         ok, _, erreur = executer_adb_serie(adb, serie, ["shell", "pm", "revoke", nom_paquet, perm])
         if ok:
-            retires.append(perm.rsplit(".", 1)[-1])
+            retires.append(perm)
         else:
             echecs.append((perm, erreur))
     if echecs and not retires:
-        detail = echecs[0][1].lower()
+        detail = (echecs[0][1] or "").lower()
         if "unknown package" in detail or "unknown_package" in detail:
             return _avec_note(acces, f"Appli {nom_paquet} introuvable sur ce téléphone.")
         if "does not support runtime permissions" in detail:
@@ -103,10 +120,24 @@ def revoquer_permission(paquet: str, permission: str) -> str:
         if "not a changeable permission" in detail or "not changeable" in detail:
             return _avec_note(acces, f"Permission non modifiable pour {nom_paquet}.")
         return _avec_note(acces, f"Retrait impossible pour {nom_paquet} ({echecs[0][1]}).")
-    texte = f"Permission retirée à {nom_paquet} : {', '.join(retires)}."
+    # Vérification après coup (audit A) : pm revoke répond OK même
+    # quand il n'a rien changé. On relit l'état réel avant d'affirmer.
+    confirmes, douteux = [], []
+    ok, sortie, _ = executer_adb_serie(adb, serie, ["shell", "dumpsys", "package", nom_paquet])
+    etats = parse_verification_revoke(sortie if ok else "", retires)
+    for perm in retires:
+        (confirmes if etats.get(perm) else douteux).append(perm.rsplit(".", 1)[-1])
+    morceaux = []
+    if confirmes:
+        morceaux.append(f"Permission retirée à {nom_paquet} : {', '.join(confirmes)}.")
+    if douteux:
+        morceaux.append(
+            f"Retrait non confirmé pour {', '.join(douteux)} "
+            "(vérifiez dans les paramètres de l'appli)."
+        )
     if echecs:
-        texte += f" Reste non retiré : {', '.join(p.rsplit('.', 1)[-1] for p, _ in echecs)}."
-    return _avec_note(acces, texte)
+        morceaux.append(f"Reste non retiré : {', '.join(p.rsplit('.', 1)[-1] for p, _ in echecs)}.")
+    return _avec_note(acces, " ".join(morceaux))
 
 
 @mcp_diagnostic.tool()

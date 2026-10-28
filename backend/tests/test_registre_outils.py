@@ -11,6 +11,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from core.registre_outils import (  # noqa: E402
     CATEGORIES_OUTILS,
+    OUTILS_PALIER_ROOT,
+    OUTILS_ROOT_ACTIFS,
     OUTILS_SENSIBLES,
     REGISTRE_AFFICHAGE_OUTILS,
     TYPES_APPAREILS,
@@ -60,6 +62,23 @@ def test_types_appareils():
     assert TYPES_APPAREILS == ("telephone", "ordinateur")
 
 
+def test_garde_fou_root_hors_categorie_telephone():
+    # Audit A : root désactivé par défaut, donc absent de la
+    # catégorie telephone, mais toujours sensible (confirmation
+    # exigée le jour de l'activation).
+    assert OUTILS_ROOT_ACTIFS is False
+    telephone = CATEGORIES_OUTILS["telephone"]
+    for nom in OUTILS_PALIER_ROOT:
+        assert nom not in telephone
+        assert nom in OUTILS_SENSIBLES
+    candidats = [
+        {"type": "function", "function": {"name": "root_redemarrer"}},
+        {"type": "function", "function": {"name": "lire_batterie"}},
+    ]
+    trouves = {o["function"]["name"] for o in outils_de_la_categorie("telephone", candidats)}
+    assert trouves == {"lire_batterie"}
+
+
 if __name__ == "__main__":
     test_categories_connues_du_registre()
     test_entrees_registre_completes()
@@ -67,4 +86,5 @@ if __name__ == "__main__":
     test_outils_sensibles_connus()
     test_outils_de_la_categorie()
     test_types_appareils()
+    test_garde_fou_root_hors_categorie_telephone()
     print("OK : registre d'outils cohérent.")
