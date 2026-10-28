@@ -42,6 +42,7 @@ en S2).
 | D16 | 06:17 | Render en web service manuel | Active | Pas de blueprint trouvé. |
 | D17 | — | Libellé « Téléphone branché ? » | EN ATTENTE | Proposé par builder 80. |
 | D18 | — | 4 boutons + licence | EN ATTENTE | Questions ouvertes depuis S1. |
+| D19 | 07:28 | Site public suivi-live (docs, refresh horaire) | Active, agent lancé | Bourama : que les gens suivent en direct. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -61,6 +62,7 @@ en S2).
 | A12 | dès 07:14 | audit-a/12 | Diagnostiquer+corriger (D15) | EN COURS. |
 | A13 | dès 07:14 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
 | A14 | — | audit-final | Trancher + corriger (D15) | À LANCER après A12+A13. |
+| A15 | dès 07:28 | site-suivi-live/14 | Page publique docs auto-refresh (D19) | EN COURS. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
