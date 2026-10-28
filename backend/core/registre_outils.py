@@ -16,10 +16,15 @@ du registre tournent sans rien installer.
 """
 
 # Outils qui écrivent ou déclenchent une action réelle : Classinus
-# interrompt pour confirmation avant exécution. Vide au stade du
-# squelette : aucun outil destructeur (effacement, remise à zéro)
-# tant que Bourama n'a pas validé l'ajout d'un tel outil.
-OUTILS_SENSIBLES = set()
+# interrompt pour confirmation avant exécution. Palier 100 % : bip de
+# test, vibration de test, ouverture de l'appli photo, retrait d'une
+# permission.
+OUTILS_SENSIBLES = {
+    "tester_haut_parleur",
+    "tester_vibreur",
+    "tester_camera",
+    "revoquer_permission",
+}
 
 # Types d'appareils pris en charge, dans l'ordre du projet (téléphone
 # d'abord, ordinateur ensuite). Source unique, lue par les outils
@@ -47,6 +52,79 @@ REGISTRE_AFFICHAGE_OUTILS = {
         "icone": "Radio",
         "onglet": None,
     },
+    # --- Palier 100 % : tests matériel unitaires ---
+    "tester_ecran_tactile": {
+        "label": "Test écran tactile",
+        "icone": "Smartphone",
+        "onglet": "diagnostiquer",
+    },
+    "tester_gps": {
+        "label": "Test GPS",
+        "icone": "MapPin",
+        "onglet": "diagnostiquer",
+    },
+    "tester_micro": {
+        "label": "Test micro",
+        "icone": "Mic",
+        "onglet": "diagnostiquer",
+    },
+    "tester_haut_parleur": {
+        "label": "Test haut-parleur",
+        "icone": "Volume2",
+        "onglet": "diagnostiquer",
+    },
+    "tester_vibreur": {
+        "label": "Test vibreur",
+        "icone": "Vibrate",
+        "onglet": "diagnostiquer",
+    },
+    "tester_camera": {
+        "label": "Test caméra",
+        "icone": "Camera",
+        "onglet": "diagnostiquer",
+    },
+    "tester_boutons": {
+        "label": "Test boutons",
+        "icone": "Power",
+        "onglet": "diagnostiquer",
+    },
+    # --- Palier 100 % : mémoire, CPU, applis gourmandes ---
+    "analyser_memoire_vive": {
+        "label": "Mémoire vive",
+        "icone": "MemoryStick",
+        "onglet": "diagnostiquer",
+    },
+    "analyser_cpu": {
+        "label": "Processeur (CPU)",
+        "icone": "Cpu",
+        "onglet": "diagnostiquer",
+    },
+    "analyser_applications_gourmandes": {
+        "label": "Applis gourmandes",
+        "icone": "Gauge",
+        "onglet": "diagnostiquer",
+    },
+    # --- Palier 100 % : permissions, sécurité, mises à jour ---
+    "lister_permissions_risquees": {
+        "label": "Permissions à risque",
+        "icone": "KeyRound",
+        "onglet": "diagnostiquer",
+    },
+    "revoquer_permission": {
+        "label": "Retirer une permission",
+        "icone": "ShieldOff",
+        "onglet": "diagnostiquer",
+    },
+    "verifier_securite": {
+        "label": "Sécurité du téléphone",
+        "icone": "ShieldCheck",
+        "onglet": "diagnostiquer",
+    },
+    "verifier_mises_a_jour": {
+        "label": "Mises à jour",
+        "icone": "RefreshCw",
+        "onglet": "diagnostiquer",
+    },
 }
 
 # Verbe d'action -> (libellé, petite icône). Même source pour le texte
@@ -56,6 +134,9 @@ VERBES_ACTIONS = {
     "resumer": ("Résumé", "List"),
     "decrire": ("Description", "Eye"),
     "lister": ("Liste", "List"),
+    "tester": ("Test", "FlaskConical"),
+    "analyser": ("Analyse", "Activity"),
+    "revoquer": ("Retrait", "ShieldOff"),
 }
 
 # Catégories d'outils, lues par outils_de_la_categorie.
@@ -63,6 +144,26 @@ CATEGORIES_OUTILS = {
     "telephone": ["resumer_symptome"],
     "ordinateur": ["resumer_symptome"],
     "commun": ["verifier_chaine", "ping_serveur"],
+    "materiel": [
+        "tester_ecran_tactile",
+        "tester_gps",
+        "tester_micro",
+        "tester_haut_parleur",
+        "tester_vibreur",
+        "tester_camera",
+        "tester_boutons",
+    ],
+    "performance": [
+        "analyser_memoire_vive",
+        "analyser_cpu",
+        "analyser_applications_gourmandes",
+    ],
+    "securite": [
+        "lister_permissions_risquees",
+        "revoquer_permission",
+        "verifier_securite",
+        "verifier_mises_a_jour",
+    ],
 }
 
 
