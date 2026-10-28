@@ -46,20 +46,45 @@ def parse_du(texte):
     return tailles
 
 
-def formater_nettoyage(tailles, ok):
-    """Texte de reponse pour root_nettoyer_fichiers_crash. Pure."""
-    if not ok:
-        return "Nettoyage refuse par le telephone, rien supprime."
+def parse_ls_restes(texte):
+    """Contenu restant d'apres `ls -A`, en liste de noms. Pure."""
+    if not texte:
+        return []
+    return [l.strip() for l in texte.splitlines() if l.strip()]
+
+
+def formater_nettoyage(tailles, restes):
+    """Texte de reponse pour root_nettoyer_fichiers_crash. Pure.
+
+    restes : {dossier: [noms restants]} releve apres suppression.
+    """
+    sales = {d: fichiers for d, fichiers in restes.items() if fichiers}
+    if sales:
+        details = ", ".join(
+            f"{d} ({len(fichiers)} fichier(s) restant(s))"
+            for d, fichiers in sales.items()
+        )
+        return (
+            "Nettoyage partiel, certains fichiers resistent : "
+            f"{details}. Le reste est supprime."
+        )
     details = ", ".join(
         f"{d} ({tailles.get(d, '?')})" for d in DOSSIERS_CRASH
     )
     return f"Rapports de plantage supprimes : {details}."
 
 
-def formater_dalvik(taille_avant, ok):
-    """Texte de reponse pour root_vider_cache_dalvik. Pure."""
-    if not ok:
-        return "Cache Dalvik non vide, commande refusee, rien supprime."
+def formater_dalvik(taille_avant, restes):
+    """Texte de reponse pour root_vider_cache_dalvik. Pure.
+
+    restes : [noms restants] releves apres suppression.
+    """
+    if restes:
+        return (
+            f"Cache Dalvik partiellement vide, {len(restes)} "
+            "element(s) resiste(nt). Redemarre le telephone quand meme, "
+            "le prochain demarrage sera plus long."
+        )
     texte = "Cache Dalvik vide"
     if taille_avant:
         texte += f" ({taille_avant} liberes)"
@@ -104,14 +129,31 @@ def commande_redemarrage(mode):
 
 
 def formater_redemarrage(mode, ok, erreur=""):
-    """Texte de reponse pour root_redemarrer. Fonction pure."""
+    """Texte de reponse pour root_redemarrer. Fonction pure.
+
+    Un echec ADB ne veut pas dire echec du redemarrage (audit A) :
+    la connexion tombe justement quand le telephone redemarre. On
+    reste honnete : incertain, verifier l'ecran du telephone.
+    """
     if not ok:
-        return f"Redemarrage refuse : {erreur or 'commande refusee'}."
+        return (
+            "Redemarrage incertain : la liaison est tombee "
+            f"({erreur or 'sans detail'}). C'est normal si le telephone "
+            "redemarre : regarde son ecran pour confirmer."
+        )
     if mode == "normal":
         return "Telephone en cours de redemarrage. Attends son retour."
     if mode == "recovery":
-        return "Telephone en cours de redemarrage en mode recovery."
-    return "Telephone en cours de redemarrage en mode bootloader."
+        return (
+            "Telephone en cours de redemarrage en mode recovery. "
+            "Pour revenir : choisis redemarrer avec les boutons du "
+            "telephone (volume pour naviguer, marche pour valider)."
+        )
+    return (
+        "Telephone en cours de redemarrage en mode bootloader. "
+        "Pour revenir : choisis redemarrer avec les boutons du "
+        "telephone (volume pour naviguer, marche pour valider)."
+    )
 
 
 @mcp_diagnostic.tool()
@@ -126,10 +168,22 @@ def root_nettoyer_fichiers_crash() -> str:
         return marquer_non_teste(erreur)
     avant = executer_root(f"du -sh {' '.join(DOSSIERS_CRASH)}", appareil_id)
     tailles = parse_du(avant["sortie"] if avant["ok"] else "")
-    efface = executer_root(
-        " ".join(f"rm -rf {d}/*" for d in DOSSIERS_CRASH), appareil_id
+    # UNE seule commande rm (audit A) : l'ancienne version collait
+    # "rm -rf a/* rm -rf b/* ...", donc les 2e et 3e "rm -rf"
+    # devenaient des noms de fichiers a supprimer dans le dossier
+    # courant. Ici les dossiers sont constants, jamais de parametre.
+    executer_root(
+        "rm -rf " + " ".join(f"{d}/*" for d in DOSSIERS_CRASH)
+        + " 2>/dev/null",
+        appareil_id,
     )
-    return marquer_non_teste(formater_nettoyage(tailles, efface["ok"]))
+    restes = {}
+    for dossier in DOSSIERS_CRASH:
+        releve = executer_root(f"ls -A {dossier} 2>/dev/null", appareil_id)
+        restes[dossier] = (
+            parse_ls_restes(releve["sortie"]) if releve["ok"] else []
+        )
+    return marquer_non_teste(formater_nettoyage(tailles, restes))
 
 
 @mcp_diagnostic.tool()
@@ -145,12 +199,16 @@ def root_vider_cache_dalvik() -> str:
         return marquer_non_teste(erreur)
     avant = executer_root("du -sh /data/dalvik-cache", appareil_id)
     tailles = parse_du(avant["sortie"] if avant["ok"] else "")
-    efface = executer_root(
-        "rm -rf /data/dalvik-cache/*", appareil_id,
+    executer_root(
+        "rm -rf /data/dalvik-cache/* 2>/dev/null", appareil_id,
         delai=DELAI_ADB_LENT_SECONDES,
     )
+    releve = executer_root(
+        "ls -A /data/dalvik-cache 2>/dev/null", appareil_id
+    )
+    restes = parse_ls_restes(releve["sortie"]) if releve["ok"] else []
     return marquer_non_teste(
-        formater_dalvik(tailles.get("/data/dalvik-cache", ""), efface["ok"])
+        formater_dalvik(tailles.get("/data/dalvik-cache", ""), restes)
     )
 
 

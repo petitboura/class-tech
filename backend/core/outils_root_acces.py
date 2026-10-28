@@ -27,19 +27,29 @@ MOTIF_MODULE_NOM = re.compile(r"^name=(.+)$", re.MULTILINE)
 
 
 def deviner_gestionnaire_root(sortie_ls_adb):
-    """Devine Magisk, KernelSU ou autre depuis `ls /data/adb`. Pure."""
-    texte = sortie_ls_adb or ""
-    if "magisk" in texte:
+    """Devine Magisk, KernelSU ou autre depuis `ls /data/adb`. Pure.
+
+    Compare des noms entiers (audit A) : le test "su" en simple
+    sous-chaine repondait present pour presque tout ("super",
+    "result"...), d'ou des faux positifs.
+    """
+    noms = set((sortie_ls_adb or "").lower().split())
+    if any(n == "magisk" or n.startswith("magisk.") for n in noms):
         return "Magisk probable"
-    if "ksu" in texte:
+    if any(n == "ksu" or n.startswith("ksu.") for n in noms):
         return "KernelSU probable"
-    if "su" in texte:
+    if "su" in noms:
         return "binaire su present, gestionnaire inconnu"
     return "gestionnaire inconnu"
 
 
 def parse_modules_magisk(sortie_ls, sortie_props):
-    """Parse modules : (noms_dossiers, {id: nom}). Fonction pure."""
+    """Parse modules : (noms_dossiers, {id: nom}). Fonction pure.
+
+    Chaque name= se rattache au dernier id= vu (audit A) : l'ancien
+    appariement par rang melangeait les noms des qu'un module.prop
+    oubliait son name=.
+    """
     dossiers = []
     if sortie_ls:
         for ligne in sortie_ls.splitlines():
@@ -47,12 +57,20 @@ def parse_modules_magisk(sortie_ls, sortie_props):
             if nom and not nom.startswith("."):
                 dossiers.append(nom)
     modules = {}
+    courant = None
     if sortie_props:
-        ids = MOTIF_MODULE_ID.findall(sortie_props)
-        noms = MOTIF_MODULE_NOM.findall(sortie_props)
-        for rang, identifiant in enumerate(ids):
-            nom = noms[rang].strip() if rang < len(noms) else ""
-            modules[identifiant.strip()] = nom or identifiant.strip()
+        for ligne in sortie_props.splitlines():
+            ligne = ligne.strip()
+            trouve_id = MOTIF_MODULE_ID.match(ligne)
+            if trouve_id:
+                courant = trouve_id.group(1).strip()
+                modules.setdefault(courant, courant)
+                continue
+            trouve_nom = MOTIF_MODULE_NOM.match(ligne)
+            if trouve_nom and courant:
+                nom = trouve_nom.group(1).strip()
+                if nom:
+                    modules[courant] = nom
     return dossiers, modules
 
 

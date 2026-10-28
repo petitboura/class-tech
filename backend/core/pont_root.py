@@ -45,6 +45,25 @@ PREFIXES_LECTURE_ROOT = (
     "/cache",
 )
 
+# Sous-chemins interdits meme sous un prefixe autorise (audit A).
+# Vie privee : donnees des applis (/data/data, /data/user), fichiers
+# perso (/data/media), secrets systeme (/data/misc : cles wifi...),
+# frappes clavier (/dev/input). Pieges : peripheriques blocs
+# (/dev/block : lectures enormes), memoire noyau brute (/proc/kcore,
+# /proc/kallsyms : contourne la protection des adresses), debugfs
+# (/sys/kernel/debug : lectures instables ou bloquantes).
+SOUS_CHEMINS_INTERDITS = (
+    "/data/media",
+    "/data/data",
+    "/data/user",
+    "/data/misc",
+    "/dev/block",
+    "/dev/input",
+    "/proc/kcore",
+    "/proc/kallsyms",
+    "/sys/kernel/debug",
+)
+
 # Sortie de `id` : uid=0(root) gid=0(root) ...
 MOTIF_UID = re.compile(r"uid=(\d+)")
 
@@ -136,7 +155,8 @@ def chemin_lecture_valide(chemin):
     """Vrai si chemin peut etre lu en root. Fonction pure.
 
     Exige un chemin absolu, sans "..", sans caracteres dangereux,
-    sous un des PREFIXES_LECTURE_ROOT.
+    sous un des PREFIXES_LECTURE_ROOT et hors SOUS_CHEMINS_INTERDITS
+    (donnees perso, secrets, pieges de lecture).
     """
     if not chemin or not isinstance(chemin, str):
         return False
@@ -144,6 +164,8 @@ def chemin_lecture_valide(chemin):
     if not chemin.startswith("/"):
         return False
     if not parametre_shell_valide(chemin):
+        return False
+    if chemin_interdit(chemin):
         return False
     return chemin_sous_prefixe(chemin)
 
@@ -158,6 +180,17 @@ def chemin_sous_prefixe(chemin):
     )
 
 
+def chemin_interdit(chemin):
+    """Vrai si chemin touche un sous-chemin interdit. Fonction pure."""
+    if not chemin or not isinstance(chemin, str):
+        return False
+    chemin = chemin.strip()
+    return any(
+        chemin == interdit or chemin.startswith(interdit + "/")
+        for interdit in SOUS_CHEMINS_INTERDITS
+    )
+
+
 def citer_chemin(chemin):
     """Protege un chemin valide pour le shell. Fonction pure."""
     return shlex.quote(chemin.strip())
@@ -166,6 +199,8 @@ def citer_chemin(chemin):
 __all__ = [
     "AVERTISSEMENT_NON_TESTE",
     "PREFIXES_LECTURE_ROOT",
+    "SOUS_CHEMINS_INTERDITS",
+    "chemin_interdit",
     "chemin_lecture_valide",
     "chemin_sous_prefixe",
     "citer_chemin",

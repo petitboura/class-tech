@@ -13,10 +13,15 @@ import re
 from core.outils_diagnostic_commun import mcp_diagnostic
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
 
-# Fichiers lus dans /sys/class/power_supply/battery en un seul appel.
+# Dossiers batterie essayes dans l'ordre (audit A) : certains
+# telephones exposent "bms" au lieu de "battery".
+DOSSIERS_BATTERIE = ("battery", "bms")
+
+# Fichiers lus dans le dossier batterie en un seul appel.
 FICHIERS_BATTERIE = (
     "voltage_now",
     "current_now",
+    "status",
     "temp",
     "capacity",
     "charge_counter",
@@ -27,6 +32,19 @@ FICHIERS_BATTERIE = (
     "technology",
     "present",
 )
+
+# Etats de charge bruts traduits en francais.
+ETATS_CHARGE = {
+    "charging": "en charge",
+    "discharging": "en decharge",
+    "full": "pleine",
+    "not charging": "pas en charge",
+}
+
+# Plage plausible des capteurs thermiques, en degres. Hors de cette
+# plage, la valeur est une erreur du capteur, pas une temperature.
+TEMP_MINI_PLAUSIBLE = -50.0
+TEMP_MAXI_PLAUSIBLE = 150.0
 
 # Ligne `grep -H '' f1 f2` : nom:contenu.
 MOTIF_SYSFS = re.compile(r"^([^:]+):(.*)$")
@@ -60,10 +78,20 @@ def formater_batterie_brute(valeurs):
     tension = _entier(valeurs, "voltage_now")
     if tension is not None:
         morceaux.append(f"tension {tension / 1000000:.2f} V")
+    # Sens du courant (audit A) : le signe seul ment sur certains
+    # modeles (toujours positif, ou inverse). On croise avec status
+    # quand il est lisible, sinon on marque le sens "probable".
+    etat = (valeurs.get("status") or "").strip().lower()
     courant = _entier(valeurs, "current_now")
     if courant is not None:
-        sens = "charge" if courant > 0 else "decharge"
-        morceaux.append(f"courant {abs(courant) // 1000} mA ({sens})")
+        if etat in ("charging", "discharging", "full", "not charging"):
+            sens = ETATS_CHARGE[etat]
+            morceaux.append(f"courant {abs(courant) // 1000} mA ({sens})")
+        else:
+            sens = "charge probable" if courant > 0 else "decharge probable"
+            morceaux.append(f"courant {abs(courant) // 1000} mA ({sens})")
+    elif etat in ETATS_CHARGE:
+        morceaux.append(f"batterie {ETATS_CHARGE[etat]}")
     temp = _entier(valeurs, "temp")
     if temp is not None:
         morceaux.append(f"temperature {temp / 10:.1f} C")
@@ -115,6 +143,8 @@ def parse_thermal(types_texte, temps_texte):
             degres = int(temps[cle_temp]) / 1000
         except (TypeError, ValueError):
             continue
+        if not TEMP_MINI_PLAUSIBLE <= degres <= TEMP_MAXI_PLAUSIBLE:
+            continue
         zones.append((zone.rsplit("/", 1)[-1], nom.strip(), degres))
     zones.sort(key=lambda z: z[2], reverse=True)
     return zones
@@ -140,16 +170,27 @@ def root_lire_batterie_brute() -> str:
     if erreur:
         return marquer_non_teste(erreur)
     fichiers = " ".join(FICHIERS_BATTERIE)
-    resultat = executer_root(
-        "cd /sys/class/power_supply/battery && "
-        f"grep -H '' {fichiers} 2>/dev/null",
-        appareil_id,
-    )
-    if not resultat["ok"]:
-        return marquer_non_teste(f"Batterie brute illisible : {resultat['erreur']}")
-    return marquer_non_teste(
-        formater_batterie_brute(parse_sysfs_dict(resultat["sortie"]))
-    )
+    valeurs = {}
+    derniere_erreur = ""
+    for dossier in DOSSIERS_BATTERIE:
+        resultat = executer_root(
+            f"cd /sys/class/power_supply/{dossier} && "
+            f"grep -H '' {fichiers} 2>/dev/null",
+            appareil_id,
+        )
+        if resultat["ok"]:
+            valeurs = parse_sysfs_dict(resultat["sortie"])
+            if valeurs:
+                break
+        elif resultat["erreur"]:
+            derniere_erreur = resultat["erreur"]
+    if not valeurs:
+        if derniere_erreur:
+            return marquer_non_teste(
+                f"Batterie brute illisible : {derniere_erreur}"
+            )
+        return marquer_non_teste("Batterie brute illisible pour le moment.")
+    return marquer_non_teste(formater_batterie_brute(valeurs))
 
 
 @mcp_diagnostic.tool()
