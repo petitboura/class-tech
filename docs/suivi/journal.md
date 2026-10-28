@@ -45,6 +45,8 @@ en S2).
 | D19 | 07:28 | Site public suivi-live (docs, refresh horaire) | Active, agent lancé | Bourama : que les gens suivent en direct. |
 | D20 | 07:30 | Specs page : thème Classinus, heures repliées + tri, notes Bourama | Active | Dictées Bourama, transmises à l'agent. |
 | D21 | 07:38 | Placement final A : class-tech Pages + lien Classinus + og: | Active | Route intégrée écartée ; aperçu partage exigé (balises og:). |
+| D22 | 07:58 | Page : contexte hackathon Meta Global 2026 + double vue Normal/Technique | Active | Contexte public ; 2 niveaux de lecture. |
+| D23 | 07:59 | Heures vides affichées avec 'Rien pour l'instant' | Active | Jamais de trou dans la frise horaire. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -62,8 +64,8 @@ en S2).
 | A10 | file 05:42, run 06:22–06:51 | builder-root/9 | 19 outils désactivés (D11) | FINI (rapport) : 19 outils, branche `ee71d60`, `disponible=false`. |
 | A11 | ~06:52–07:11 | fusion/11 | Fusionner etc. (D11) | FINI (rapport) : merges `2ddb772`+`1bd634f`, branches supprimées, 50 outils live, 97 tests. |
 | A12 | 07:14–07:52 | audit-a/12 | Diagnostiquer+corriger (D15) | FINI : 24 outils audités+corrigés, branche `audit-risques-a` (`c729c36`), non mergée. |
-| A13 | dès 07:14 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
-| A14 | — | audit-final | Trancher + corriger (D15) | À LANCER après A12+A13. |
+| A13 | 07:14–07:59 | audit-b/13 | Idem, indépendant (D15) | FINI : 24 outils audités+corrigés, branche `audit-risques-b` (`cd03da6`), 153 tests, non mergée. |
+| A14 | dès ~07:59 | audit-final | Trancher + corriger (D15) | EN COURS. |
 | A15 | dès 07:28 | site-suivi-live/14 | Page publique (D19→D21) : class-tech Pages + lien Classinus, og:, notes | EN COURS. Redirigé 2 fois (route app puis retour plan A). |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
