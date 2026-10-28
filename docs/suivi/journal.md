@@ -61,6 +61,7 @@ en S2).
 | D30 | 19:29 | Rester sur relais intégré à Classinus PC, câble d'abord | Active | Sans-fil enlève le câble, pas le programme ; appli téléphone seule reste écartée ; wifi en option plus tard. |
 | D31 | 19:49 | Relais embarqué dans l'appli Classinus PC (proposition A) | Active | Option recommandée de l'enquête : 1 seul téléchargement, relais dedans, MAJ avec l'appli ; 2e bouton écarté. |
 | D32 | 20:13 | Publier une version PC prête, installée et testée par Bourama | Active | Ordre explicite ; agent publieur lancé (A22), sans le relais (D31 viendra après). |
+| D33 | 20:49 | Laisser le root de côté (ni test, ni rootage) | Active | Téléphone non rooté, rootage trop risqué (efface tout, casse Knox) ; les 19 outils restent cachés. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -193,6 +194,8 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   le frontend dedans) ; vérifiée par moi 20:29. Bourama installe
   et teste ; sensibles en arrière-plan (bip non entendu : pas de
   lecteur par défaut, cause trouvée ; appli photo rouverte).
+- 20:49 : D33 root laissé de côté (ni test des 19, ni rootage :
+  téléphone non rooté, risques expliqués et refusés).
 
 ## 5. Règles de tenue de ce journal
 
