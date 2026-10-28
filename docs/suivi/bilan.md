@@ -29,7 +29,7 @@ jour.
   mergés et déployés (protégés par flags + hors catégorie). Risque
   couvert par l'audit en 3 agents exigé par Bourama lui-même.
 
-### Côté Muse, l'IA (10, toutes corrigées)
+### Côté Muse, l'IA (11, toutes corrigées)
 
 - **M1 — Flux routeur présenté comme la prod (04:41).** En réalité
   routeur mort, demander/garder réels. Trouvé par Bourama,
@@ -53,8 +53,11 @@ jour.
   (test), corrigé.
 - **M10 — Edit suivi devancé par commit (06:12).** Trouvé par moi
   (git status), corrigé (recommit).
+- **M11 — Téléphone affirmé non rooté sans preuve (~10:20).**
+  Trouvé par Bourama, corrigé par vérification outil sur son
+  ordre (10:30) : non rooté confirmé.
 
-Total : 4 détectées par Bourama, 6 par moi, le système ou le runtime.
+Total : 5 détectées par Bourama, 6 par moi, le système ou le runtime.
 Détail bugs techniques dans `journal.md` §6.
 
 ## 3. Ce qu'il a décidé
@@ -64,7 +67,8 @@ Tout ce qui compte (détail daté dans `journal.md` §2) : périmètre
 dernier), architecture serveur d'outils seule — sa meilleure
 simplification —, branchement officiel, 6 agents + push autorisé,
 activation par l'agent principal, interdiction des tests root, local
-avant relais, Render en web service manuel.
+avant relais, Render en web service manuel, site suivi public +
+commentaires sans login.
 
 ## 4. Ce qu'il a délégué
 
@@ -72,7 +76,7 @@ Tout le code (readiness, 3 builders, fusion, audits), l'activation
 technique, les vérifications, la documentation. Gardé pour lui : les
 décisions go/no-go, le dashboard Render, le téléphone de test, les
 tests via le chat. Voir `journal.md` §3 pour l'inventaire exact des
-14 agents et leur résultat.
+16 agents et leur résultat.
 
 ## 5. Son rôle
 

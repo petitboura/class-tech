@@ -16,6 +16,12 @@
    Validation locale 80 OK sur vrai téléphone (Samsung SM-A055F,
    Android 13 : détection + batterie réelles). Reste : valider le
    palier 100 après fusion, relais PC à designer ensuite.
+   Site suivi-live public + commentaires (nom optionnel, sans login)
+   live et vérifiés 08:36 ; 3 lignes test à effacer au dashboard
+   Supabase (table suivi_commentaires).
+   Relais PC fini et vérifié 10:55 (branche relais-pc, main
+   intacte) : santé + batterie réelle via relais ; pas de tunnel
+   cloud ; merge dans main après audit final.
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)
