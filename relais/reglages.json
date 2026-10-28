@@ -1,0 +1,6 @@
+{
+  "hote": "127.0.0.1",
+  "port": 8765,
+  "delai_lancement_s": 120,
+  "chemin_adb": ""
+}
