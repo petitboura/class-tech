@@ -83,3 +83,26 @@ jamais livrés (repris en A2/A3).
 - Tout agent lancé y entre avec son pourquoi et son résultat.
 - Faits vérifiés distingués des rapports d'agents.
 - Mis à jour dans le même geste que l'événement, jamais après coup.
+- Horodatage : passé = date 28/10/2026 + n° d'ordre (heures exactes
+  dans les logs de session) ; toute nouvelle entrée = date + heure
+  relevées au shell au moment de l'écrire.
+
+## 6. Bugs et incidents (qui a trouvé, comment)
+
+| # | Quoi | Trouvé par | Comment | Corrigé par | Statut |
+|---|------|------------|---------|-------------|--------|
+| B1 | Montage HTTP MCP cassé (api/main.py) | Builder 80 | Déploiement Render : rien ne répondait | Builder 80 (duree_vie + hôtes autorisés) | Corrigé, gardé par fusionneur |
+| B2 | Gestionnaire sessions MCP non démarré | Builder 80 | Idem | Builder 80 | Corrigé |
+| B3 | Anti-rebond DNS bloque l'hôte Render | Builder 80 | Idem | Builder 80 (via env, pas en dur) | Corrigé |
+| B4 | pont_adb.py dupliqué, API divergentes 80 vs 100 | Builder 100 | Lecture des deux branches | Fusionneur (pont unique, 28 appels adaptés) | Corrigé |
+| B5 | Shell sandbox principal en panne (deny_read_acl_state) | Moi | Échecs répétés | Contourné : shell escaladé + shells agents | Ouvert (système) |
+| B6 | Prompts d'approbation désactivés un temps | Moi | Appel refusé | Cause inconnue, refonctionne depuis | Clos |
+| B7 | Token Supabase mal décodé (UTF-16 vs UTF-8) | Moi | API : JWT could not be decoded | Moi (décodage UTF-8) | Corrigé |
+| B8 | Branche locale master + dépôt GitHub vide | Readiness | Inspection git | Readiness (renommée main + push) | Corrigé |
+| B9 | Tests registre en égalité exacte après union | Fusionneur | pytest | Fusionneur (sous-ensemble) | Corrigé |
+| B10 | 3 textes approximatifs (__init__, docstring) | Réduction | Relecture | Personne | Ouvert mineur |
+| B11 | Pas d'endpoint /health (render.yaml) | Readiness | Lecture render.yaml | Personne (optionnel) | Ouvert mineur |
+| B12 | Installateurs CLI bloqués EPERM npm (S1, rapports) | Installateurs S1 | Sorties shell | Non (contourné) | Clos S1 |
+| B13 | Conflit rebase registre (staging parallèle) | Moi | Push avec sync | Moi (union, rien jeté) | Corrigé |
+| B14 | Outils root joignables malgré disponible=false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
+| B15 | Montage cassé resté dans branches 100/root | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
