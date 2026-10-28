@@ -22,6 +22,9 @@
    Relais PC fini et vérifié 10:55 (branche relais-pc, main
    intacte) : santé + batterie réelle via relais ; pas de tunnel
    cloud ; merge dans main après audit final.
+   B16 corrigé 11:12 et vérifié sur téléphone 11:23 (8 cœurs
+   MT6768, test ciblé + 202 verts), poussé. Relais-install nettoyé
+   11:18 ; relance agent installateur après le push B16.
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)

@@ -1,7 +1,8 @@
 # Journal strict (28/10/2026, heures locales du PC, ordre chronologique)
 
 Heures relevées dans les logs de session et git. S1 : 01:23–03:15.
-S2 : 04:09–en cours. Les faits marqués "(rapport)" viennent des
+S2 : 04:09–11:01. S3 : dès 11:04. Les faits marqués "(rapport)"
+viennent des
 rapports d'agents ; tout le reste est vérifié (disque, git, base,
 HTTP). `~` = minute approximative (déduite, pas relevée).
 
@@ -11,8 +12,12 @@ HTTP). `~` = minute approximative (déduite, pas relevée).
   avant la fin) : cadrage produit, 3 niveaux, paliers 80/root, plan
   V1 (12-15 / 25-35 / 45-60 outils), connecteurs, 3 phases, chantiers
   A (fini), B et C (lancés, jamais livrés).
-- S2 `01a1807a-5ac7-7080-b92e-e5bddc594b09` (dès 04:09) : reprise, B/C
-  relancés et livrés, décision serveur d'outils, réduction, phase 2.
+- S2 `01a1807a-5ac7-7080-b92e-e5bddc594b09` (04:09–11:01,
+  interrompue par relance --yolo) : reprise, B/C relancés et livrés,
+  décision serveur d'outils, réduction, phase 2.
+- S3 `01a181f8-556b-74a0-a305-bfcc4ee471b0` (dès 11:04) : reprise
+  --yolo (note REPRISE-YOLO.md), suivi repoussé, vérif Render,
+  correctif B16, nettoyage relais-install.
 
 ## 2. Décisions
 
@@ -125,6 +130,21 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   tout automatique.
 - 11:01 : D28 relance --yolo : A14 + A18 interrompus (travail
   poussé sauf), note reprise écrite (build-tmp/REPRISE-YOLO.md).
+- 11:04–11:07 : reprise S3 : distant vérifié `d2852fe`, suivi
+  remis en ligne et poussé (`faf66fd`).
+- ~11:11 : Render vérifié : 31 outils listés, 0 root (sonde
+  adaptée au client MCP actuel, lecture seule).
+- 11:12–11:13 : B16 corrigé (import renommé
+  analyser_cpu_systeme), test ciblé (TypeError avant, vert
+  après), suite 202 verts, aucun autre outil avec le même défaut
+  (balayage du code). Test réel + envoi en attente : téléphone
+  absent.
+- 11:18 : relais-install supprimé (vérifié : rien poussé) ;
+  téléphone toujours absent (adb vide, USB inconnu en erreur) :
+  relance agent installateur en attente.
+- 11:23 : B16 vérifié sur vrai téléphone (serveur local, 31
+  outils) : analyser_cpu répond vraies données (8 cœurs MT6768).
+  Correctif + test + suivi poussés.
 
 ## 5. Règles de tenue de ce journal
 
@@ -154,4 +174,4 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 | B13 | 06:11 | Conflit rebase registre | Moi | Push avec sync | Moi (union, rien jeté) | Corrigé |
 | B14 | 07:11 | Root joignables malgré false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
 | B15 | ~06:30 | Montage cassé resté en branches | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
-| B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi après audit final | Ouvert |
+| B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi (11:12, import renommé) | Corrigé et vérifié sur téléphone 11:23 (8 cœurs MT6768) |
