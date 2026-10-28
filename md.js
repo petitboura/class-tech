@@ -10,8 +10,12 @@
 
   var JOKER = "##SUIVICODE##";
 
+  /* Tout texte affiché passe par ici : le tiret long (interdit dans
+     les textes visibles) est adouci en tiret demi-cadratin, déjà
+     employé dans les docs. Les documents sources ne sont pas touchés. */
   function echapper(texte) {
     return texte
+      .replace(/—/g, "–")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
