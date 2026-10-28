@@ -26,6 +26,7 @@ window.SUIVI_CONFIG = {
     { id: "accueil", titre: "Accueil", fichiers: ["docs/suivi/etat.md"], hackathon: true },
     { id: "journal", titre: "Journal", fichiers: ["docs/suivi/journal.md"], progression: true },
     { id: "notes", titre: "Notes de Bourama", fichiers: ["docs/suivi/notes-bourama.md"], optionnel: true },
+    { id: "commentaires", titre: "Commentaires", type: "commentaires" },
     { id: "bilan", titre: "Bilan", fichiers: ["docs/suivi/bilan.md"] },
     { id: "decisions", titre: "Décisions", fichiers: ["docs/suivi/decisions.md"] },
     {
@@ -61,6 +62,7 @@ window.SUIVI_CONFIG = {
         "docs/briefs-images.md",
         "docs/suivi/README.md"
       ]
-    }
+    },
+    { id: "commentaires", titre: "Commentaires", type: "commentaires" }
   ]
 };

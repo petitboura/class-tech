@@ -20,14 +20,15 @@ même fond, deux niveaux de lecture.
 Normal : Accueil (état + contexte hackathon), Journal
 (progression regroupée par heure, repliée, tri récent ou ancien,
 plus le journal complet), Notes de Bourama (état vide tant que
-Bourama ne dicte rien), Bilan, Décisions, Étapes et documents,
+Bourama ne dicte rien), Commentaires (avis des visiteurs, sans
+compte, avec réponses), Bilan, Décisions, Étapes et documents,
 Contexte.
 
 Technique : Accueil, Commits (derniers commits sur main, en
 direct), Outils (registre en direct : total, par palier, avec
 mention quand une confirmation est exigée), Tests (totaux cités
 dans le journal + fichiers de test sur main), Architecture,
-Journal, Étapes et documents.
+Journal, Étapes et documents, Commentaires.
 
 Le regroupement par heure affiche toutes les tranches, même
 vides (« Rien pour l'instant »), sans jamais sauter une heure.
@@ -44,9 +45,20 @@ vides (« Rien pour l'instant »), sans jamais sauter une heure.
 - `progression.js` : regroupement du journal par heure.
 - `technique.js` : lecture du registre d'outils et des totaux de
   tests cités dans le journal.
+- `commentaires-config.js` : adresse Supabase, clé publique et nom
+  de table pour les commentaires. Seul fichier à remplir.
+- `commentaires.js` : liste, réponses indentées, formulaires
+  d'envoi, états de chargement et d'erreur.
 - `styles.css` : thème repris de Classinus (tons dorés, clair et
   sombre suivis du téléphone).
 - `favicon.svg`, `apercu.jpg` : icône et image d'aperçu de partage.
+
+## Commentaires
+
+Section Commentaires dans les deux faces, sans compte (nom
+optionnel, vide = Anonyme). Modération par suppression dans le
+tableau de bord Supabase (table `suivi_commentaires`), rien à
+coder côté page.
 
 ## Vérifications avant de toucher
 

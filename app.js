@@ -8,6 +8,7 @@
   var md = window.SuiviMd;
   var outilProgression = window.SuiviProgression;
   var outilTechnique = window.SuiviTechnique;
+  var outilCommentaires = window.SuiviCommentaires;
 
   var faces = document.getElementById("faces");
   var nav = document.getElementById("nav");
@@ -335,6 +336,10 @@
         return htmlTests(totaux, fichiers);
       });
     }
+    if (section.type === "commentaires") {
+      if (!outilCommentaires) return Promise.reject(new Error("commentaires indisponibles"));
+      return Promise.resolve(outilCommentaires.htmlBase());
+    }
     return chargerDocuments(section).then(function (docs) {
       return { html: htmlDocs(section, docs), docs: docs };
     });
@@ -381,6 +386,7 @@
       if (face + sectionParId(idDepuisHash()).id !== marque) return;
       if (typeof rendu === "string") {
         contenu.innerHTML = rendu;
+        if (section.type === "commentaires" && outilCommentaires) outilCommentaires.afficher(contenu);
       } else {
         contenu.innerHTML = rendu.html;
         if (section.progression) brancherTri(rendu.docs);
@@ -401,7 +407,8 @@
     chargerSection(section, cles.length > 0 ? cles : null).then(function (rendu) {
       if (face + sectionParId(idDepuisHash()).id !== marque) return;
       if (typeof rendu === "string") {
-        contenu.innerHTML = rendu;
+        if (section.type === "commentaires" && outilCommentaires) outilCommentaires.rafraichirSilencieux(contenu);
+        else contenu.innerHTML = rendu;
       } else if (section.progression && rendu.docs.length > 0 && !rendu.docs[0].absent) {
         var zone = document.getElementById("groupes");
         if (zone) zone.innerHTML = htmlGroupes(rendu.docs[0].texte, sensTri, cles.length > 0 ? cles : null);

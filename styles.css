@@ -396,6 +396,159 @@ a:hover { color: var(--dj-accent-2); }
 .vide p { color: var(--dj-texte-muet); }
 .vide p:first-child { color: var(--dj-texte); }
 
+/* Commentaires */
+.commentaires-intro { color: var(--dj-texte-muet); }
+
+.commentaires-note {
+  background: var(--dj-succes-conteneur);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  animation: fondu 0.22s ease both;
+}
+
+.commentaire {
+  border-top: 1px solid var(--dj-bordure);
+  padding: 0.7rem 0;
+  animation: fondu 0.22s ease both;
+}
+
+.commentaire-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+  align-items: baseline;
+  margin: 0;
+}
+
+.commentaire-nom { font-weight: 600; }
+
+.commentaire-date {
+  font-size: 0.82rem;
+  color: var(--dj-texte-muet);
+}
+
+.commentaire-texte {
+  margin: 0.35rem 0 0.2rem;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.bouton-repondre {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  color: var(--dj-accent-1-texte);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bouton-repondre:hover { text-decoration: underline; }
+
+.reponses {
+  margin: 0.2rem 0 0 0.6rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid var(--dj-bordure);
+}
+
+.form-commentaire {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--dj-bordure);
+  padding-top: 0.6rem;
+}
+
+.form-commentaire h3 { font-size: 1.02rem; }
+
+.form-commentaire label {
+  display: block;
+  margin: 0.7rem 0 0.2rem;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.form-commentaire input[type="text"],
+.form-commentaire textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--dj-texte);
+  background: var(--dj-fond);
+  border: 1px solid var(--dj-bordure);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+}
+
+.form-commentaire input:focus,
+.form-commentaire textarea:focus {
+  outline: 2px solid var(--dj-accent-1);
+  outline-offset: 1px;
+  border-color: var(--dj-accent-1);
+}
+
+.form-commentaire textarea {
+  resize: vertical;
+  min-height: 5.5rem;
+}
+
+.compteur {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--dj-texte-muet);
+  text-align: right;
+}
+
+.form-erreur {
+  color: var(--dj-erreur);
+  font-size: 0.92rem;
+  animation: fondu 0.22s ease both;
+}
+
+.form-ligne-boutons {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.bouton {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.3rem;
+  background: var(--dj-accent-1);
+  color: #1a0f06;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.bouton:disabled { opacity: 0.55; cursor: wait; }
+
+.bouton-secondaire {
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--dj-bordure);
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  background: none;
+  color: var(--dj-texte);
+}
+
+.form-reponse {
+  border: 1px solid var(--dj-bordure);
+  border-radius: 8px;
+  padding: 0 0.9rem 0.9rem;
+  margin-top: 0.6rem;
+  animation: fondu 0.22s ease both;
+}
+
+@media (max-width: 30rem) {
+  .reponses { margin-left: 0.3rem; padding-left: 0.6rem; }
+}
+
 /* Pied */
 .pied {
   padding-top: 1.2rem;
