@@ -96,7 +96,8 @@ en S2).
 | A24 | 21:36–~21:55 | profonds/24 | Relance A23 à l'identique | ÉCHEC réseau en fin de travail : 4 fichiers écrits non committés (2 nouveaux, 2 modifiés), récupérés par moi, finis en direct. |
 | A25 | ~21:45–~21:55 | ios-pont/25 | Pont iOS + faisabilité 31 (D35) | ÉCHEC réseau (clone frais créé, contenu à vérifier), à relancer quand le réseau agents revient. |
 | A26 | ~23:20 | merge-profonds/26 | Fusionner profonds dans main | ÉCHEC réseau au démarrage, rien produit ; fusion faite par moi en direct (propre, 213 verts, poussée). |
-| A27 | dès 23:52 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | EN COURS : clone frais, Electron + plugin + carte, tag pc-v1.0.5, release. |
+| A27 | 23:52–00:44 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | FINI partiel (rapport, vérifié) : code + merge main (04316a0) + tag pc-v1.0.5 OK, release BLOQUÉE (secret CLASS_TECH_LECTURE manquant, à créer par Bourama puis relancer le run). |
+| A28 | dès 00:43 | ios-pont/28 | Relance A25 (D35) | EN COURS : réutilise le clone, pont iOS + faisabilité 31, push branche seule. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -218,6 +219,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   (9 données réelles, trafic indisponible sur ce Samsung) ;
   2 correctifs (procstats TOTAL, lshal 200) ; branche poussée,
   fusion à ordonner.
+- 00:43–00:44 : relais embarqué : code + fusion + tag OK (A27),
+  release 1.0.5 BLOQUÉE (secret GitHub manquant, marche donnée
+  à Bourama) ; agent iOS relancé (A28).
 - 23:27 : fusion profonds ordonnée puis faite en direct (A26
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
