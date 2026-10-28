@@ -10,7 +10,9 @@ Lancement local (depuis le dossier backend/) :
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
 from fastapi import FastAPI
 
@@ -19,9 +21,62 @@ from core.serveur_mcp_diagnostic import mcp_diagnostic
 
 logging.basicConfig(level=logging.INFO)
 
+
+def _hote_de_valeur(valeur):
+    """Nom d'hote tire d'une URL ou d'un nom brut. Fonction pure."""
+    valeur = (valeur or "").strip()
+    if not valeur:
+        return ""
+    if "://" not in valeur:
+        valeur = "https://" + valeur
+    return urlparse(valeur).hostname or ""
+
+
+def hotes_publics_autorises():
+    """Hotes publics acceptes par la protection anti-rebond DNS.
+
+    Lus dans l'environnement, jamais en dur : RENDER_EXTERNAL_URL est
+    fourni par Render (adresse https du service), MCP_HOTE_PUBLIC permet
+    de forcer une autre adresse. Vide en local, ou les hotes locaux
+    suffisent.
+    """
+    hotes = []
+    for variable in ("MCP_HOTE_PUBLIC", "RENDER_EXTERNAL_URL"):
+        hote = _hote_de_valeur(os.environ.get(variable, ""))
+        if hote and hote not in hotes:
+            hotes.append(hote)
+    return hotes
+
+
+def _construire_app_mcp():
+    """Sous-application MCP avec hotes autorises dynamiques."""
+    from mcp.server.transport_security import TransportSecuritySettings
+
+    hotes = [
+        "127.0.0.1", "localhost", "[::1]",
+        "127.0.0.1:*", "localhost:*", "[::1]:*",
+    ]
+    origines = [
+        "http://127.0.0.1:*", "http://localhost:*", "http://[::1]:*",
+    ]
+    for hote in hotes_publics_autorises():
+        hotes.extend([hote, hote + ":*"])
+        origines.append("https://" + hote)
+    securite = TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=hotes,
+        allowed_origins=origines,
+    )
+    return mcp_diagnostic.streamable_http_app(
+        stateless_http=True,
+        streamable_http_path="/",
+        transport_security=securite,
+    )
+
+
 # Sous-application MCP, construite une seule fois (elle porte les routes
 # ET le cycle de vie du gestionnaire de sessions).
-app_mcp = mcp_diagnostic.streamable_http_app(stateless_http=True, streamable_http_path="/")
+app_mcp = _construire_app_mcp()
 
 
 @asynccontextmanager

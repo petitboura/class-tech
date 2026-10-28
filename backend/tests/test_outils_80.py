@@ -75,6 +75,7 @@ from core.outils_telephone_systeme import (  # noqa: E402
     lire_version_systeme,
     parse_logcat_erreurs,
 )
+from api.main import _hote_de_valeur, hotes_publics_autorises  # noqa: E402
 from core.pont_adb import resumer_liaison  # noqa: E402
 from core.registre_outils import (  # noqa: E402
     CATEGORIES_OUTILS,
@@ -420,6 +421,29 @@ def test_registre_palier_80_complet():
     assert OUTILS_SENSIBLES == {"vider_cache_applis"}
 
 
+def test_hotes_publics_autorises():
+    assert _hote_de_valeur("") == ""
+    assert _hote_de_valeur("https://class-tech-outils.onrender.com") == "class-tech-outils.onrender.com"
+    assert _hote_de_valeur("class-tech-outils.onrender.com") == "class-tech-outils.onrender.com"
+    ancien_render = os.environ.get("RENDER_EXTERNAL_URL")
+    ancien_mcp = os.environ.get("MCP_HOTE_PUBLIC")
+    try:
+        os.environ.pop("RENDER_EXTERNAL_URL", None)
+        os.environ.pop("MCP_HOTE_PUBLIC", None)
+        assert hotes_publics_autorises() == []
+        os.environ["RENDER_EXTERNAL_URL"] = "https://class-tech-outils.onrender.com"
+        assert hotes_publics_autorises() == ["class-tech-outils.onrender.com"]
+    finally:
+        if ancien_render is None:
+            os.environ.pop("RENDER_EXTERNAL_URL", None)
+        else:
+            os.environ["RENDER_EXTERNAL_URL"] = ancien_render
+        if ancien_mcp is None:
+            os.environ.pop("MCP_HOTE_PUBLIC", None)
+        else:
+            os.environ["MCP_HOTE_PUBLIC"] = ancien_mcp
+
+
 def test_outils_80_enregistres_sur_le_serveur():
     outils = asyncio.run(mcp_diagnostic.list_tools())
     noms = {o.name for o in outils}
@@ -445,6 +469,7 @@ if __name__ == "__main__":
     test_aucun_tiret_double_dans_les_textes()
     test_validation_parametres_sans_telephone()
     test_appels_sans_telephone_renvoient_un_message()
+    test_hotes_publics_autorises()
     test_registre_palier_80_complet()
     test_outils_80_enregistres_sur_le_serveur()
     print("OK : 14 outils du palier 80.")
