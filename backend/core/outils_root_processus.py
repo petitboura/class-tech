@@ -10,6 +10,7 @@ Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 import re
 
 from core.outils_diagnostic_commun import mcp_diagnostic
+from core.pont_adb import erreur_courte
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
 
 # Ligne `top -n 1` (toybox) : PID PR CPU% S #THR VSS RSS PCY UID Name.
@@ -44,14 +45,27 @@ def parse_top(texte):
     return processus
 
 
-def formater_processus(processus, limite):
-    """Texte de reponse pour root_lister_processus. Fonction pure."""
+def formater_processus(processus, limite, sortie_brute=""):
+    """Texte de reponse pour root_lister_processus. Fonction pure.
+
+    sortie_brute distingue une reponse vide (top sans effet) d'un
+    format inattendu, non reconnu sur ce modele (audits A et B) :
+    on le dit au lieu d'un vague "illisible".
+    """
     if not processus:
+        if sortie_brute and sortie_brute.strip():
+            return (
+                "Format de top inattendu, non reconnu sur ce "
+                "modele, processus illisibles."
+            )
         return "Processus illisibles pour le moment."
     details = ", ".join(
         f"{nom} ({cpu:.0f} % CPU)" for _p, cpu, _r, _u, nom in processus[:limite]
     )
-    return f"Processus gourmands : {details}."
+    texte = f"Processus gourmands : {details}."
+    if len(processus) > limite:
+        texte += f" ({limite} premiers sur {len(processus)}.)"
+    return texte
 
 
 def parse_wakelocks(texte):
@@ -80,11 +94,12 @@ def formater_wakelocks(annonce, noms, limite=10):
     """Texte de reponse pour root_lire_wakelocks. Fonction pure."""
     if annonce == 0 and not noms:
         return "Aucun verrou de reveil actif, le telephone dort bien."
+    total = annonce or len(noms)
     details = ", ".join(noms[:limite]) if noms else "noms illisibles"
-    return (
-        f"{annonce or len(noms)} verrou(s) de reveil actif(s) : "
-        f"{details}."
-    )
+    texte = f"{total} verrou(s) de reveil actif(s) : {details}."
+    if noms and len(noms) > limite:
+        texte += f" ({limite} premiers affiches.)"
+    return texte
 
 
 @mcp_diagnostic.tool()
@@ -110,9 +125,13 @@ def root_lister_processus(limite: int = 10) -> str:
         return marquer_non_teste(erreur)
     resultat = executer_root("top -n 1", appareil_id)
     if not resultat["ok"]:
-        return marquer_non_teste(f"Processus illisibles : {resultat['erreur']}")
+        return marquer_non_teste(
+            f"Processus illisibles : {erreur_courte(resultat['erreur'])}"
+        )
     return marquer_non_teste(
-        formater_processus(parse_top(resultat["sortie"]), limite)
+        formater_processus(
+            parse_top(resultat["sortie"]), limite, resultat["sortie"]
+        )
     )
 
 
@@ -138,6 +157,8 @@ def root_lire_wakelocks(limite: int = 10) -> str:
         return marquer_non_teste(erreur)
     resultat = executer_root("dumpsys power", appareil_id)
     if not resultat["ok"]:
-        return marquer_non_teste(f"Verrous illisibles : {resultat['erreur']}")
+        return marquer_non_teste(
+            f"Verrous illisibles : {erreur_courte(resultat['erreur'])}"
+        )
     annonce, noms = parse_wakelocks(resultat["sortie"])
     return marquer_non_teste(formater_wakelocks(annonce, noms, limite))

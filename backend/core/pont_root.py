@@ -12,12 +12,14 @@ Marquage : chaque outil root ajoute AVERTISSEMENT_NON_TESTE a sa
 reponse (aucun appareil roote disponible pour tester ici).
 """
 
+import os
 import re
 import shlex
 
 from core.pont_adb import (
     DELAI_ADB_LENT_SECONDES,
     DELAI_ADB_SECONDES,
+    erreur_courte,
     executer_shell,
     parametre_shell_valide,
     preparer_appel,
@@ -45,8 +47,48 @@ PREFIXES_LECTURE_ROOT = (
     "/cache",
 )
 
+# Sous-chemins interdits meme sous un prefixe autorise (audit A).
+# Vie privee : donnees des applis (/data/data, /data/user), fichiers
+# perso (/data/media), secrets systeme (/data/misc : cles wifi...),
+# frappes clavier (/dev/input). Pieges : peripheriques blocs
+# (/dev/block : lectures enormes), memoire noyau brute (/proc/kcore,
+# /proc/kallsyms : contourne la protection des adresses), debugfs
+# (/sys/kernel/debug : lectures instables ou bloquantes).
+SOUS_CHEMINS_INTERDITS = (
+    "/data/media",
+    "/data/data",
+    "/data/user",
+    "/data/misc",
+    "/dev/block",
+    "/dev/input",
+    "/proc/kcore",
+    "/proc/kallsyms",
+    "/sys/kernel/debug",
+)
+
 # Sortie de `id` : uid=0(root) gid=0(root) ...
 MOTIF_UID = re.compile(r"uid=(\d+)")
+
+
+# Interrupteur des outils root (audit risques, 28/10/2026). Les
+# outils root ne sont exposes par le serveur ET n'acceptent de
+# tourner que si CLASSTECH_OUTILS_ROOT vaut "1". Eteint par defaut :
+# tant que Bourama n'a pas donne l'ordre, Classinus ne peut ni les
+# proposer (absents de list_tools) ni les executer (refus ici).
+VARIABLE_OUTILS_ROOT = "CLASSTECH_OUTILS_ROOT"
+
+
+def outils_root_actifs():
+    """Vrai si les outils root sont autorises sur ce serveur."""
+    return os.environ.get(VARIABLE_OUTILS_ROOT) == "1"
+
+
+def message_root_desactive():
+    """Message standard quand les outils root sont eteints. Fonction pure."""
+    return (
+        "Outils root desactives sur ce serveur. Le diagnostic root "
+        "n'est pas encore ouvert."
+    )
 
 
 def commande_root(commande_interne):
@@ -105,7 +147,7 @@ def message_root_absent(detail=""):
         "super-utilisateur validee sur l'ecran du telephone."
     )
     if detail:
-        court = detail if len(detail) <= 200 else detail[:200] + "..."
+        court = erreur_courte(detail)
         texte += f" Detail : {court}"
     return texte
 
@@ -113,9 +155,13 @@ def message_root_absent(detail=""):
 def preparer_root():
     """Porte d'entree standard de chaque outil root.
 
+    Refuse d'abord si les outils root sont eteints (voir
+    outils_root_actifs), sans toucher a ADB.
     Renvoie (id_appareil, None) si ADB, telephone et root sont prets,
     sinon (None, message en francais).
     """
+    if not outils_root_actifs():
+        return None, message_root_desactive()
     appareil_id, erreur = preparer_appel()
     if erreur:
         return None, erreur
@@ -136,7 +182,8 @@ def chemin_lecture_valide(chemin):
     """Vrai si chemin peut etre lu en root. Fonction pure.
 
     Exige un chemin absolu, sans "..", sans caracteres dangereux,
-    sous un des PREFIXES_LECTURE_ROOT.
+    sous un des PREFIXES_LECTURE_ROOT et hors SOUS_CHEMINS_INTERDITS
+    (donnees perso, secrets, pieges de lecture).
     """
     if not chemin or not isinstance(chemin, str):
         return False
@@ -144,6 +191,8 @@ def chemin_lecture_valide(chemin):
     if not chemin.startswith("/"):
         return False
     if not parametre_shell_valide(chemin):
+        return False
+    if chemin_interdit(chemin):
         return False
     return chemin_sous_prefixe(chemin)
 
@@ -158,6 +207,17 @@ def chemin_sous_prefixe(chemin):
     )
 
 
+def chemin_interdit(chemin):
+    """Vrai si chemin touche un sous-chemin interdit. Fonction pure."""
+    if not chemin or not isinstance(chemin, str):
+        return False
+    chemin = chemin.strip()
+    return any(
+        chemin == interdit or chemin.startswith(interdit + "/")
+        for interdit in SOUS_CHEMINS_INTERDITS
+    )
+
+
 def citer_chemin(chemin):
     """Protege un chemin valide pour le shell. Fonction pure."""
     return shlex.quote(chemin.strip())
@@ -166,6 +226,8 @@ def citer_chemin(chemin):
 __all__ = [
     "AVERTISSEMENT_NON_TESTE",
     "PREFIXES_LECTURE_ROOT",
+    "SOUS_CHEMINS_INTERDITS",
+    "chemin_interdit",
     "chemin_lecture_valide",
     "chemin_sous_prefixe",
     "citer_chemin",
@@ -173,7 +235,10 @@ __all__ = [
     "executer_root",
     "marquer_non_teste",
     "message_root_absent",
+    "message_root_desactive",
+    "outils_root_actifs",
     "parse_uid_root",
     "preparer_root",
     "verifier_root",
+    "VARIABLE_OUTILS_ROOT",
 ]

@@ -41,13 +41,19 @@ import core.outils_telephone_systeme  # noqa: F401
 import core.outils_materiel_100  # noqa: F401
 import core.outils_performance_100  # noqa: F401
 import core.outils_securite_100  # noqa: F401
-import core.outils_root_acces  # noqa: F401
-import core.outils_root_batterie  # noqa: F401
-import core.outils_root_corrections  # noqa: F401
-import core.outils_root_firmware  # noqa: F401
-import core.outils_root_partitions  # noqa: F401
-import core.outils_root_processus  # noqa: F401
-import core.outils_root_systeme  # noqa: F401
+from core.pont_root import outils_root_actifs
+
+# Palier root : expose seulement si CLASSTECH_OUTILS_ROOT vaut "1"
+# (voir pont_root). Eteint par defaut : Classinus ne peut ni
+# proposer ni executer des outils que le serveur ne liste pas.
+if outils_root_actifs():
+    import core.outils_root_acces  # noqa: F401
+    import core.outils_root_batterie  # noqa: F401
+    import core.outils_root_corrections  # noqa: F401
+    import core.outils_root_firmware  # noqa: F401
+    import core.outils_root_partitions  # noqa: F401
+    import core.outils_root_processus  # noqa: F401
+    import core.outils_root_systeme  # noqa: F401
 
 from core.outils_diagnostic_commun import mcp_diagnostic
 

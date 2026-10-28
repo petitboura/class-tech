@@ -11,12 +11,20 @@ Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 import re
 
 from core.outils_diagnostic_commun import mcp_diagnostic
+from core.pont_adb import erreur_courte
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
 
-# Fichiers lus dans /sys/class/power_supply/battery en un seul appel.
+# Dossiers batterie essayes dans l'ordre (audit A) : certains
+# telephones exposent "bms" au lieu de "battery".
+DOSSIERS_BATTERIE = ("battery", "bms")
+
+# Fichiers lus dans le dossier batterie en un seul appel. status dit
+# le sens reel (charge, decharge) : le signe de current_now est
+# inverse sur certains modeles, on ne s'y fie jamais seul (audit B).
 FICHIERS_BATTERIE = (
     "voltage_now",
     "current_now",
+    "status",
     "temp",
     "capacity",
     "charge_counter",
@@ -28,8 +36,29 @@ FICHIERS_BATTERIE = (
     "present",
 )
 
+# Plages brutes plausibles (unites standard du noyau). Hors plage :
+# valeur affichee brute avec mention, jamais convertie a l'aveugle
+# (audit B : unites parfois differentes selon le modele).
+PLAGE_TEMP_DIXIEMES = (-300, 1200)
+PLAGE_TENSION_MICROVOLTS = (2000000, 15000000)
+PLAGE_COURANT_MICROAMPERES = (-30000000, 30000000)
+PLAGE_CHARGE_MICROAMPERES_HEURE = (0, 100000000)
+
+# Plage brute plausible des zones thermiques (milliemes de degre,
+# soit -50 a 150 degres : hors de la, erreur du capteur).
+PLAGE_THERM_MILLIEMES = (-50000, 150000)
+
 # Ligne `grep -H '' f1 f2` : nom:contenu.
 MOTIF_SYSFS = re.compile(r"^([^:]+):(.*)$")
+
+# Sens de charge d'apres le fichier status (minuscules), en francais
+# courant (audit final : le "en charge" de A plutot que "charge" de B).
+SENS_PAR_STATUS = {
+    "charging": "en charge",
+    "discharging": "en decharge",
+    "full": "pleine",
+    "not charging": "pas en charge",
+}
 
 
 def parse_sysfs_dict(texte):
@@ -52,6 +81,11 @@ def _entier(valeurs, cle):
         return None
 
 
+def _plausible(valeur, mini, maxi):
+    """Vrai si la valeur brute est dans la plage standard. Pure."""
+    return valeur is not None and mini <= valeur <= maxi
+
+
 def formater_batterie_brute(valeurs):
     """Texte de reponse pour root_lire_batterie_brute. Fonction pure."""
     if not valeurs:
@@ -59,19 +93,40 @@ def formater_batterie_brute(valeurs):
     morceaux = []
     tension = _entier(valeurs, "voltage_now")
     if tension is not None:
-        morceaux.append(f"tension {tension / 1000000:.2f} V")
+        if _plausible(tension, *PLAGE_TENSION_MICROVOLTS):
+            morceaux.append(f"tension {tension / 1000000:.2f} V")
+        else:
+            morceaux.append(f"tension brute {tension} (unite inhabituelle)")
+    # Sens du courant : le signe seul ment sur certains modeles
+    # (toujours positif, ou inverse). On croise avec status quand il
+    # est lisible, sinon on marque le sens "probable" (audits A et B).
     courant = _entier(valeurs, "current_now")
+    status = (valeurs.get("status", "") or "").strip().lower()
     if courant is not None:
-        sens = "charge" if courant > 0 else "decharge"
-        morceaux.append(f"courant {abs(courant) // 1000} mA ({sens})")
+        if _plausible(courant, *PLAGE_COURANT_MICROAMPERES):
+            sens = SENS_PAR_STATUS.get(status)
+            if sens is None:
+                sens = "charge" if courant > 0 else "decharge"
+                sens += " probable"
+            morceaux.append(f"courant {abs(courant) // 1000} mA ({sens})")
+        else:
+            morceaux.append(f"courant brut {courant} (unite inhabituelle)")
+    elif status in SENS_PAR_STATUS:
+        morceaux.append(f"batterie {SENS_PAR_STATUS[status]}")
     temp = _entier(valeurs, "temp")
     if temp is not None:
-        morceaux.append(f"temperature {temp / 10:.1f} C")
+        if _plausible(temp, *PLAGE_TEMP_DIXIEMES):
+            morceaux.append(f"temperature {temp / 10:.1f} C")
+        else:
+            morceaux.append(f"temperature brute {temp} (unite inhabituelle)")
     compteur = _entier(valeurs, "charge_counter")
     pleine = _entier(valeurs, "charge_full")
     origine = _entier(valeurs, "charge_full_design")
     if compteur is not None:
-        morceaux.append(f"contenu {compteur // 1000} mAh")
+        if _plausible(compteur, *PLAGE_CHARGE_MICROAMPERES_HEURE):
+            morceaux.append(f"contenu {compteur // 1000} mAh")
+        else:
+            morceaux.append(f"contenu brut {compteur} (unite inhabituelle)")
     if pleine and origine:
         usure = 100 * pleine / origine
         morceaux.append(f"sante {usure:.0f} % de la capacite d'origine")
@@ -98,6 +153,8 @@ def parse_thermal(types_texte, temps_texte):
     """Joint types et temperatures par zone. Fonction pure.
 
     Renvoie [(zone, type, degres)] trie par temperature decroissante.
+    Les valeurs hors plage plausible sont ignorees ici et comptees
+    par compter_zones_sans_mesure (jamais silencieuses).
     """
     types = parse_sysfs_dict(types_texte)
     temps = parse_sysfs_dict(temps_texte)
@@ -112,22 +169,47 @@ def parse_thermal(types_texte, temps_texte):
         if cle_temp is None:
             continue
         try:
-            degres = int(temps[cle_temp]) / 1000
+            brut = int(temps[cle_temp])
         except (TypeError, ValueError):
             continue
-        zones.append((zone.rsplit("/", 1)[-1], nom.strip(), degres))
+        if not _plausible(brut, *PLAGE_THERM_MILLIEMES):
+            continue
+        zones.append((zone.rsplit("/", 1)[-1], nom.strip(), brut / 1000))
     zones.sort(key=lambda z: z[2], reverse=True)
     return zones
 
 
-def formater_temperatures(zones, limite=10):
+def compter_zones_sans_mesure(types_texte, zones):
+    """Zones declarees moins zones mesurees. Fonction pure.
+
+    Compte les zones sans temperature jointe ou a valeur ecartee
+    (unite inhabituelle), pour le dire dans la reponse.
+    """
+    if not types_texte:
+        return 0
+    declares = sum(
+        1 for ligne in types_texte.splitlines()
+        if ligne.strip() and ":" in ligne
+    )
+    return max(0, declares - len(zones))
+
+
+def formater_temperatures(zones, limite=10, sans_mesure=0):
     """Texte de reponse pour root_lire_temperatures. Fonction pure."""
     if not zones:
+        if sans_mesure:
+            return (
+                f"Temperatures illisibles pour le moment "
+                f"({sans_mesure} capteur(s) sans mesure)."
+            )
         return "Temperatures illisibles pour le moment."
     details = ", ".join(
         f"{nom} {degres:.1f} C" for _z, nom, degres in zones[:limite]
     )
-    return f"Temperatures ({len(zones)} capteurs) : {details}."
+    texte = f"Temperatures ({len(zones)} capteurs) : {details}."
+    if sans_mesure:
+        texte += f" {sans_mesure} capteur(s) sans mesure."
+    return texte
 
 
 @mcp_diagnostic.tool()
@@ -140,16 +222,28 @@ def root_lire_batterie_brute() -> str:
     if erreur:
         return marquer_non_teste(erreur)
     fichiers = " ".join(FICHIERS_BATTERIE)
-    resultat = executer_root(
-        "cd /sys/class/power_supply/battery && "
-        f"grep -H '' {fichiers} 2>/dev/null",
-        appareil_id,
-    )
-    if not resultat["ok"]:
-        return marquer_non_teste(f"Batterie brute illisible : {resultat['erreur']}")
-    return marquer_non_teste(
-        formater_batterie_brute(parse_sysfs_dict(resultat["sortie"]))
-    )
+    valeurs = {}
+    derniere_erreur = ""
+    for dossier in DOSSIERS_BATTERIE:
+        resultat = executer_root(
+            f"cd /sys/class/power_supply/{dossier} && "
+            f"grep -H '' {fichiers} 2>/dev/null",
+            appareil_id,
+        )
+        if resultat["ok"]:
+            valeurs = parse_sysfs_dict(resultat["sortie"])
+            if valeurs:
+                break
+        elif resultat["erreur"]:
+            derniere_erreur = resultat["erreur"]
+    if not valeurs:
+        if derniere_erreur:
+            return marquer_non_teste(
+                "Batterie brute illisible : "
+                f"{erreur_courte(derniere_erreur)}"
+            )
+        return marquer_non_teste("Batterie brute illisible pour le moment.")
+    return marquer_non_teste(formater_batterie_brute(valeurs))
 
 
 @mcp_diagnostic.tool()
@@ -180,11 +274,13 @@ def root_lire_temperatures(limite: int = 10) -> str:
         "grep -H '' /sys/class/thermal/thermal_zone*/temp 2>/dev/null",
         appareil_id,
     )
+    types_texte = types["sortie"] if types["ok"] else ""
     zones = parse_thermal(
-        types["sortie"] if types["ok"] else "",
+        types_texte,
         temps["sortie"] if temps["ok"] else "",
     )
-    return marquer_non_teste(formater_temperatures(zones, limite))
+    return marquer_non_teste(formater_temperatures(
+        zones, limite, compter_zones_sans_mesure(types_texte, zones)))
 
 
 @mcp_diagnostic.tool()
@@ -201,7 +297,7 @@ def root_reinitialiser_stats_batterie() -> str:
     resultat = executer_root("dumpsys batterystats --reset", appareil_id)
     if not resultat["ok"]:
         return marquer_non_teste(
-            f"Compteurs non remis a zero : {resultat['erreur']}"
+            f"Compteurs non remis a zero : {erreur_courte(resultat['erreur'])}"
         )
     return marquer_non_teste(
         "Statistiques de batterie remises a zero. Laisse passer "

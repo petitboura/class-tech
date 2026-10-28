@@ -26,17 +26,35 @@ POINTS_MONTAGE_UTILES = ("/", "/system", "/data", "/cache", "/vendor", "/product
 # Ligne `ls -l /dev/block/by-name` : droits ... date heure lien -> periph.
 MOTIF_BYNAME = re.compile(r"^l\S*\s+\d+\s+\S+\s+\S+\s+\d+\s+\S+\s+\S+\s+(\S+)\s+->\s+(\S+)")
 
+# Entrees by-name gardees au plus (le total exact reste compte
+# et annonce, voir parse_byname et formater_partitions).
+LIMITE_BYNAME = 40
+
 
 def parse_df(texte):
     """Parse `df -h` en [(systeme, taille, utilise, dispo, pct, point)].
 
     Fonction pure. Ignore l'en tete et les lignes bizarres.
+    Recolle les lignes coupees en deux (nom du systeme seul sur sa
+    ligne, chiffres sur la suivante, comme le parse_df du palier
+    80 %) : sinon les partitions au nom long disparaissaient
+    silencieusement du resultat (audits A et B).
     """
     lignes = []
     if not texte:
         return lignes
-    for ligne in texte.splitlines():
-        ligne = ligne.strip()
+    brutes = [l.strip() for l in texte.splitlines() if l.strip()]
+    assemblees = []
+    tampon = ""
+    for ligne in brutes[1:]:
+        if len(ligne.split()) == 1:
+            tampon = ligne
+            continue
+        if tampon:
+            ligne = tampon + " " + ligne
+            tampon = ""
+        assemblees.append(ligne)
+    for ligne in assemblees:
         trouve = MOTIF_DF.match(ligne)
         if not trouve:
             continue
@@ -60,20 +78,30 @@ def parse_mounts(texte):
     return montages
 
 
-def parse_byname(texte, limite=40):
-    """Parse `ls -l /dev/block/by-name` en [(nom, periph)]. Pure."""
+def parse_byname(texte, limite=LIMITE_BYNAME):
+    """Parse `ls -l /dev/block/by-name`. Fonction pure.
+
+    Renvoie (entrees, total) : les entrees gardees (bornees) et le
+    total vu, pour dire honnetement "premieres" quand ca coupe.
+    """
     entrees = []
+    total = 0
     if not texte:
-        return entrees
+        return entrees, total
     for ligne in texte.splitlines():
         trouve = MOTIF_BYNAME.match(ligne.strip())
-        if trouve and len(entrees) < limite:
-            entrees.append((trouve.group(1), trouve.group(2)))
-    return entrees
+        if trouve:
+            total += 1
+            if len(entrees) < limite:
+                entrees.append((trouve.group(1), trouve.group(2)))
+    return entrees, total
 
 
 def formater_partitions(df, montages, byname):
-    """Texte de reponse pour root_lire_partitions. Fonction pure."""
+    """Texte de reponse pour root_lire_partitions. Fonction pure.
+
+    byname vaut (entrees, total) comme renvoye par parse_byname.
+    """
     if not df and not montages:
         return "Partitions illisibles pour le moment."
     morceaux = []
@@ -89,9 +117,15 @@ def formater_partitions(df, montages, byname):
             mode = "lecture seule" if options.split(",")[0] == "ro" else "lecture et ecriture"
             texte += f" {point} monte en {mode} ({fstype})."
             break
-    if byname:
-        noms = ", ".join(nom for nom, _p in byname[:25])
-        texte += f" {len(byname)} partition(s) nommee(s) : {noms}."
+    # byname vaut (entrees, total) ; une simple liste reste acceptee
+    # (audit final : le total exact de A remplace le minimum de B).
+    entrees, total = byname if isinstance(byname, tuple) else (byname, len(byname))
+    if entrees:
+        noms = ", ".join(nom for nom, _p in entrees[:25])
+        if total > len(entrees):
+            texte += f" {total} partition(s) nommee(s), {len(entrees)} premieres : {noms}."
+        else:
+            texte += f" {total} partition(s) nommee(s) : {noms}."
     return texte.strip()
 
 
@@ -103,8 +137,10 @@ def formater_integrite(props, cmdline, montages):
     securise = props.get("ro.secure", "")
     debogable = props.get("ro.debuggable", "")
     if "androidboot.verifiedbootstate=" in cmdline:
-        extrait = cmdline.split("androidboot.verifiedbootstate=")[1].split()[0]
-        verifie = verifie or extrait.strip(",")
+        reste = cmdline.split("androidboot.verifiedbootstate=")[1]
+        morceaux_cmd = reste.split()
+        if morceaux_cmd:
+            verifie = verifie or morceaux_cmd[0].strip(",")
     morceaux = []
     if verifie.lower() == "green":
         morceaux.append("demarrage verifie : oui")
@@ -128,6 +164,12 @@ def formater_integrite(props, cmdline, montages):
             break
     if not morceaux:
         return "Integrite illisible pour le moment."
+    # Points de demarrage manquants malgre des infos partielles
+    # (audit A) : on le dit au lieu de les passer sous silence.
+    if not verifie:
+        morceaux.append("demarrage verifie : inconnu")
+    if verrouille not in ("0", "1"):
+        morceaux.append("chargeur : etat inconnu")
     return "Integrite : " + ", ".join(morceaux) + "."
 
 

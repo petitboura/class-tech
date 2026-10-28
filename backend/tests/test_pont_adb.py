@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from core.pont_adb import (  # noqa: E402
     appareils_connectes,
     choisir_appareil,
+    erreur_courte,
     message_adb_absent,
     message_aucun_telephone,
     parametre_shell_valide,
@@ -104,6 +105,16 @@ def test_liaison_reelle_coherente():
     assert (appareil_id is None) != (erreur is None)
 
 
+def test_erreur_courte():
+    assert erreur_courte(None) == "commande refusee par le telephone."
+    assert erreur_courte("") == "commande refusee par le telephone."
+    assert erreur_courte("  echec\nligne2  ") == "echec ligne2"
+    assert "--" not in erreur_courte("erreur -- grave -- ici")
+    longue = erreur_courte("x" * 300)
+    assert len(longue) <= 201 and longue.endswith("…")
+    assert erreur_courte("boom", maxi=2) == "bo…"
+
+
 if __name__ == "__main__":
     test_parse_devices_vide()
     test_parse_devices_un_appareil()
@@ -114,4 +125,5 @@ if __name__ == "__main__":
     test_message_aucun_telephone_guide()
     test_trouver_adb_coherent()
     test_liaison_reelle_coherente()
+    test_erreur_courte()
     print("OK : pont ADB.")

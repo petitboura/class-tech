@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from core.registre_outils import (  # noqa: E402
     CATEGORIES_OUTILS,
+    OUTILS_PALIER_ROOT,
     OUTILS_SENSIBLES,
     REGISTRE_AFFICHAGE_OUTILS,
     TYPES_APPAREILS,
@@ -60,6 +61,19 @@ def test_types_appareils():
     assert TYPES_APPAREILS == ("telephone", "ordinateur")
 
 
+def test_garde_fou_root_declare_mais_sensible():
+    # Audit final : le registre DECLARE les 19 outils root (dans la
+    # categorie telephone et dans OUTILS_SENSIBLES, donc confirmation
+    # exigee le jour de l'activation). C'est le serveur qui les cache
+    # tant que CLASSTECH_OUTILS_ROOT ne vaut pas "1" (voir les tests
+    # en sous-processus de test_outils_root.py et test_audit_risques_b.py).
+    assert len(OUTILS_PALIER_ROOT) == 19
+    telephone = CATEGORIES_OUTILS["telephone"]
+    for nom in OUTILS_PALIER_ROOT:
+        assert nom in telephone
+        assert nom in OUTILS_SENSIBLES
+
+
 if __name__ == "__main__":
     test_categories_connues_du_registre()
     test_entrees_registre_completes()
@@ -67,4 +81,5 @@ if __name__ == "__main__":
     test_outils_sensibles_connus()
     test_outils_de_la_categorie()
     test_types_appareils()
+    test_garde_fou_root_declare_mais_sensible()
     print("OK : registre d'outils cohérent.")
