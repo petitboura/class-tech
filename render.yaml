@@ -1,0 +1,8 @@
+# class-tech : serveur d'outils MCP de diagnostic (voir backend/LISEZ-MOI.md).
+# Plan Render du backend seul (phase 2, pas de frontend).
+services:
+  - type: web
+    name: class-tech-outils
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT --app-dir backend

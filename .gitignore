@@ -1,0 +1,33 @@
+# class-tech : chantier A.
+# Fusion de classinus-backend/.gitignore et classinus-frontend/.gitignore.
+# Les chemins frontend sont préfixés par frontend/ (phase plus tard).
+
+# --- Backend (Python / FastAPI) ---
+.env
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# --- Frontend (Next.js, phase plus tard) ---
+frontend/node_modules
+frontend/.next
+frontend/.env.local
+frontend/.env*.local
+frontend/*.log
+frontend/.DS_Store
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+frontend/out/
+frontend/android/app/src/main/assets/public/
+
+# Clé de signature locale Android, jamais commitée.
+frontend/android/keystore.properties
+*.keystore
+*.jks
+
+# Sorties de build Electron, jamais commitées (se régénèrent).
+frontend/electron/build/
+frontend/electron/dist/
+frontend/electron/vendor/
+frontend/packages/*/electron/dist/
