@@ -211,6 +211,10 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - ~21:55 : A24 + A25 tombés (réseau agents, comme A20/A23) ;
   travail A24 récupéré (4 fichiers), fini par moi en direct ;
   A25 à relancer.
+- 23:06 : profonds finis en direct : 213 tests verts, live 10/10
+  (9 données réelles, trafic indisponible sur ce Samsung) ;
+  2 correctifs (procstats TOTAL, lshal 200) ; branche poussée,
+  fusion à ordonner.
 
 ## 5. Règles de tenue de ce journal
 
