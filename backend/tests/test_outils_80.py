@@ -418,7 +418,7 @@ def test_registre_palier_80_complet():
         assert entree.get("icone"), f"{nom} sans icone"
         assert entree.get("onglet") == "diagnostiquer", f"{nom} sans onglet"
         assert nom in CATEGORIES_OUTILS["telephone"]
-    assert OUTILS_SENSIBLES == {"vider_cache_applis"}
+    assert {"vider_cache_applis"} <= OUTILS_SENSIBLES  # chaque palier ajoute ses sensibles
 
 
 def test_hotes_publics_autorises():

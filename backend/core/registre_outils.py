@@ -1,4 +1,4 @@
-"""Données signalétiques des outils de diagnostic (étape 2, palier 80 %).
+"""Données signalétiques des outils de diagnostic (étape 2, paliers 80 % et 100 %).
 
 Réduit du squelette du chantier B : plus de parties serveur ni moteur
 (le cerveau vit dans Classinus). Ne reste que la description des
@@ -16,10 +16,16 @@ du registre tournent sans rien installer.
 """
 
 # Outils qui écrivent ou déclenchent une action réelle : Classinus
-# interrompt pour confirmation avant exécution. Palier 80 % : seul
-# vider_cache_applis change quelque chose (les caches se reconstruisent
-# seuls ensuite), tout le reste est en lecture seule.
-OUTILS_SENSIBLES = {"vider_cache_applis"}
+# interrompt pour confirmation avant exécution. Paliers 80 % et 100 % :
+# vider_cache_applis (caches, reconstruits seuls ensuite), bip et
+# vibration de test, ouverture de l'appli photo, retrait d'une permission.
+OUTILS_SENSIBLES = {
+    "vider_cache_applis",
+    "tester_haut_parleur",
+    "tester_vibreur",
+    "tester_camera",
+    "revoquer_permission",
+}
 
 # Types d'appareils pris en charge, dans l'ordre du projet (téléphone
 # d'abord, ordinateur ensuite). Source unique, lue par les outils
@@ -119,6 +125,79 @@ REGISTRE_AFFICHAGE_OUTILS = {
         "icone": "Radar",
         "onglet": "diagnostiquer",
     },
+    # --- Palier 100 % : tests matériel unitaires ---
+    "tester_ecran_tactile": {
+        "label": "Test écran tactile",
+        "icone": "Smartphone",
+        "onglet": "diagnostiquer",
+    },
+    "tester_gps": {
+        "label": "Test GPS",
+        "icone": "MapPin",
+        "onglet": "diagnostiquer",
+    },
+    "tester_micro": {
+        "label": "Test micro",
+        "icone": "Mic",
+        "onglet": "diagnostiquer",
+    },
+    "tester_haut_parleur": {
+        "label": "Test haut-parleur",
+        "icone": "Volume2",
+        "onglet": "diagnostiquer",
+    },
+    "tester_vibreur": {
+        "label": "Test vibreur",
+        "icone": "Vibrate",
+        "onglet": "diagnostiquer",
+    },
+    "tester_camera": {
+        "label": "Test caméra",
+        "icone": "Camera",
+        "onglet": "diagnostiquer",
+    },
+    "tester_boutons": {
+        "label": "Test boutons",
+        "icone": "Power",
+        "onglet": "diagnostiquer",
+    },
+    # --- Palier 100 % : mémoire, CPU, applis gourmandes ---
+    "analyser_memoire_vive": {
+        "label": "Mémoire vive",
+        "icone": "MemoryStick",
+        "onglet": "diagnostiquer",
+    },
+    "analyser_cpu": {
+        "label": "Processeur (CPU)",
+        "icone": "Cpu",
+        "onglet": "diagnostiquer",
+    },
+    "analyser_applications_gourmandes": {
+        "label": "Applis gourmandes",
+        "icone": "Gauge",
+        "onglet": "diagnostiquer",
+    },
+    # --- Palier 100 % : permissions, sécurité, mises à jour ---
+    "lister_permissions_risquees": {
+        "label": "Permissions à risque",
+        "icone": "KeyRound",
+        "onglet": "diagnostiquer",
+    },
+    "revoquer_permission": {
+        "label": "Retirer une permission",
+        "icone": "ShieldOff",
+        "onglet": "diagnostiquer",
+    },
+    "verifier_securite": {
+        "label": "Sécurité du téléphone",
+        "icone": "ShieldCheck",
+        "onglet": "diagnostiquer",
+    },
+    "verifier_mises_a_jour": {
+        "label": "Mises à jour",
+        "icone": "RefreshCw",
+        "onglet": "diagnostiquer",
+    },
 }
 
 # Verbe d'action -> (libellé, petite icône). Même source pour le texte
@@ -132,6 +211,8 @@ VERBES_ACTIONS = {
     "lire": ("Lecture", "Eye"),
     "vider": ("Nettoyage", "Trash2"),
     "tester": ("Test", "FlaskConical"),
+    "analyser": ("Analyse", "Activity"),
+    "revoquer": ("Retrait", "ShieldOff"),
 }
 
 # Noms des 14 outils du palier 80 %, dans l'ordre du diagnostic.
@@ -158,6 +239,26 @@ CATEGORIES_OUTILS = {
     "telephone": ["resumer_symptome", *OUTILS_PALIER_80],
     "ordinateur": ["resumer_symptome"],
     "commun": ["verifier_chaine", "ping_serveur"],
+    "materiel": [
+        "tester_ecran_tactile",
+        "tester_gps",
+        "tester_micro",
+        "tester_haut_parleur",
+        "tester_vibreur",
+        "tester_camera",
+        "tester_boutons",
+    ],
+    "performance": [
+        "analyser_memoire_vive",
+        "analyser_cpu",
+        "analyser_applications_gourmandes",
+    ],
+    "securite": [
+        "lister_permissions_risquees",
+        "revoquer_permission",
+        "verifier_securite",
+        "verifier_mises_a_jour",
+    ],
 }
 
 

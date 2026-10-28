@@ -1,4 +1,4 @@
-"""Pont PC vers telephone via ADB, palier 80 % (Windows d'abord).
+"""Pont PC vers telephone via ADB, paliers 80 % et 100 % (Windows d'abord).
 
 Ce module ne declare aucun outil MCP : il fournit le transport partage
 par tous les outils telephone (recherche d'ADB, liste des appareils,
@@ -6,9 +6,13 @@ execution de commandes, messages standards quand rien n'est branche).
 
 ADB (Android Debug Bridge) est l'outil officiel Google pour parler a un
 telephone branche en USB avec le mode developpeur active. Chaque outil
-telephone commence par preparer_appel() : si ADB manque ou si aucun
+telephone du palier 80 % commence par preparer_appel() : si ADB manque ou si aucun
 telephone n'est pret, l'outil renvoie un message clair au lieu d'echouer.
+Les outils du palier 100 % passent par preparer_acces() et
+executer_adb_serie() : meme pont, autre forme de reponse.
 """
+
+from __future__ import annotations
 
 import os
 import re
@@ -257,19 +261,149 @@ def preparer_appel():
     return liaison["appareil_choisi"]["id"], None
 
 
+# Palier 100 % : acces par numero de serie, sur le meme pont.
+# preparer_acces(), lister_telephones() et analyser_sortie_devices()
+# sont repris tels quels du palier 100 %. trouver_adb() et
+# DELAI_ADB_SECONDES restent ceux du palier 80 % (recherche elargie,
+# 20 secondes) et servent aux deux jeux d'outils.
+
+
+MESSAGE_ADB_MANQUANT = (
+    "Je ne trouve pas le programme adb sur cet ordinateur. Installez "
+    "Android Platform Tools, ajoutez adb au PATH, puis réessayez."
+)
+
+MESSAGE_TELEPHONE_MANQUANT = (
+    "Aucun téléphone détecté. Branchez le téléphone au PC avec un câble "
+    "USB, activez le débogage USB (options pour développeurs), puis "
+    "réessayez."
+)
+
+MESSAGE_NON_AUTORISE = (
+    "Le téléphone est branché mais n'a pas autorisé cet ordinateur. "
+    "Regardez l'écran du téléphone et acceptez la demande d'autorisation "
+    "du débogage USB, puis réessayez."
+)
+
+
+def analyser_sortie_devices(sortie: str) -> dict[str, list[str]]:
+    """Trie la sortie de `adb devices` en trois listes de numéros.
+
+    prets : téléphone branché et autorisé (état device).
+    non_autorises : branché mais autorisation en attente (unauthorized).
+    autres : hors ligne ou état inconnu (offline, etc.).
+    Fonction pure, testée sans téléphone.
+    """
+    resultat = {"prets": [], "non_autorises": [], "autres": []}
+    for ligne in sortie.splitlines():
+        morceaux = ligne.split()
+        if len(morceaux) != 2:
+            continue
+        serie, etat = morceaux
+        if serie in ("List", "devices", "attached", "de"):
+            continue
+        if etat == "device":
+            resultat["prets"].append(serie)
+        elif etat == "unauthorized":
+            resultat["non_autorises"].append(serie)
+        else:
+            resultat["autres"].append(serie)
+    return resultat
+
+
+def lister_telephones(adb: str) -> dict[str, list[str]]:
+    """Téléphones vus par adb, triés (voir analyser_sortie_devices)."""
+    try:
+        termine = subprocess.run(
+            [adb, "devices"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=DELAI_ADB_SECONDES,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return {"prets": [], "non_autorises": [], "autres": []}
+    if termine.returncode != 0:
+        return {"prets": [], "non_autorises": [], "autres": []}
+    return analyser_sortie_devices(termine.stdout)
+
+
+def executer_adb_serie(
+    adb: str,
+    serie: str,
+    morceaux: list[str],
+    delai: int = DELAI_ADB_SECONDES,
+) -> tuple[bool, str, str]:
+    """Exécute `adb -s serie ...morceaux`, renvoie (réussi, sortie, erreur).
+
+    Palier 100 % (reponse en tuple). Nom distinct de executer_adb()
+    du palier 80 % (reponse en dictionnaire), dont la signature differe.
+    Ne lève jamais d'exception : le délai dépassé, l'interruption et
+    l'échec de lancement sont renvoyés comme un échec propre, que
+    l'outil appelant traduit en message simple.
+    """
+    try:
+        termine = subprocess.run(
+            [adb, "-s", serie, *morceaux],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=delai,
+        )
+    except subprocess.TimeoutExpired as exc:
+        # Sortie partielle conservée : pour une écoute (getevent), le
+        # délai écoulé est le cas normal, pas une erreur.
+        partielle = exc.stdout if isinstance(exc.stdout, str) else ""
+        return False, partielle or "", f"délai dépassé ({delai} secondes)"
+    except OSError as exc:
+        return False, "", str(exc)
+    return termine.returncode == 0, termine.stdout, termine.stderr.strip()
+
+
+def preparer_acces() -> dict[str, str | None]:
+    """Prépare l'accès au téléphone, ou explique ce qui bloque.
+
+    Renvoie toujours les clés adb, serie, erreur et note. Si erreur
+    n'est pas None, l'outil appelant la renvoie telle quelle. Si note
+    n'est pas None (plusieurs téléphones), l'outil l'ajoute à sa réponse.
+    """
+    adb = trouver_adb()
+    if adb is None:
+        return {"adb": None, "serie": None, "erreur": MESSAGE_ADB_MANQUANT, "note": None}
+    telephones = lister_telephones(adb)
+    if telephones["prets"]:
+        serie = telephones["prets"][0]
+        note = None
+        if len(telephones["prets"]) > 1:
+            note = (
+                f"Plusieurs téléphones détectés, j'utilise le premier ({serie})."
+            )
+        return {"adb": adb, "serie": serie, "erreur": None, "note": note}
+    if telephones["non_autorises"]:
+        return {"adb": adb, "serie": None, "erreur": MESSAGE_NON_AUTORISE, "note": None}
+    return {"adb": adb, "serie": None, "erreur": MESSAGE_TELEPHONE_MANQUANT, "note": None}
+
+
 __all__ = [
     "DELAI_ADB_LENT_SECONDES",
     "DELAI_ADB_SECONDES",
+    "MESSAGE_ADB_MANQUANT",
+    "MESSAGE_NON_AUTORISE",
+    "MESSAGE_TELEPHONE_MANQUANT",
     "NOM_EXECUTABLE_ADB",
     "URL_PLATFORM_TOOLS",
+    "analyser_sortie_devices",
     "appareils_connectes",
     "choisir_appareil",
     "executer_adb",
+    "executer_adb_serie",
     "executer_shell",
+    "lister_telephones",
     "message_adb_absent",
     "message_aucun_telephone",
     "parametre_shell_valide",
     "parse_sortie_devices",
+    "preparer_acces",
     "preparer_appel",
     "resumer_liaison",
     "trouver_adb",

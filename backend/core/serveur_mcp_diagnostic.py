@@ -1,4 +1,4 @@
-"""Serveur MCP interne de diagnostic (chantier B, palier 80 %).
+"""Serveur MCP interne de diagnostic (chantier B, paliers 80 % et 100 %).
 
 Adapté de core/serveur_mcp_generation.py de classinus-backend (lu en
 lecture seule). Ce fichier ne fait que rassembler les modules d'outils
@@ -13,6 +13,9 @@ mcp_diagnostic (core/outils_diagnostic_commun.py) :
   - outils_telephone_systeme.py : version Android, erreurs récentes.
   - outils_telephone_reseau.py : état réseau, détails wifi.
   - outils_telephone_capteurs.py : test groupé des capteurs.
+  - outils_materiel_100.py : tests matériel unitaires (palier 100 %).
+  - outils_performance_100.py : mémoire, CPU, applis gourmandes.
+  - outils_securite_100.py : permissions, sécurité, mises à jour.
 
 Monté dans api/main.py sur le chemin /mcp/diagnostic (même processus,
 pas de service séparé).
@@ -28,6 +31,9 @@ import core.outils_telephone_capteurs  # noqa: F401
 import core.outils_telephone_reseau  # noqa: F401
 import core.outils_telephone_stockage  # noqa: F401
 import core.outils_telephone_systeme  # noqa: F401
+import core.outils_materiel_100  # noqa: F401
+import core.outils_performance_100  # noqa: F401
+import core.outils_securite_100  # noqa: F401
 
 from core.outils_diagnostic_commun import mcp_diagnostic
 
