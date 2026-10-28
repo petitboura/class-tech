@@ -517,16 +517,22 @@ def analyser_carte_systeme(
     }
 
 
+def _mo(texte_valeur: str, unite: str) -> float:
+    """'3,3' + 'MB' en Mo (les dumps mélangent MB, KB et virgules)."""
+    nombre = float(texte_valeur.replace(",", "."))
+    return nombre / 1024 if unite == "KB" else nombre
+
+
 def analyser_memoire_temps(sortie_procstats: str) -> dict:
     """Mémoire par appli dans le temps d'après dumpsys procstats.
 
     Moyennes sur les dernières heures : qui garde beaucoup de mémoire
-    et qui varie le plus.
+    et qui varie le plus. Comprend les lignes PSS: et TOTAL:.
     """
     applis = []
     paquet_courant = None
     for ligne in sortie_procstats.splitlines():
-        processus = re.match(r"\s*\*?\s*([\w.]+)\s*/\s*u\d+", ligne)
+        processus = re.match(r"^\s*\*?\s*([\w.]+)\s*/\s*(?:u\d+|\d+)", ligne)
         if processus and "/" in ligne:
             paquet_courant = processus.group(1)
             continue
@@ -541,6 +547,19 @@ def analyser_memoire_temps(sortie_procstats: str) -> dict:
                 "min_mo": round(int(memoire.group(1)) / 1024),
                 "moyenne_mo": round(int(memoire.group(2)) / 1024),
                 "max_mo": round(int(memoire.group(3)) / 1024),
+            })
+            paquet_courant = None
+            continue
+        total = re.search(
+            r"TOTAL:\s*[\d.,]+%\s*\(([\d.,]+)([KM]B)"
+            r"-([\d.,]+)([KM]B)-([\d.,]+)([KM]B)", ligne,
+        )
+        if total:
+            applis.append({
+                "paquet": paquet_courant,
+                "min_mo": round(_mo(total.group(1), total.group(2))),
+                "moyenne_mo": round(_mo(total.group(3), total.group(4))),
+                "max_mo": round(_mo(total.group(5), total.group(6))),
             })
             paquet_courant = None
     if not applis:

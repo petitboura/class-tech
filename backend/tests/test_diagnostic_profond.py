@@ -211,11 +211,23 @@ def test_carte_systeme():
     assert "illisible" in analyser_carte_systeme("", "", "")["resume"]
 
 
+PROCSTATS_TOTAL_EXEMPLE = """AGGREGATED OVER LAST 3 HOURS:
+  * com.memoire.gourmande / u0a123 / v12:
+         TOTAL: 100% (66MB-75MB-85MB/3,3MB-11MB-55MB/36MB-47MB-109MB over 14)
+  * com.android.se / 1068 / v33:
+         TOTAL: 100% (5,6MB-5,8MB-6,0MB/256KB-370KB-392KB/13MB-13MB-14MB over 15)
+"""
+
+
 def test_memoire_temps():
     plein = analyser_memoire_temps(PROCSTATS_EXEMPLE)
     assert "com.memoire.gourmande" in plein["resume"]
     assert "beaucoup" in plein["resume"]
     assert plein["applis"][0]["moyenne_mo"] == round(600000 / 1024)
+    total = analyser_memoire_temps(PROCSTATS_TOTAL_EXEMPLE)
+    assert "com.memoire.gourmande" in total["resume"]
+    assert total["applis"][0]["moyenne_mo"] == 75
+    assert total["applis"][1]["moyenne_mo"] == round(5.8)
     assert "illisible" in analyser_memoire_temps("")["resume"]
 
 

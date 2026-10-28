@@ -180,7 +180,9 @@ def lire_carte_systeme() -> str:
     adb, serie = acces["adb"], acces["serie"]
     proprietes = _lire(adb, serie, ["shell", "getprop"])
     services = _lire(adb, serie, ["shell", "service", "list"])
-    composants = _lire(adb, serie, ["shell", "lshal"])
+    # lshal quitte en code 200 même quand il affiche la table :
+    # on garde sa sortie quoi qu'il dise.
+    _, composants, _ = executer_adb_serie(adb, serie, ["shell", "lshal"])
     analyse = analyser_carte_systeme(proprietes, services, composants)
     return _avec_note(acces, analyse["resume"])
 
