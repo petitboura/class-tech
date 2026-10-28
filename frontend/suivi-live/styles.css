@@ -360,7 +360,7 @@ a:hover { color: var(--dj-accent-2); }
 
 .erreur { border-color: var(--dj-erreur); }
 
-.erreur button, .vide button {
+.erreur button {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -373,7 +373,7 @@ a:hover { color: var(--dj-accent-2); }
 }
 
 @media (prefers-color-scheme: dark) {
-  .erreur button, .vide button { color: #1a0f06; }
+  .erreur button { color: #1a0f06; }
 }
 
 .vide { text-align: center; padding: 2rem 1.2rem; }
