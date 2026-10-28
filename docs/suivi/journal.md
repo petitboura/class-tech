@@ -43,6 +43,8 @@ en S2).
 | D17 | — | Libellé « Téléphone branché ? » | EN ATTENTE | Proposé par builder 80. |
 | D18 | — | 4 boutons + licence | EN ATTENTE | Questions ouvertes depuis S1. |
 | D19 | 07:28 | Site public suivi-live (docs, refresh horaire) | Active, agent lancé | Bourama : que les gens suivent en direct. |
+| D20 | 07:30 | Specs page : thème Classinus, heures repliées + tri, notes Bourama | Active | Dictées Bourama, transmises à l'agent. |
+| D21 | 07:38 | Placement final A : class-tech Pages + lien Classinus + og: | Active | Route intégrée écartée ; aperçu partage exigé (balises og:). |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -62,7 +64,7 @@ en S2).
 | A12 | dès 07:14 | audit-a/12 | Diagnostiquer+corriger (D15) | EN COURS. |
 | A13 | dès 07:14 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
 | A14 | — | audit-final | Trancher + corriger (D15) | À LANCER après A12+A13. |
-| A15 | dès 07:28 | site-suivi-live/14 | Page publique docs auto-refresh (D19) | EN COURS. |
+| A15 | dès 07:28 | site-suivi-live/14 | Page publique (D19→D21) : class-tech Pages + lien Classinus, og:, notes | EN COURS. Redirigé 2 fois (route app puis retour plan A). |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
