@@ -59,6 +59,7 @@ en S2).
 | D28 | 11:01 | Relance Muse en --yolo (zéro demande) | Active | Approvals off inefficace (agents déjà lancés + sandbox B5 cassé) ; note reprise build-tmp/REPRISE-YOLO.md. |
 | D29 | 19:10 | Confirmer les 5 outils sensibles (validation live) | Active | Ordre explicite ; 4 testés live 19:35, retrait en attente OK cible. |
 | D30 | 19:29 | Rester sur relais intégré à Classinus PC, câble d'abord | Active | Sans-fil enlève le câble, pas le programme ; appli téléphone seule reste écartée ; wifi en option plus tard. |
+| D31 | 19:49 | Relais embarqué dans l'appli Classinus PC (proposition A) | Active | Option recommandée de l'enquête : 1 seul téléchargement, relais dedans, MAJ avec l'appli ; 2e bouton écarté. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -178,6 +179,8 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   impossible sur ce modèle (appel/alarme ?), appli photo ouverte
   (photo nette ?, listing suspect B18). Retrait en attente OK
   cible (fakfak + notifs, sans trace).
+- 19:49 : D31 relais embarqué dans l'appli PC (proposition A).
+  Plan d'implémentation à préparer et faire valider, rien touché.
 
 ## 5. Règles de tenue de ce journal
 
