@@ -12,6 +12,7 @@ Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 import re
 
 from core.outils_diagnostic_commun import mcp_diagnostic
+from core.pont_adb import erreur_courte
 from core.pont_root import (
     citer_chemin,
     chemin_lecture_valide,
@@ -34,6 +35,45 @@ FICHIERS_PANIQUE = (
     "/sys/fs/pstore/dmesg-ramoops-0",
     "/proc/last_kmsg",
 )
+
+# Secrets jamais lus ni listes, meme en root (audit risques) : mots
+# de passe wifi, comptes, cles de verrouillage. Aucune valeur pour
+# le diagnostic, et leur contenu ne doit jamais partir vers l'API.
+NOMS_FICHIERS_SENSIBLES = (
+    "wpa_supplicant.conf",
+    "wificonfigstore.xml",
+    "wificonfigstoresoftap.xml",
+    "accounts_ce.db",
+    "accounts_de.db",
+    "locksettings.db",
+    "gatekeeper.password.key",
+    "gatekeeper.pattern.key",
+    "gatekeeper.gesture.key",
+    "password.key",
+    "pattern.key",
+    "personalkey.key",
+)
+
+DOSSIERS_SENSIBLES = (
+    "/data/misc/keystore",
+    "/data/misc/keychain",
+    "/data/misc/wifi",
+    "/data/system/users",
+)
+
+
+def chemin_sensible_refuse(chemin):
+    """Vrai si chemin touche un secret (wifi, comptes, cles). Pure."""
+    if not chemin or not isinstance(chemin, str):
+        return False
+    normal = chemin.strip().rstrip("/")
+    nom = normal.rsplit("/", 1)[-1].lower()
+    if nom in NOMS_FICHIERS_SENSIBLES:
+        return True
+    return any(
+        normal == dossier or normal.startswith(dossier + "/")
+        for dossier in DOSSIERS_SENSIBLES
+    )
 
 
 def parse_ls_la(texte):
@@ -82,8 +122,15 @@ def est_texte_affichable(contenu):
     return "\x00" not in contenu
 
 
-def formater_fichier_systeme(chemin, contenu, tronque):
-    """Texte de reponse pour root_lire_fichier_systeme. Pure."""
+def formater_fichier_systeme(chemin, contenu, tronque,
+                             lignes_coupees=False, taille_inconnue=False):
+    """Texte de reponse pour root_lire_fichier_systeme. Pure.
+
+    tronque : le fichier depasse TAILLE_MAXI_FICHIER, seul le debut
+    est montre. lignes_coupees : seules les premieres lignes sont
+    montrees. taille_inconnue : la taille n'a pas pu etre lue, on ne
+    sait pas si tout est montre (audit risques, extrait honnete).
+    """
     if not est_texte_affichable(contenu):
         return f"Fichier {chemin} non texte (binaire), affichage refuse."
     if not contenu.strip():
@@ -91,6 +138,10 @@ def formater_fichier_systeme(chemin, contenu, tronque):
     texte = f"Contenu de {chemin} :\n{contenu.rstrip()}"
     if tronque:
         texte += "\n[debut du fichier, suite non affichee]"
+    if lignes_coupees:
+        texte += "\n[seules les premieres lignes sont affichees]"
+    if taille_inconnue:
+        texte += "\n[longueur totale inconnue, fin peut-etre manquante]"
     return texte
 
 
@@ -107,13 +158,20 @@ def parse_dmesg_erreurs(texte):
 
 
 def formater_erreurs_noyau(lignes, limite):
-    """Texte de reponse pour root_lire_erreurs_noyau. Pure."""
+    """Texte de reponse pour root_lire_erreurs_noyau. Pure.
+
+    Quand le nombre de lignes atteint la limite, il y en a peut-etre
+    plus : le total annonce est un minimum (audit risques).
+    """
     if not lignes:
         return "Aucune erreur noyau recente."
-    texte = (
-        f"{len(lignes)} ligne(s) d'erreur noyau "
-        f"(dernieres {min(len(lignes), limite)} affichees) :\n"
-    )
+    if len(lignes) >= limite:
+        texte = (
+            f"Au moins {len(lignes)} ligne(s) d'erreur noyau "
+            f"({limite} dernieres affichees) :\n"
+        )
+    else:
+        texte = f"{len(lignes)} ligne(s) d'erreur noyau :\n"
     return texte + "\n".join(lignes[-limite:])
 
 
@@ -130,9 +188,24 @@ def parse_paniques(sorties):
     return traces
 
 
-def formater_paniques(traces):
-    """Texte de reponse pour root_lire_paniques_passees. Pure."""
+def formater_paniques(traces, nb_fichiers_presents=None):
+    """Texte de reponse pour root_lire_paniques_passees. Pure.
+
+    nb_fichiers_presents distingue les fichiers absents (normal sur
+    beaucoup de modeles) des fichiers presents mais vides. None
+    (defaut) : existence inconnue, message historique.
+    """
     if not traces:
+        if nb_fichiers_presents == 0:
+            return (
+                "Aucune trace de plantage noyau precedent "
+                "(fichiers de trace absents sur ce modele)."
+            )
+        if nb_fichiers_presents:
+            return (
+                "Aucune trace de plantage noyau precedent "
+                "(fichiers presents mais vides)."
+            )
         return "Aucune trace de plantage noyau precedent."
     morceaux = [f"{len(traces)} trace(s) de plantage noyau precedent."]
     for chemin, extrait in traces:
@@ -146,6 +219,7 @@ def root_lister_fichiers_systeme(dossier: str = "/system") -> str:
 
     dossier : chemin absolu sous /system, /vendor, /data, /proc, /sys
     ou assimilé (/dev, /apex, /sbin, /cache, /product, /odm, /oem).
+    Les dossiers a secrets (wifi, cles, comptes) sont refuses.
     Lecture seule, ne modifie rien. Non teste sur appareil roote.
     """
     if not chemin_lecture_valide(dossier or ""):
@@ -154,12 +228,20 @@ def root_lister_fichiers_systeme(dossier: str = "/system") -> str:
             "dossier systeme connu (/system, /vendor, /data, /proc, "
             "/sys, /dev, /apex, /sbin, /cache, /product, /odm, /oem)."
         )
+    if chemin_sensible_refuse(dossier or ""):
+        return marquer_non_teste(
+            "Erreur : dossier refuse, il peut contenir des secrets "
+            "(mot de passe wifi, compte, cle). L'outil ne liste jamais "
+            "ces dossiers."
+        )
     appareil_id, erreur = preparer_root()
     if erreur:
         return marquer_non_teste(erreur)
     resultat = executer_root(f"ls -la {citer_chemin(dossier)}", appareil_id)
     if not resultat["ok"]:
-        return marquer_non_teste(f"Dossier illisible : {resultat['erreur']}")
+        return marquer_non_teste(
+            f"Dossier illisible : {erreur_courte(resultat['erreur'])}"
+        )
     return marquer_non_teste(
         formater_liste_fichiers(
             dossier.strip(), parse_ls_la(resultat["sortie"])
@@ -172,8 +254,9 @@ def root_lire_fichier_systeme(chemin: str, limite_lignes: int = 50) -> str:
     """Lit le debut texte d'un fichier systeme protege.
 
     chemin : fichier absolu sous un dossier systeme connu (voir
-    root_lister_fichiers_systeme). limite_lignes : 1 a 200, 50 par
-    defaut. Fichiers binaires refuses. Lecture seule.
+    root_lister_fichiers_systeme). Les fichiers a secrets (mot de
+    passe wifi, comptes, cles) sont refuses. limite_lignes : 1 a
+    200, 50 par defaut. Fichiers binaires refuses. Lecture seule.
     Non teste sur appareil roote.
     """
     try:
@@ -192,29 +275,41 @@ def root_lire_fichier_systeme(chemin: str, limite_lignes: int = 50) -> str:
             "dossier systeme connu (/system, /vendor, /data, /proc, "
             "/sys, /dev, /apex, /sbin, /cache, /product, /odm, /oem)."
         )
+    if chemin_sensible_refuse(chemin or ""):
+        return marquer_non_teste(
+            "Erreur : fichier refuse, il peut contenir des secrets "
+            "(mot de passe wifi, compte, cle). L'outil ne lit jamais "
+            "ces fichiers."
+        )
     appareil_id, erreur = preparer_root()
     if erreur:
         return marquer_non_teste(erreur)
     taille = executer_root(
         f"wc -c < {citer_chemin(chemin)}", appareil_id
     )
-    total = 0
+    total = None
     if taille["ok"]:
         try:
             total = int(taille["sortie"].strip().split()[0])
         except (ValueError, IndexError):
-            total = 0
+            total = None
     resultat = executer_root(
         f"head -c {TAILLE_MAXI_FICHIER} {citer_chemin(chemin)}",
         appareil_id,
     )
     if not resultat["ok"]:
-        return marquer_non_teste(f"Fichier illisible : {resultat['erreur']}")
+        return marquer_non_teste(
+            f"Fichier illisible : {erreur_courte(resultat['erreur'])}"
+        )
     contenu = resultat["sortie"]
-    lignes = contenu.splitlines()[:limite_lignes]
+    lignes_brutes = contenu.splitlines()
+    lignes = lignes_brutes[:limite_lignes]
+    tronque = total is not None and total > TAILLE_MAXI_FICHIER
+    coupees = len(lignes_brutes) > limite_lignes
     return marquer_non_teste(
         formater_fichier_systeme(
-            chemin.strip(), "\n".join(lignes), total > TAILLE_MAXI_FICHIER
+            chemin.strip(), "\n".join(lignes), tronque,
+            lignes_coupees=coupees, taille_inconnue=total is None,
         )
     )
 
@@ -244,7 +339,9 @@ def root_lire_erreurs_noyau(limite: int = 100) -> str:
         appareil_id,
     )
     if not resultat["ok"]:
-        return marquer_non_teste(f"Noyau illisible : {resultat['erreur']}")
+        return marquer_non_teste(
+            f"Noyau illisible : {erreur_courte(resultat['erreur'])}"
+        )
     lignes = parse_dmesg_erreurs(resultat["sortie"])
     return marquer_non_teste(formater_erreurs_noyau(lignes, limite))
 
@@ -258,6 +355,15 @@ def root_lire_paniques_passees() -> str:
     appareil_id, erreur = preparer_root()
     if erreur:
         return marquer_non_teste(erreur)
+    presents = None
+    liste = executer_root(
+        "ls -d " + " ".join(FICHIERS_PANIQUE) + " 2>/dev/null", appareil_id
+    )
+    if liste["ok"] or liste["sortie"]:
+        presents = sum(
+            1 for ligne in liste["sortie"].splitlines()
+            if ligne.strip() in FICHIERS_PANIQUE
+        )
     sorties = []
     for chemin in FICHIERS_PANIQUE:
         resultat = executer_root(
@@ -266,4 +372,6 @@ def root_lire_paniques_passees() -> str:
         sorties.append(
             (chemin, resultat["sortie"] if resultat["ok"] else "")
         )
-    return marquer_non_teste(formater_paniques(parse_paniques(sorties)))
+    return marquer_non_teste(
+        formater_paniques(parse_paniques(sorties), presents)
+    )

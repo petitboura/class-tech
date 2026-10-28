@@ -10,6 +10,8 @@ renvoient le message d'absence standard.
 """
 
 import asyncio
+import contextlib
+import importlib
 import inspect
 import os
 import sys
@@ -371,6 +373,64 @@ def test_aucun_tiret_double_dans_les_textes():
         assert "--" not in texte, texte[:80]
 
 
+@contextlib.contextmanager
+def _echange(module_nom, attr, bidon):
+    """Remplace module.attr par bidon, restaure apres (pont moque)."""
+    module = importlib.import_module(module_nom)
+    ancien = getattr(module, attr)
+    setattr(module, attr, bidon)
+    try:
+        yield
+    finally:
+        setattr(module, attr, ancien)
+
+
+DF_DATA_AVANT = (
+    "Filesystem     1K-blocks    Used Available Use% Mounted on\n"
+    "/dev/block/dm-8 121234456 90000000  30000000  76% /data\n"
+)
+DF_DATA_APRES = (
+    "Filesystem     1K-blocks    Used Available Use% Mounted on\n"
+    "/dev/block/dm-8 121234456 89000000  31000000  75% /data\n"
+)
+
+
+def test_vider_cache_applis_mesure():
+    lectures = []
+
+    def faux_executer(commande, _appareil, delai=None):
+        if commande == "df /data":
+            lectures.append(commande)
+            return {"ok": True,
+                    "sortie": DF_DATA_AVANT if len(lectures) == 1 else DF_DATA_APRES,
+                    "erreur": ""}
+        assert commande.startswith("pm trim-caches ")
+        return {"ok": True, "sortie": "", "erreur": ""}
+
+    with _echange("core.outils_telephone_stockage", "preparer_appel",
+                  lambda: ("ABC123", None)):
+        with _echange("core.outils_telephone_stockage", "executer_shell",
+                      faux_executer):
+            reponse = appeler(vider_cache_applis)
+    assert "977 Mo liberes" in reponse
+
+
+def test_vider_cache_applis_refuse_propre():
+    def faux_executer(commande, _appareil, delai=None):
+        if commande == "df /data":
+            return {"ok": True, "sortie": DF_DATA_AVANT, "erreur": ""}
+        return {"ok": False, "sortie": "",
+                "erreur": "Security exception -- uid 2000"}
+
+    with _echange("core.outils_telephone_stockage", "preparer_appel",
+                  lambda: ("ABC123", None)):
+        with _echange("core.outils_telephone_stockage", "executer_shell",
+                      faux_executer):
+            reponse = appeler(vider_cache_applis, espace_voulu_mo=500)
+    assert "Nettoyage refuse" in reponse
+    assert "--" not in reponse
+
+
 def test_validation_parametres_sans_telephone():
     # Les controles d'entree repondent avant tout appel ADB.
     assert "Erreur" in appeler(lire_conso_batterie, limite=999)
@@ -472,4 +532,6 @@ if __name__ == "__main__":
     test_hotes_publics_autorises()
     test_registre_palier_80_complet()
     test_outils_80_enregistres_sur_le_serveur()
+    test_vider_cache_applis_mesure()
+    test_vider_cache_applis_refuse_propre()
     print("OK : 14 outils du palier 80.")

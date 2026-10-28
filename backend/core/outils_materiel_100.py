@@ -33,12 +33,28 @@ from core.pont_adb import DELAI_ADB_SECONDES, executer_adb_serie, preparer_acces
 # Nom du bip de test sur le téléphone (dossier partagé, effacé après).
 FICHIER_BIP_TELEPHONE = "/sdcard/classtech_bip.wav"
 
+# Valeurs texte comprises comme "oui" pour ouvrir_appli (le pont MCP
+# transmet parfois des chaines). Tout le reste veut dire non, y
+# compris la chaine "false" (audit risques : "false" est truthy).
+OUVRIR_APPLI_OUI = ("true", "1", "oui", "vrai", "yes")
+
 
 def _avec_note(acces: dict, texte: str) -> str:
     """Ajoute la note (plusieurs téléphones) devant la réponse."""
     if acces.get("note"):
         return f"{acces['note']} {texte}"
     return texte
+
+
+def veut_ouvrir_appli(valeur) -> bool:
+    """Vrai si l'appel demande vraiment d'ouvrir l'appli. Pure."""
+    if valeur is True:
+        return True
+    if isinstance(valeur, (int, float)) and not isinstance(valeur, bool):
+        return valeur == 1
+    if isinstance(valeur, str):
+        return valeur.strip().lower() in OUVRIR_APPLI_OUI
+    return False
 
 
 @mcp_diagnostic.tool()
@@ -198,7 +214,7 @@ def tester_camera(ouvrir_appli: bool = False) -> str:
         return _avec_note(acces, "Caméras illisibles sur ce téléphone.")
     analyse = analyser_camera(sortie)
     texte = analyse["resume"]
-    if ouvrir_appli:
+    if veut_ouvrir_appli(ouvrir_appli):
         lance, _, _ = executer_adb_serie(
             adb, serie, ["shell", "am", "start", "-a", "android.media.action.STILL_IMAGE_CAMERA"]
         )

@@ -10,7 +10,7 @@ Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 """
 
 from core.outils_diagnostic_commun import mcp_diagnostic
-from core.pont_adb import executer_shell
+from core.pont_adb import erreur_courte, executer_shell
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
 
 # Proprietes lues pour decrire le firmware. Source unique.
@@ -54,6 +54,39 @@ def parse_version_noyau(sortie_proc_version):
     if len(morceaux) >= 3 and morceaux[0] == "Linux":
         return f"{morceaux[0]} {morceaux[1]} {morceaux[2]}"
     return premiere[:120]
+
+
+def normaliser_slot(brut):
+    """Normalise le suffixe de slot : "_a", "_b" ou "". Pure.
+
+    `getprop ro.boot.slot_suffix` renvoie "_a" (ou "[_a]"). Tout
+    autre texte donne "" : on ne valide jamais un slot douteux
+    (audit risques).
+    """
+    if not brut or not isinstance(brut, str):
+        return ""
+    lignes = brut.strip().splitlines()
+    if not lignes:
+        return ""
+    texte = lignes[0].strip().strip("[]").strip().lower()
+    if texte in ("_a", "a"):
+        return "_a"
+    if texte in ("_b", "b"):
+        return "_b"
+    return ""
+
+
+def parse_slot_bootctl(texte):
+    """Numero de slot depuis `bootctl get-current-slot`. Pure.
+
+    Renvoie "0", "1" ou None (bootctl absent ou reponse illisible).
+    """
+    if not texte or not isinstance(texte, str):
+        return None
+    for morceau in texte.strip().split():
+        if morceau in ("0", "1"):
+            return morceau
+    return None
 
 
 def formater_firmware(infos, noyau):
@@ -101,7 +134,8 @@ def formater_validation_slot(slot, ok_bootctl, erreur=""):
     if ok_bootctl:
         return (
             f"Slot {slot} marque comme bon. La prochaine mise a jour "
-            "pourra basculer sans crainte."
+            "pourra basculer sans crainte. Validation definitive : "
+            "a ne faire que si le telephone fonctionne bien."
         )
     return f"Slot {slot} non valide : {erreur or 'commande refusee'}."
 
@@ -131,25 +165,35 @@ def root_valider_slot_demarre() -> str:
 
     Correction douce : sert quand une mise a jour refuse de se
     valider alors que le telephone demarre bien. Sans effet sur les
-    telephones sans double slot. Non teste sur appareil roote.
+    telephones sans double slot, et ne refait rien si le slot est
+    deja valide. Validation definitive. Non teste sur appareil roote.
     """
     appareil_id, erreur = preparer_root()
     if erreur:
         return marquer_non_teste(erreur)
     props = executer_shell("getprop ro.boot.slot_suffix", appareil_id)
-    slot = ""
-    if props["ok"]:
-        brut = props["sortie"].strip()
-        if brut.startswith("["):
-            slot = brut.strip("[]")
-        else:
-            slot = brut.splitlines()[0] if brut else ""
-        slot = slot.strip()
+    brut = props["sortie"] if props["ok"] else ""
+    slot = normaliser_slot(brut)
     if not slot:
+        if brut.strip():
+            return marquer_non_teste(
+                "Slot de demarrage illisible, rien modifie."
+            )
         return marquer_non_teste(formater_validation_slot("", False))
+    actuel = executer_root("bootctl get-current-slot", appareil_id)
+    numero = parse_slot_bootctl(actuel["sortie"] if actuel["ok"] else "")
+    if numero is not None:
+        marque = executer_root(
+            f"bootctl is-marked-successful {numero}", appareil_id
+        )
+        if marque["ok"]:
+            return marquer_non_teste(
+                f"Slot {slot} deja marque comme bon, rien modifie."
+            )
     resultat = executer_root("bootctl mark-boot-successful", appareil_id)
     return marquer_non_teste(
         formater_validation_slot(
-            slot, resultat["ok"], resultat["erreur"] if not resultat["ok"] else ""
+            slot, resultat["ok"],
+            erreur_courte(resultat["erreur"]) if not resultat["ok"] else "",
         )
     )

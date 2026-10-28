@@ -14,6 +14,11 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+# Les outils root ne s'exposent que si l'interrupteur est allume
+# (voir pont_root) : allume pour cette suite, AVANT d'importer le
+# serveur. test_garde_fou_root.py verifie l'etat eteint par defaut.
+os.environ.setdefault("CLASSTECH_OUTILS_ROOT", "1")
+
 from core.outils_root_acces import (  # noqa: E402
     deviner_gestionnaire_root,
     formater_infos_root,
@@ -264,7 +269,7 @@ def test_formater_batterie_brute():
         "capacity": "75", "health": "Good", "technology": "Li-ion",
     })
     assert "4.10 V" in texte
-    assert "500 mA (decharge)" in texte
+    assert "500 mA (decharge probable)" in texte
     assert "32.0 C" in texte
     assert "3000 mAh" in texte
     assert "80 %" in texte

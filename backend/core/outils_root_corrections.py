@@ -14,7 +14,7 @@ Jamais de remise a zero d'usine ici : trop destructeur.
 import re
 
 from core.outils_diagnostic_commun import mcp_diagnostic
-from core.pont_adb import DELAI_ADB_LENT_SECONDES
+from core.pont_adb import DELAI_ADB_LENT_SECONDES, erreur_courte
 from core.pont_root import executer_root, marquer_non_teste, preparer_root
 
 # Dossiers de rapports de plantage nettoyes (contenu seul, pas le dossier).
@@ -30,8 +30,28 @@ MOTIF_DU = re.compile(r"^(\S+)\s+(\S+)\s*$")
 # Sortie `fstrim -v` : /data: X bytes trimmed.
 MOTIF_TRIM = re.compile(r"(\S+):\s*([\d,]+)\s*bytes trimmed")
 
+# Points trimmes separement (un seul appel echoue ne doit pas cacher
+# le succes de l'autre, voir root_forcer_trim).
+POINTS_TRIM = ("/data", "/cache")
+
 # Modes de redemarrage acceptes. Source unique.
 MODES_REDEMARRAGE = ("normal", "recovery", "bootloader")
+
+# Fragments d'erreur ADB qui signalent une liaison coupee (le
+# telephone a bien recu l'ordre et redemarre) plutot qu'un refus.
+FRAGMENTS_COUPURE_LIAISON = (
+    "closed",
+    "lost",
+    "reset by peer",
+    "broken pipe",
+    "eof",
+    "timeout",
+    "timed out",
+    "delai depasse",
+    "no device",
+    "device not found",
+    "device offline",
+)
 
 
 def parse_du(texte):
@@ -44,6 +64,17 @@ def parse_du(texte):
         if trouve:
             tailles[trouve.group(2)] = trouve.group(1)
     return tailles
+
+
+def commande_nettoyage_crash():
+    """Commande de nettoyage des rapports de plantage. Pure.
+
+    Les trois suppressions sont separees par ";" : avec de simples
+    espaces, les "rm -rf" suivants devenaient des arguments du
+    premier et seul le premier dossier etait nettoye, en silence
+    (audit risques, bug corrige).
+    """
+    return "; ".join(f"rm -rf {d}/*" for d in DOSSIERS_CRASH)
 
 
 def formater_nettoyage(tailles, ok):
@@ -80,16 +111,25 @@ def parse_trim(texte):
     return resultats
 
 
-def formater_trim(resultats, ok, erreur=""):
-    """Texte de reponse pour root_forcer_trim. Fonction pure."""
+def formater_trim(resultats, ok, erreur="", echecs=()):
+    """Texte de reponse pour root_forcer_trim. Fonction pure.
+
+    echecs : [(point, raison)] des points non trimmes, affiches a
+    cote des succes (jamais caches, audit risques).
+    """
     if not ok:
         return f"Optimisation refusee : {erreur or 'commande refusee'}."
     if not resultats:
-        return "Optimisation terminee, gain illisible."
-    details = ", ".join(
-        f"{point} ({octets // 1024 // 1024} Mo)" for point, octets in resultats
-    )
-    return f"Stockage optimise : {details}."
+        texte = "Optimisation terminee, gain illisible."
+    else:
+        details = ", ".join(
+            f"{point} ({octets // 1024 // 1024} Mo)" for point, octets in resultats
+        )
+        texte = f"Stockage optimise : {details}."
+    if echecs:
+        rates = ", ".join(f"{point} ({raison})" for point, raison in echecs)
+        texte += f" Non trimme : {rates}."
+    return texte
 
 
 def commande_redemarrage(mode):
@@ -103,10 +143,34 @@ def commande_redemarrage(mode):
     return None
 
 
+def coupure_liaison_probable(erreur):
+    """Vrai si l'erreur evoque une coupure, pas un refus. Pure.
+
+    Apres un ordre de reboot, ADB perd presque toujours la liaison
+    (le telephone s'eteint) : un echec "closed" ou "timeout" veut
+    dire "ordre probablement parti", pas "ordre refuse".
+    """
+    if not erreur:
+        return False
+    texte = str(erreur).lower()
+    return any(fragment in texte for fragment in FRAGMENTS_COUPURE_LIAISON)
+
+
 def formater_redemarrage(mode, ok, erreur=""):
     """Texte de reponse pour root_redemarrer. Fonction pure."""
     if not ok:
-        return f"Redemarrage refuse : {erreur or 'commande refusee'}."
+        if coupure_liaison_probable(erreur):
+            precision = {
+                "normal": "",
+                "recovery": " en mode recovery",
+                "bootloader": " en mode bootloader",
+            }.get(mode, "")
+            return (
+                f"Ordre de redemarrage envoye{precision}, reponse non "
+                "recue (normal : le telephone coupe la liaison en "
+                "redemarrant). Verifie l'ecran du telephone."
+            )
+        return f"Redemarrage refuse : {erreur_courte(erreur)}."
     if mode == "normal":
         return "Telephone en cours de redemarrage. Attends son retour."
     if mode == "recovery":
@@ -125,10 +189,8 @@ def root_nettoyer_fichiers_crash() -> str:
     if erreur:
         return marquer_non_teste(erreur)
     avant = executer_root(f"du -sh {' '.join(DOSSIERS_CRASH)}", appareil_id)
-    tailles = parse_du(avant["sortie"] if avant["ok"] else "")
-    efface = executer_root(
-        " ".join(f"rm -rf {d}/*" for d in DOSSIERS_CRASH), appareil_id
-    )
+    tailles = parse_du(avant["sortie"] or "")
+    efface = executer_root(commande_nettoyage_crash(), appareil_id)
     return marquer_non_teste(formater_nettoyage(tailles, efface["ok"]))
 
 
@@ -144,7 +206,12 @@ def root_vider_cache_dalvik() -> str:
     if erreur:
         return marquer_non_teste(erreur)
     avant = executer_root("du -sh /data/dalvik-cache", appareil_id)
-    tailles = parse_du(avant["sortie"] if avant["ok"] else "")
+    if not avant["ok"] and not (avant["sortie"] or "").strip():
+        return marquer_non_teste(
+            "Cache Dalvik absent ou illisible sur ce telephone, "
+            "rien supprime."
+        )
+    tailles = parse_du(avant["sortie"] or "")
     efface = executer_root(
         "rm -rf /data/dalvik-cache/*", appareil_id,
         delai=DELAI_ADB_LENT_SECONDES,
@@ -164,16 +231,25 @@ def root_forcer_trim() -> str:
     appareil_id, erreur = preparer_root()
     if erreur:
         return marquer_non_teste(erreur)
-    resultat = executer_root(
-        "fstrim -v /data; fstrim -v /cache", appareil_id,
-        delai=DELAI_ADB_LENT_SECONDES,
-    )
-    if not resultat["ok"] and not resultat["sortie"]:
+    resultats, echecs = [], []
+    for point in POINTS_TRIM:
+        appel = executer_root(
+            f"fstrim -v {point}", appareil_id,
+            delai=DELAI_ADB_LENT_SECONDES,
+        )
+        if appel["ok"]:
+            resultats.extend(parse_trim(appel["sortie"] or ""))
+        else:
+            echecs.append((point, erreur_courte(appel["erreur"], maxi=100)))
+    if not resultats and len(echecs) == len(POINTS_TRIM):
         return marquer_non_teste(
-            formater_trim([], False, resultat["erreur"])
+            formater_trim(
+                [], False,
+                ", ".join(f"{p} ({r})" for p, r in echecs),
+            )
         )
     return marquer_non_teste(
-        formater_trim(parse_trim(resultat["sortie"]), True)
+        formater_trim(resultats, True, echecs=tuple(echecs))
     )
 
 
