@@ -61,7 +61,7 @@ en S2).
 | A9 | 05:42–06:22 | builder-100/8 | 14 outils 100 (D11) | FINI (rapport) : 14 outils, branche `0acb035`, activé `264e986`, 26 tests. |
 | A10 | file 05:42, run 06:22–06:51 | builder-root/9 | 19 outils désactivés (D11) | FINI (rapport) : 19 outils, branche `ee71d60`, `disponible=false`. |
 | A11 | ~06:52–07:11 | fusion/11 | Fusionner etc. (D11) | FINI (rapport) : merges `2ddb772`+`1bd634f`, branches supprimées, 50 outils live, 97 tests. |
-| A12 | dès 07:14 | audit-a/12 | Diagnostiquer+corriger (D15) | EN COURS. |
+| A12 | 07:14–07:52 | audit-a/12 | Diagnostiquer+corriger (D15) | FINI : 24 outils audités+corrigés, branche `audit-risques-a` (`c729c36`), non mergée. |
 | A13 | dès 07:14 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
 | A14 | — | audit-final | Trancher + corriger (D15) | À LANCER après A12+A13. |
 | A15 | dès 07:28 | site-suivi-live/14 | Page publique (D19→D21) : class-tech Pages + lien Classinus, og:, notes | EN COURS. Redirigé 2 fois (route app puis retour plan A). |
