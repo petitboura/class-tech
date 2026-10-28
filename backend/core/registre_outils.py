@@ -153,6 +153,27 @@ REGISTRE_AFFICHAGE_OUTILS = {
         "icone": "Radar",
         "onglet": "diagnostiquer",
     },
+    # Pont iOS : lectures seules via libimobiledevice (branche ios-pont).
+    "detecter_iphone": {
+        "label": "Détecter l'iPhone",
+        "icone": "Smartphone",
+        "onglet": "diagnostiquer",
+    },
+    "lire_batterie_iphone": {
+        "label": "Batterie iPhone",
+        "icone": "BatteryMedium",
+        "onglet": "diagnostiquer",
+    },
+    "lire_stockage_iphone": {
+        "label": "Stockage iPhone",
+        "icone": "HardDrive",
+        "onglet": "diagnostiquer",
+    },
+    "lire_version_iphone": {
+        "label": "Version iOS",
+        "icone": "Info",
+        "onglet": "diagnostiquer",
+    },
     # --- Palier 100 % : tests matériel unitaires ---
     "tester_ecran_tactile": {
         "label": "Test écran tactile",

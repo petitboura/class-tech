@@ -13,6 +13,7 @@ mcp_diagnostic (core/outils_diagnostic_commun.py) :
   - outils_telephone_systeme.py : version Android, erreurs récentes.
   - outils_telephone_reseau.py : état réseau, détails wifi.
   - outils_telephone_capteurs.py : test groupé des capteurs.
+  - outils_iphone_base.py : détection, batterie, stockage, version iOS.
   - outils_materiel_100.py : tests matériel unitaires (palier 100 %).
   - outils_performance_100.py : mémoire, CPU, applis gourmandes.
   - outils_securite_100.py : permissions, sécurité, mises à jour.
@@ -38,6 +39,7 @@ import core.outils_telephone_capteurs  # noqa: F401
 import core.outils_telephone_reseau  # noqa: F401
 import core.outils_telephone_stockage  # noqa: F401
 import core.outils_telephone_systeme  # noqa: F401
+import core.outils_iphone_base  # noqa: F401
 import core.outils_materiel_100  # noqa: F401
 import core.outils_performance_100  # noqa: F401
 import core.outils_securite_100  # noqa: F401
