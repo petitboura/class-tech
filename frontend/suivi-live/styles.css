@@ -252,6 +252,22 @@ a:hover { color: var(--dj-accent-2); }
   background: var(--dj-surface);
 }
 
+#faces { margin: 0.6rem 0 0.2rem; }
+
+.hackathon {
+  background: var(--dj-accent-1-conteneur);
+  border-color: var(--dj-bordure-forte);
+}
+
+.hackathon p { margin-top: 0.25rem; margin-bottom: 0.25rem; }
+
+.rien {
+  margin: 0;
+  padding: 0 1.1rem 1rem;
+  color: var(--dj-texte-muet);
+  animation: fondu 0.22s ease both;
+}
+
 .tri button {
   border: none;
   border-radius: 999px;

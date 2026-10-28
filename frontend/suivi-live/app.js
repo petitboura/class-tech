@@ -1,12 +1,15 @@
 /* Page suivi en direct : lit les docs sur la branche main de GitHub,
-   les affiche, et recommence seule toutes les heures. */
+   les affiche, et recommence seule toutes les 5 heures. Deux faces :
+   Normal (simple) et Technique (détails). */
 (function () {
   "use strict";
 
   var config = window.SUIVI_CONFIG;
   var md = window.SuiviMd;
   var outilProgression = window.SuiviProgression;
+  var outilTechnique = window.SuiviTechnique;
 
+  var faces = document.getElementById("faces");
   var nav = document.getElementById("nav");
   var contenu = document.getElementById("contenu");
   var maj = document.getElementById("maj");
@@ -16,7 +19,19 @@
   var MINUTE = 60 * 1000;
   var delaiRefresh = config.refreshMinutes * MINUTE;
   var dernierChargement = 0;
+  var face = "normal";
   var sensTri = "recent";
+
+  function sections() {
+    return face === "technique" ? config.sectionsTechnique : config.sectionsNormal;
+  }
+
+  function titreFace() {
+    for (var i = 0; i < config.faces.length; i++) {
+      if (config.faces[i].id === face) return config.faces[i].titre;
+    }
+    return "";
+  }
 
   function brut(chemin) {
     return (
@@ -25,19 +40,25 @@
     );
   }
 
+  function api(chemin) {
+    return "https://api.github.com/repos/" + config.owner + "/" + config.repo + "/" + chemin;
+  }
+
   function sectionParId(id) {
-    for (var i = 0; i < config.sections.length; i++) {
-      if (config.sections[i].id === id) return config.sections[i];
+    var liste = sections();
+    for (var i = 0; i < liste.length; i++) {
+      if (liste[i].id === id) return liste[i];
     }
-    return config.sections[0];
+    return liste[0];
   }
 
   function idDepuisHash() {
     var h = window.location.hash.replace(/^#\/?/, "").split("?")[0];
-    for (var i = 0; i < config.sections.length; i++) {
-      if (config.sections[i].id === h) return h;
+    var liste = sections();
+    for (var i = 0; i < liste.length; i++) {
+      if (liste[i].id === h) return h;
     }
-    return config.sections[0].id;
+    return liste[0].id;
   }
 
   function formateDate(d) {
@@ -48,8 +69,36 @@
     );
   }
 
+  function construireFaces() {
+    config.faces.forEach(function (f) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = f.titre;
+      b.setAttribute("data-face", f.id);
+      if (f.id === face) b.setAttribute("aria-pressed", "true");
+      b.addEventListener("click", function () { changerFace(f.id); });
+      faces.appendChild(b);
+    });
+  }
+
+  function changerFace(nouvelle) {
+    if (nouvelle === face) return;
+    face = nouvelle;
+    var boutons = faces.querySelectorAll("button");
+    for (var i = 0; i < boutons.length; i++) {
+      if (boutons[i].getAttribute("data-face") === face) boutons[i].setAttribute("aria-pressed", "true");
+      else boutons[i].removeAttribute("aria-pressed");
+    }
+    document.body.setAttribute("data-face", face);
+    construireNav();
+    if (window.location.hash === "#/accueil" || window.location.hash === "") afficherSection();
+    else window.location.hash = "#/accueil";
+    window.scrollTo(0, 0);
+  }
+
   function construireNav() {
-    config.sections.forEach(function (s) {
+    nav.innerHTML = "";
+    sections().forEach(function (s) {
       var a = document.createElement("a");
       a.href = "#/" + s.id;
       a.textContent = s.titre;
@@ -101,6 +150,27 @@
     return Promise.all(appels);
   }
 
+  function chargerJson(url) {
+    return fetch(url, { cache: "no-store" }).then(function (rep) {
+      if (!rep.ok) throw new Error("api inaccessible");
+      return rep.json();
+    });
+  }
+
+  function htmlHackathon() {
+    var h = config.hackathon;
+    return (
+      '<div class="doc hackathon">' +
+      '<p class="sur-titre">Contexte</p>' +
+      "<p><strong>" + md.echapper(h.nom) + "</strong></p>" +
+      "<p>" + md.echapper("Bourama y participe avec ce projet Class-Tech.") + "</p>" +
+      "<p>" + md.echapper("Organisé par " + h.organisateur + " : " + h.detail + ".") + "</p>" +
+      '<p><a href="' + md.echapper(h.urlAnnonce) + '" target="_blank" rel="noopener">' +
+      md.echapper("Voir l’annonce officielle") + "</a></p>" +
+      "</div>"
+    );
+  }
+
   function htmlEvenement(e) {
     var ref = e.ref ? "<strong>" + md.inline(md.echapper(e.ref)) + "</strong> " : "";
     return (
@@ -117,25 +187,101 @@
     if (groupes.length === 0) return "";
     return groupes.map(function (g, index) {
       var ouvert = ouverts ? ouverts.indexOf(g.cle) !== -1 : index === 0;
+      var corps = g.evenements.length === 0
+        ? '<p class="rien">Rien pour l\u2019instant.</p>'
+        : "<ul class=\"evts\">" + g.evenements.map(htmlEvenement).join("") + "</ul>";
       return (
         "<details class=\"heure\" data-cle=\"" + g.cle + "\"" + (ouvert ? " open" : "") + ">" +
         "<summary><span class=\"heure-titre\">" + md.echapper(g.titre) + "</span>" +
         "<span class=\"chevron\" aria-hidden=\"true\"></span></summary>" +
-        "<ul class=\"evts\">" + g.evenements.map(htmlEvenement).join("") + "</ul>" +
+        corps +
         "</details>"
       );
     }).join("");
   }
 
-  function groupesOuverts() {
+  function ouverts(choix) {
     var cles = [];
-    contenu.querySelectorAll("details.heure[open]").forEach(function (d) {
+    contenu.querySelectorAll(choix).forEach(function (d) {
       cles.push(d.getAttribute("data-cle"));
     });
     return cles;
   }
 
-  function htmlSection(section, docs) {
+  function htmlCommits(liste) {
+    var lignes = liste.map(function (c) {
+      var message = (c.commit && c.commit.message ? c.commit.message : "").split("\n")[0];
+      var date = c.commit && c.commit.committer ? new Date(c.commit.committer.date) : null;
+      return (
+        "<li class=\"evt\">" +
+        (date ? "<span class=\"evt-heure\">" + md.echapper(formateDate(date)) + "</span>" : "") +
+        "<span class=\"evt-texte\">" + md.inline(md.echapper(message)) + "</span>" +
+        (c.html_url ? ' <a href="' + md.echapper(c.html_url) + '" target="_blank" rel="noopener">voir</a>' : "") +
+        "</li>"
+      );
+    }).join("");
+    return (
+      '<div class="doc"><h2>Derniers commits sur main</h2>' +
+      "<ul class=\"evts\">" + lignes + "</ul></div>"
+    );
+  }
+
+  function htmlOutils(registre, paliersOuverts) {
+    var blocs = registre.paliers.map(function (p, index) {
+      var ouvert = paliersOuverts ? paliersOuverts.indexOf(p.nom) !== -1 : index === 0;
+      var lignes = p.outils.map(function (o) {
+        return (
+          "<li class=\"evt\">" +
+          "<span class=\"evt-texte\"><strong>" + md.echapper(o.label) + "</strong> " +
+          "<code>" + md.echapper(o.nom) + "</code></span>" +
+          (o.sensible ? "<span class=\"evt-etiquette\">confirmation exigée</span>" : "") +
+          "</li>"
+        );
+      }).join("");
+      return (
+        "<details class=\"heure\" data-cle=\"" + md.echapper(p.nom) + "\"" + (ouvert ? " open" : "") + ">" +
+        "<summary><span class=\"heure-titre\">" + md.echapper(p.nom + ", " + p.outils.length + (p.outils.length > 1 ? " outils" : " outil")) + "</span>" +
+        "<span class=\"chevron\" aria-hidden=\"true\"></span></summary>" +
+        "<ul class=\"evts\">" + lignes + "</ul>" +
+        "</details>"
+      );
+    }).join("");
+    return (
+      '<div class="doc"><h2>' + registre.total + " outils au total</h2>" +
+      "<p>Liste lue en direct dans le registre du projet.</p></div>" + blocs
+    );
+  }
+
+  function htmlTests(totaux, fichiers) {
+    var lignes = fichiers.map(function (f) {
+      return (
+        "<li class=\"evt\">" +
+        "<span class=\"evt-texte\"><code>" + md.echapper(f.name) + "</code></span>" +
+        ' <a href="' + md.echapper(f.html_url) + '" target="_blank" rel="noopener">voir</a>' +
+        "</li>"
+      );
+    }).join("");
+    var details = totaux.details.map(function (d) {
+      return (
+        "<li class=\"evt\">" +
+        "<span class=\"evt-etiquette\">" + md.echapper(d.ref) + "</span>" +
+        "<span class=\"evt-texte\">" + d.total + " tests cités</span>" +
+        "</li>"
+      );
+    }).join("");
+    return (
+      '<div class="doc"><h2>Tests</h2>' +
+      (totaux.total > 0
+        ? "<p>Plus gros total cité dans le journal : <strong>" + totaux.total + " tests</strong>.</p>"
+        : "<p>Le journal ne cite aucun total pour l\u2019instant.</p>") +
+      "<ul class=\"evts\">" + details + "</ul>" +
+      '<p><a href="#/journal">Détail dans le journal</a></p></div>' +
+      '<div class="doc"><h2>Fichiers de test sur main</h2>' +
+      "<ul class=\"evts\">" + lignes + "</ul></div>"
+    );
+  }
+
+  function htmlDocs(section, docs) {
     if (section.optionnel && docs.length > 0 && docs[0].absent) {
       return (
         '<div class="doc vide">' +
@@ -145,6 +291,7 @@
       );
     }
     var html = "";
+    if (section.hackathon) html += htmlHackathon();
     if (section.progression && docs.length > 0 && !docs[0].absent) {
       html +=
         '<div class="outils-progression">' +
@@ -154,13 +301,46 @@
         "</div></div>" +
         '<div id="groupes">' + htmlGroupes(docs[0].texte, sensTri, null) + "</div>";
     }
-    docs.forEach(function (d) {
-      if (!d.absent) html += '<article class="doc">' + md.rendre(d.texte) + "</article>";
+    docs.forEach(function (d, index) {
+      if (d.absent) return;
+      var id = section.progression && index === 0 ? ' id="journal-complet"' : "";
+      html += '<article class="doc"' + id + ">" + md.rendre(d.texte) + "</article>";
     });
     return html;
   }
 
-  function brancherTri(section, docs) {
+  /* Charge une section et rend son HTML, quel que soit son type. */
+  function chargerSection(section, clesOuvertes) {
+    if (section.type === "commits") {
+      return chargerJson(api("commits?sha=" + config.branch + "&per_page=" + config.technique.commitsNombre))
+        .then(htmlCommits);
+    }
+    if (section.type === "outils") {
+      return fetch(brut(config.technique.outilsFichier), { cache: "no-store" }).then(function (rep) {
+        if (!rep.ok) throw new Error("registre inaccessible");
+        return rep.text();
+      }).then(function (texte) {
+        return htmlOutils(outilTechnique.parseRegistre(texte), clesOuvertes);
+      });
+    }
+    if (section.type === "tests") {
+      return Promise.all([
+        chargerDocuments(section),
+        chargerJson(api("contents/" + config.technique.testsDossier + "?ref=" + config.branch))
+      ]).then(function (paquet) {
+        var totaux = outilTechnique.parseTestsJournal(paquet[0][0].texte);
+        var fichiers = paquet[1].filter(function (f) { return f.type === "file"; }).sort(function (a, b) {
+          return a.name < b.name ? -1 : 1;
+        });
+        return htmlTests(totaux, fichiers);
+      });
+    }
+    return chargerDocuments(section).then(function (docs) {
+      return { html: htmlDocs(section, docs), docs: docs };
+    });
+  }
+
+  function brancherTri(docs) {
     var boutons = contenu.querySelectorAll(".tri button");
     for (var i = 0; i < boutons.length; i++) {
       if (boutons[i].getAttribute("data-tri") === sensTri) {
@@ -193,13 +373,18 @@
 
   function afficherSection() {
     var section = sectionParId(idDepuisHash());
+    var marque = face + section.id;
     marquerNavActive(section.id);
-    document.title = section.titre + " · Suivi Class-Tech";
-    contenu.innerHTML = squelette(section.fichiers.length);
-    chargerDocuments(section).then(function (docs) {
-      if (sectionParId(idDepuisHash()).id !== section.id) return;
-      contenu.innerHTML = htmlSection(section, docs);
-      if (section.progression) brancherTri(section, docs);
+    document.title = section.titre + " · " + titreFace() + " · Suivi Class-Tech";
+    contenu.innerHTML = squelette(section.type ? 1 : section.fichiers.length);
+    chargerSection(section, null).then(function (rendu) {
+      if (face + sectionParId(idDepuisHash()).id !== marque) return;
+      if (typeof rendu === "string") {
+        contenu.innerHTML = rendu;
+      } else {
+        contenu.innerHTML = rendu.html;
+        if (section.progression) brancherTri(rendu.docs);
+      }
       dernierChargement = Date.now();
       afficherMaj();
     }).catch(function () {
@@ -207,24 +392,29 @@
     });
   }
 
-  /* Relecture silencieuse (toutes les heures) : pas de squelette, les
-     heures ouvertes restent ouvertes. */
+  /* Relecture silencieuse (toutes les 5 heures) : pas de squelette,
+     les blocs ouverts restent ouverts. */
   function rafraichir() {
     var section = sectionParId(idDepuisHash());
-    var ouverts = groupesOuverts();
-    chargerDocuments(section).then(function (docs) {
-      if (sectionParId(idDepuisHash()).id !== section.id) return;
-      if (section.progression && docs.length > 0 && !docs[0].absent) {
+    var marque = face + section.id;
+    var cles = ouverts("details.heure[open]");
+    chargerSection(section, cles.length > 0 ? cles : null).then(function (rendu) {
+      if (face + sectionParId(idDepuisHash()).id !== marque) return;
+      if (typeof rendu === "string") {
+        contenu.innerHTML = rendu;
+      } else if (section.progression && rendu.docs.length > 0 && !rendu.docs[0].absent) {
         var zone = document.getElementById("groupes");
-        if (zone) zone.innerHTML = htmlGroupes(docs[0].texte, sensTri, ouverts.length > 0 ? ouverts : null);
+        if (zone) zone.innerHTML = htmlGroupes(rendu.docs[0].texte, sensTri, cles.length > 0 ? cles : null);
+        var complet = document.getElementById("journal-complet");
+        if (complet) complet.innerHTML = md.rendre(rendu.docs[0].texte);
       } else {
-        contenu.innerHTML = htmlSection(section, docs);
-        if (section.progression) brancherTri(section, docs);
+        contenu.innerHTML = rendu.html;
+        if (section.progression) brancherTri(rendu.docs);
       }
       dernierChargement = Date.now();
       afficherMaj();
     }).catch(function () {
-      /* On garde l'ancien contenu affiché, la prochaine heure réessaiera. */
+      /* On garde l'ancien contenu affiché, la prochaine fois réessaiera. */
     });
   }
 
@@ -234,23 +424,23 @@
     tickProchaine();
   }
 
+  function delaiProchaine(minutes) {
+    if (minutes <= 1) return "moins d\u2019une minute";
+    if (minutes < 90) return minutes + " min";
+    var heures = Math.floor(minutes / 60);
+    var reste = minutes % 60;
+    return reste === 0 ? heures + " h" : heures + " h " + (reste < 10 ? "0" : "") + reste;
+  }
+
   function tickProchaine() {
     if (!dernierChargement) return;
     var reste = delaiRefresh - (Date.now() - dernierChargement);
     if (reste < 0) reste = 0;
-    var minutes = Math.ceil(reste / MINUTE);
-    prochaine.textContent =
-      minutes <= 1 ? "Prochaine actualisation dans moins d\u2019une minute" : "Prochaine actualisation dans " + minutes + " min";
+    prochaine.textContent = "Prochaine actualisation dans " + delaiProchaine(Math.ceil(reste / MINUTE));
   }
 
   function chargerCommit() {
-    var url =
-      "https://api.github.com/repos/" + config.owner + "/" + config.repo +
-      "/commits?path=docs&per_page=1";
-    fetch(url, { cache: "no-store" }).then(function (rep) {
-      if (!rep.ok) throw new Error("api");
-      return rep.json();
-    }).then(function (liste) {
+    chargerJson(api("commits?path=docs&per_page=1")).then(function (liste) {
       if (liste && liste.length > 0 && liste[0].commit && liste[0].commit.committer) {
         majCommit.textContent = "Documents publiés le " + formateDate(new Date(liste[0].commit.committer.date));
         majCommit.hidden = false;
@@ -260,6 +450,8 @@
     });
   }
 
+  document.body.setAttribute("data-face", face);
+  construireFaces();
   construireNav();
   afficherSection();
   chargerCommit();
