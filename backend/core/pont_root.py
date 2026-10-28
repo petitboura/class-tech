@@ -12,12 +12,14 @@ Marquage : chaque outil root ajoute AVERTISSEMENT_NON_TESTE a sa
 reponse (aucun appareil roote disponible pour tester ici).
 """
 
+import os
 import re
 import shlex
 
 from core.pont_adb import (
     DELAI_ADB_LENT_SECONDES,
     DELAI_ADB_SECONDES,
+    erreur_courte,
     executer_shell,
     parametre_shell_valide,
     preparer_appel,
@@ -66,6 +68,27 @@ SOUS_CHEMINS_INTERDITS = (
 
 # Sortie de `id` : uid=0(root) gid=0(root) ...
 MOTIF_UID = re.compile(r"uid=(\d+)")
+
+
+# Interrupteur des outils root (audit risques, 28/10/2026). Les
+# outils root ne sont exposes par le serveur ET n'acceptent de
+# tourner que si CLASSTECH_OUTILS_ROOT vaut "1". Eteint par defaut :
+# tant que Bourama n'a pas donne l'ordre, Classinus ne peut ni les
+# proposer (absents de list_tools) ni les executer (refus ici).
+VARIABLE_OUTILS_ROOT = "CLASSTECH_OUTILS_ROOT"
+
+
+def outils_root_actifs():
+    """Vrai si les outils root sont autorises sur ce serveur."""
+    return os.environ.get(VARIABLE_OUTILS_ROOT) == "1"
+
+
+def message_root_desactive():
+    """Message standard quand les outils root sont eteints. Fonction pure."""
+    return (
+        "Outils root desactives sur ce serveur. Le diagnostic root "
+        "n'est pas encore ouvert."
+    )
 
 
 def commande_root(commande_interne):
@@ -124,7 +147,7 @@ def message_root_absent(detail=""):
         "super-utilisateur validee sur l'ecran du telephone."
     )
     if detail:
-        court = detail if len(detail) <= 200 else detail[:200] + "..."
+        court = erreur_courte(detail)
         texte += f" Detail : {court}"
     return texte
 
@@ -132,9 +155,13 @@ def message_root_absent(detail=""):
 def preparer_root():
     """Porte d'entree standard de chaque outil root.
 
+    Refuse d'abord si les outils root sont eteints (voir
+    outils_root_actifs), sans toucher a ADB.
     Renvoie (id_appareil, None) si ADB, telephone et root sont prets,
     sinon (None, message en francais).
     """
+    if not outils_root_actifs():
+        return None, message_root_desactive()
     appareil_id, erreur = preparer_appel()
     if erreur:
         return None, erreur
@@ -208,7 +235,10 @@ __all__ = [
     "executer_root",
     "marquer_non_teste",
     "message_root_absent",
+    "message_root_desactive",
+    "outils_root_actifs",
     "parse_uid_root",
     "preparer_root",
     "verifier_root",
+    "VARIABLE_OUTILS_ROOT",
 ]

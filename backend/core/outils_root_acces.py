@@ -8,37 +8,43 @@ Deux lectures reelles via `su -c`, sans rien modifier :
 Non testes sur appareil roote (aucun ici) : chaque reponse le signale.
 """
 
-import re
-
 from core.outils_diagnostic_commun import mcp_diagnostic
 from core.pont_adb import executer_shell, preparer_appel
 from core.pont_root import (
     executer_root,
     marquer_non_teste,
     message_root_absent,
-    parse_uid_root,
+    message_root_desactive,
+    outils_root_actifs,
     preparer_root,
     verifier_root,
 )
-
-# Ligne module.prop : id=... ou name=...
-MOTIF_MODULE_ID = re.compile(r"^id=(.+)$", re.MULTILINE)
-MOTIF_MODULE_NOM = re.compile(r"^name=(.+)$", re.MULTILINE)
 
 
 def deviner_gestionnaire_root(sortie_ls_adb):
     """Devine Magisk, KernelSU ou autre depuis `ls /data/adb`. Pure.
 
-    Compare des noms entiers (audit A) : le test "su" en simple
-    sous-chaine repondait present pour presque tout ("super",
-    "result"...), d'ou des faux positifs.
+    Compare des noms entiers (audits A et B) : le test "su" en
+    simple sous-chaine repondait present pour presque tout ("super",
+    "result", "asus_config"...), d'ou des faux positifs.
     """
-    noms = set((sortie_ls_adb or "").lower().split())
-    if any(n == "magisk" or n.startswith("magisk.") for n in noms):
+    mots = set()
+    for ligne in (sortie_ls_adb or "").splitlines():
+        for mot in ligne.replace("/", " ").split():
+            mots.add(mot.strip().lower())
+    if any(
+        m == "magisk" or m.startswith("magisk.") or m.startswith("magisk_")
+        for m in mots
+    ):
         return "Magisk probable"
-    if any(n == "ksu" or n.startswith("ksu.") for n in noms):
+    if any(
+        m in ("ksu", "kernelsu")
+        or m.startswith("ksu.")
+        or m.startswith("ksu_")
+        for m in mots
+    ):
         return "KernelSU probable"
-    if "su" in noms:
+    if "su" in mots:
         return "binaire su present, gestionnaire inconnu"
     return "gestionnaire inconnu"
 
@@ -46,9 +52,10 @@ def deviner_gestionnaire_root(sortie_ls_adb):
 def parse_modules_magisk(sortie_ls, sortie_props):
     """Parse modules : (noms_dossiers, {id: nom}). Fonction pure.
 
-    Chaque name= se rattache au dernier id= vu (audit A) : l'ancien
-    appariement par rang melangeait les noms des qu'un module.prop
-    oubliait son name=.
+    Les module.prop sont lus en un seul `cat` : chaque ligne id=
+    ouvre un nouveau module, la ligne name= suivante s'y rattache.
+    Un module sans name= garde son id, sans decaler les suivants
+    (audits A et B, decalage par rang corrige).
     """
     dossiers = []
     if sortie_ls:
@@ -61,14 +68,14 @@ def parse_modules_magisk(sortie_ls, sortie_props):
     if sortie_props:
         for ligne in sortie_props.splitlines():
             ligne = ligne.strip()
-            trouve_id = MOTIF_MODULE_ID.match(ligne)
-            if trouve_id:
-                courant = trouve_id.group(1).strip()
-                modules.setdefault(courant, courant)
-                continue
-            trouve_nom = MOTIF_MODULE_NOM.match(ligne)
-            if trouve_nom and courant:
-                nom = trouve_nom.group(1).strip()
+            if ligne.startswith("id=") and len(ligne) > 3:
+                courant = ligne[3:].strip()
+                if courant:
+                    modules.setdefault(courant, courant)
+                else:
+                    courant = None
+            elif ligne.startswith("name=") and courant:
+                nom = ligne[5:].strip()
                 if nom:
                     modules[courant] = nom
     return dossiers, modules
@@ -110,6 +117,8 @@ def root_verifier_acces() -> str:
     lit l'etat SELinux. Lecture seule, ne modifie rien.
     Non teste sur appareil roote.
     """
+    if not outils_root_actifs():
+        return marquer_non_teste(message_root_desactive())
     appareil_id, erreur = preparer_appel()
     if erreur:
         return marquer_non_teste(erreur)

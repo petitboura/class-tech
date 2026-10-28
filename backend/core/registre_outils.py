@@ -15,15 +15,6 @@ Ce module ne dépend d'aucune librairie externe, pour que les tests
 du registre tournent sans rien installer.
 """
 
-# Interrupteur du palier root (audit A, garde-fou). False = les
-# outils root ne sont NI exposes sur le serveur MCP (invisibles pour
-# Classinus, ni proposables ni appelables) NI dans la categorie
-# telephone. Passer a True uniquement sur ordre explicite de Bourama,
-# apres validation sur un telephone roote. Ils restent dans
-# OUTILS_SENSIBLES pour le jour de l'activation (confirmation exigee,
-# meme pour les lectures).
-OUTILS_ROOT_ACTIFS = False
-
 # Noms des 19 outils du palier root, dans l'ordre du diagnostic.
 # Source unique, lue par OUTILS_SENSIBLES et CATEGORIES_OUTILS
 # (jamais recopiée ailleurs).
@@ -371,11 +362,7 @@ OUTILS_PALIER_80 = [
 
 # Catégories d'outils, lues par outils_de_la_categorie.
 CATEGORIES_OUTILS = {
-    "telephone": [
-        "resumer_symptome",
-        *OUTILS_PALIER_80,
-        *(OUTILS_PALIER_ROOT if OUTILS_ROOT_ACTIFS else []),
-    ],
+    "telephone": ["resumer_symptome", *OUTILS_PALIER_80, *OUTILS_PALIER_ROOT],
     "ordinateur": ["resumer_symptome"],
     "commun": ["verifier_chaine", "ping_serveur"],
     "materiel": [

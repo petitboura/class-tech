@@ -176,6 +176,22 @@ def parametre_shell_valide(valeur):
     return bool(MOTIF_PARAMETRE_SHELL.match(valeur))
 
 
+def erreur_courte(erreur, maxi=200):
+    """Erreur ADB/telephone nettoyee pour affichage. Fonction pure.
+
+    Tronque a maxi caracteres et remplace les "--" (regle MUSE.md :
+    jamais de tirets doubles dans un texte affiche). Les sorties
+    brutes de diagnostic (dmesg, fichiers) ne passent PAS par ici :
+    ce sont des donnees, pas du texte redige.
+    """
+    if not erreur:
+        return "commande refusee par le telephone."
+    texte = " ".join(str(erreur).split())
+    if len(texte) > maxi:
+        texte = texte[:maxi] + "…"
+    return texte.replace("--", ",").strip() or "commande refusee par le telephone."
+
+
 def message_adb_absent():
     """Message standard quand ADB est introuvable. Fonction pure."""
     return (
@@ -396,6 +412,7 @@ __all__ = [
     "appareils_connectes",
     "choisir_appareil",
     "executer_adb",
+    "erreur_courte",
     "executer_adb_serie",
     "executer_shell",
     "lister_telephones",

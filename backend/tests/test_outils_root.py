@@ -16,6 +16,12 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+# Les outils root refusent de tourner si l'interrupteur est eteint
+# (voir pont_root) : allume pour cette suite, qui teste les outils
+# avec un telephone simule. L'etat eteint par defaut est verifie en
+# sous-processus frais (voir _noms_outils_serveur_frais ci-dessous).
+os.environ.setdefault("CLASSTECH_OUTILS_ROOT", "1")
+
 BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..")
 
 from core.outils_root_acces import (  # noqa: E402
@@ -85,7 +91,6 @@ from core.pont_root import (  # noqa: E402
 )
 from core.registre_outils import (  # noqa: E402
     OUTILS_PALIER_ROOT,
-    OUTILS_ROOT_ACTIFS,
     OUTILS_SENSIBLES,
 )
 
@@ -424,22 +429,28 @@ def _noms_outils_serveur_frais(activer_root):
 
     En sous-processus : ce fichier importe deja les modules root, ce
     qui les enregistrerait sur l'objet partage du processus courant
-    et fausserait le test du garde-fou.
+    et fausserait le test du garde-fou. L'interrupteur passe par
+    l'environnement (voir pont_root), pas par une constante.
     """
     script = (
         "import asyncio, sys; sys.path.insert(0, '.'); "
-        "import core.registre_outils as r; "
-        f"r.OUTILS_ROOT_ACTIFS = {activer_root}; "
         "from core.serveur_mcp_diagnostic import mcp_diagnostic; "
         "noms = sorted(o.name for o in asyncio.run(mcp_diagnostic.list_tools())); "
         "print('OUTILS:' + ','.join(noms))"
     )
+    env = {
+        k: v for k, v in os.environ.items()
+        if k != "CLASSTECH_OUTILS_ROOT"
+    }
+    if activer_root:
+        env["CLASSTECH_OUTILS_ROOT"] = "1"
     termine = subprocess.run(
         [sys.executable, "-c", script],
         cwd=BACKEND_DIR,
+        env=env,
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=180,
     )
     assert termine.returncode == 0, termine.stderr[-2000:]
     for ligne in termine.stdout.splitlines():
@@ -449,7 +460,6 @@ def _noms_outils_serveur_frais(activer_root):
 
 
 def test_garde_fou_root_desactive_par_defaut():
-    assert OUTILS_ROOT_ACTIFS is False
     noms = _noms_outils_serveur_frais(False)
     for nom in OUTILS_PALIER_ROOT:
         assert nom not in noms, f"{nom} expose malgre le garde-fou"

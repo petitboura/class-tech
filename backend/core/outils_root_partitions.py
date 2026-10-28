@@ -26,23 +26,27 @@ POINTS_MONTAGE_UTILES = ("/", "/system", "/data", "/cache", "/vendor", "/product
 # Ligne `ls -l /dev/block/by-name` : droits ... date heure lien -> periph.
 MOTIF_BYNAME = re.compile(r"^l\S*\s+\d+\s+\S+\s+\S+\s+\d+\s+\S+\s+\S+\s+(\S+)\s+->\s+(\S+)")
 
+# Entrees by-name gardees au plus (le total exact reste compte
+# et annonce, voir parse_byname et formater_partitions).
+LIMITE_BYNAME = 40
+
 
 def parse_df(texte):
     """Parse `df -h` en [(systeme, taille, utilise, dispo, pct, point)].
 
     Fonction pure. Ignore l'en tete et les lignes bizarres.
-    Recolle les lignes coupees en deux (audit A, comme le parse_df
-    du palier 80 %) : sans ca, les partitions au nom long
-    disparaissaient silencieusement du resultat.
+    Recolle les lignes coupees en deux (nom du systeme seul sur sa
+    ligne, chiffres sur la suivante, comme le parse_df du palier
+    80 %) : sinon les partitions au nom long disparaissaient
+    silencieusement du resultat (audits A et B).
     """
     lignes = []
     if not texte:
         return lignes
-    lignes_brutes = [l.strip() for l in texte.splitlines()]
-    lignes_brutes = [l for l in lignes_brutes if l]
+    brutes = [l.strip() for l in texte.splitlines() if l.strip()]
     assemblees = []
     tampon = ""
-    for ligne in lignes_brutes[1:]:
+    for ligne in brutes[1:]:
         if len(ligne.split()) == 1:
             tampon = ligne
             continue
@@ -74,7 +78,7 @@ def parse_mounts(texte):
     return montages
 
 
-def parse_byname(texte, limite=40):
+def parse_byname(texte, limite=LIMITE_BYNAME):
     """Parse `ls -l /dev/block/by-name`. Fonction pure.
 
     Renvoie (entrees, total) : les entrees gardees (bornees) et le
@@ -113,6 +117,8 @@ def formater_partitions(df, montages, byname):
             mode = "lecture seule" if options.split(",")[0] == "ro" else "lecture et ecriture"
             texte += f" {point} monte en {mode} ({fstype})."
             break
+    # byname vaut (entrees, total) ; une simple liste reste acceptee
+    # (audit final : le total exact de A remplace le minimum de B).
     entrees, total = byname if isinstance(byname, tuple) else (byname, len(byname))
     if entrees:
         noms = ", ".join(nom for nom, _p in entrees[:25])
@@ -131,8 +137,10 @@ def formater_integrite(props, cmdline, montages):
     securise = props.get("ro.secure", "")
     debogable = props.get("ro.debuggable", "")
     if "androidboot.verifiedbootstate=" in cmdline:
-        extrait = cmdline.split("androidboot.verifiedbootstate=")[1].split()[0]
-        verifie = verifie or extrait.strip(",")
+        reste = cmdline.split("androidboot.verifiedbootstate=")[1]
+        morceaux_cmd = reste.split()
+        if morceaux_cmd:
+            verifie = verifie or morceaux_cmd[0].strip(",")
     morceaux = []
     if verifie.lower() == "green":
         morceaux.append("demarrage verifie : oui")

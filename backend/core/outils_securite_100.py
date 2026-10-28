@@ -17,7 +17,7 @@ from core.analyse_systeme import (
     normaliser_permission,
 )
 from core.outils_diagnostic_commun import mcp_diagnostic
-from core.pont_adb import DELAI_ADB_SECONDES, executer_adb_serie, preparer_acces
+from core.pont_adb import DELAI_ADB_SECONDES, erreur_courte, executer_adb_serie, preparer_acces
 
 # La liste complète des permissions est une grosse lecture.
 DELAI_PERMISSIONS_SECONDES = 90
@@ -44,16 +44,50 @@ def parse_verification_revoke(sortie_dumpsys: str, permissions: list[str]) -> di
 
     Renvoie {permission: True} si granted=false (retrait confirmé),
     False si granted=true (toujours accordée), None si la permission
-    n'apparaît pas (jamais demandée ou format inconnu).
+    n'apparaît pas dans la section runtime (jamais demandée ou
+    format inconnu). Seule la section runtime compte : les
+    permissions d'installation ont le même format mais ne se
+    révoquent pas (audit final : ne pas confondre).
     """
     etats: dict[str, bool | None] = {perm: None for perm in permissions}
-    if not sortie_dumpsys:
-        return etats
-    for ligne in sortie_dumpsys.splitlines():
-        trouve = re.match(r"\s+(android\.permission\.\w+):\s*granted=(\w+)", ligne)
-        if trouve and trouve.group(1) in etats:
-            etats[trouve.group(1)] = trouve.group(2) != "true"
+    accordees = parse_permissions_accordees(sortie_dumpsys or "")
+    for perm in permissions:
+        if perm in accordees:
+            etats[perm] = not accordees[perm]
     return etats
+
+
+def parse_permissions_accordees(texte: str) -> dict:
+    """Permissions runtime accordees d'apres `dumpsys package`. Pure.
+
+    Renvoie {permission: True/False}. Seule la section "runtime
+    permissions" compte : les permissions d'installation ont le meme
+    format mais ne se revoquent pas (audit risques : ne pas confondre).
+    """
+    accordees = {}
+    if not texte:
+        return accordees
+    indent_section = None
+    for ligne in texte.splitlines():
+        if not ligne.strip():
+            continue
+        bas = ligne.strip().lower()
+        if bas == "runtime permissions:":
+            indent_section = len(ligne) - len(ligne.lstrip())
+            continue
+        if indent_section is None:
+            continue
+        indent = len(ligne) - len(ligne.lstrip())
+        if indent <= indent_section:
+            indent_section = None
+            continue
+        trouve = re.match(
+            r"\s*(android\.permission\.[A-Z_]+):\s*granted=(true|false)",
+            ligne,
+        )
+        if trouve:
+            accordees[trouve.group(1)] = trouve.group(2) == "true"
+    return accordees
 
 
 @mcp_diagnostic.tool()
@@ -119,25 +153,32 @@ def revoquer_permission(paquet: str, permission: str) -> str:
             )
         if "not a changeable permission" in detail or "not changeable" in detail:
             return _avec_note(acces, f"Permission non modifiable pour {nom_paquet}.")
-        return _avec_note(acces, f"Retrait impossible pour {nom_paquet} ({echecs[0][1]}).")
-    # Vérification après coup (audit A) : pm revoke répond OK même
-    # quand il n'a rien changé. On relit l'état réel avant d'affirmer.
-    confirmes, douteux = [], []
-    ok, sortie, _ = executer_adb_serie(adb, serie, ["shell", "dumpsys", "package", nom_paquet])
-    etats = parse_verification_revoke(sortie if ok else "", retires)
-    for perm in retires:
-        (confirmes if etats.get(perm) else douteux).append(perm.rsplit(".", 1)[-1])
-    morceaux = []
-    if confirmes:
-        morceaux.append(f"Permission retirée à {nom_paquet} : {', '.join(confirmes)}.")
-    if douteux:
-        morceaux.append(
-            f"Retrait non confirmé pour {', '.join(douteux)} "
-            "(vérifiez dans les paramètres de l'appli)."
-        )
+        return _avec_note(acces, f"Retrait impossible pour {nom_paquet} ({erreur_courte(echecs[0][1])}).")
+    # Vérification après coup (audits A et B) : pm revoke répond OK
+    # même quand il n'a rien changé. On relit l'état réel (section
+    # runtime seule) avant d'affirmer.
+    courts_retires = [p.rsplit(".", 1)[-1] for p in retires]
+    texte = f"Permission retirée à {nom_paquet} : {', '.join(courts_retires)}."
+    ok_controle, sortie_controle, _ = executer_adb_serie(
+        adb, serie, ["shell", "dumpsys", "package", nom_paquet]
+    )
+    if ok_controle:
+        accordees = parse_permissions_accordees(sortie_controle)
+        non_confirmes = [p for p in retires if accordees.get(p, False)]
+        if non_confirmes:
+            courts_nc = [p.rsplit(".", 1)[-1] for p in non_confirmes]
+            texte += (
+                f" Non confirmé (toujours accordées) : {', '.join(courts_nc)}"
+                " (retrait non confirmé,"
+                " vérifiez dans les paramètres de l'appli)."
+            )
+        else:
+            texte += " Retrait vérifié."
+    else:
+        texte += " Retrait non vérifié (lecture de contrôle impossible)."
     if echecs:
-        morceaux.append(f"Reste non retiré : {', '.join(p.rsplit('.', 1)[-1] for p, _ in echecs)}.")
-    return _avec_note(acces, " ".join(morceaux))
+        texte += f" Reste non retiré : {', '.join(p.rsplit('.', 1)[-1] for p, _ in echecs)}."
+    return _avec_note(acces, texte)
 
 
 @mcp_diagnostic.tool()

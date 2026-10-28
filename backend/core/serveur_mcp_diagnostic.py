@@ -1,9 +1,5 @@
 """Serveur MCP interne de diagnostic (chantier B, paliers 80 %, 100 % et root).
 
-Garde-fou (audit A) : les 7 modules root du bas ne sont importes que
-si OUTILS_ROOT_ACTIFS vaut True dans core/registre_outils.py. Par
-defaut ils restent hors du serveur : ni visibles, ni appelables.
-
 Adapté de core/serveur_mcp_generation.py de classinus-backend (lu en
 lecture seule). Ce fichier ne fait que rassembler les modules d'outils
 ci-dessous, qui déclarent chacun leurs outils sur le même objet partagé
@@ -45,14 +41,12 @@ import core.outils_telephone_systeme  # noqa: F401
 import core.outils_materiel_100  # noqa: F401
 import core.outils_performance_100  # noqa: F401
 import core.outils_securite_100  # noqa: F401
+from core.pont_root import outils_root_actifs
 
-from core.outils_diagnostic_commun import mcp_diagnostic
-from core.registre_outils import OUTILS_ROOT_ACTIFS
-
-# Palier root DESACTIVE par defaut (audit A, garde-fou) : les modules
-# root ne sont importes, donc les outils ni exposes ni appelables,
-# que si OUTILS_ROOT_ACTIFS passe a True (ordre de Bourama seul).
-if OUTILS_ROOT_ACTIFS:
+# Palier root : expose seulement si CLASSTECH_OUTILS_ROOT vaut "1"
+# (voir pont_root). Eteint par defaut : Classinus ne peut ni
+# proposer ni executer des outils que le serveur ne liste pas.
+if outils_root_actifs():
     import core.outils_root_acces  # noqa: F401
     import core.outils_root_batterie  # noqa: F401
     import core.outils_root_corrections  # noqa: F401
@@ -60,5 +54,7 @@ if OUTILS_ROOT_ACTIFS:
     import core.outils_root_partitions  # noqa: F401
     import core.outils_root_processus  # noqa: F401
     import core.outils_root_systeme  # noqa: F401
+
+from core.outils_diagnostic_commun import mcp_diagnostic
 
 __all__ = ["mcp_diagnostic"]

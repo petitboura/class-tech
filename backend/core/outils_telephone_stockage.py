@@ -10,6 +10,7 @@ import re
 from core.outils_diagnostic_commun import mcp_diagnostic
 from core.pont_adb import (
     DELAI_ADB_LENT_SECONDES,
+    erreur_courte,
     executer_shell,
     parametre_shell_valide,
     preparer_appel,
@@ -192,7 +193,7 @@ def vider_cache_applis(espace_voulu_mo: int = 500) -> str:
     octets = espace_voulu_mo * 1024 * 1024
     nettoye = executer_shell(f"pm trim-caches {octets}", appareil_id, delai=DELAI_ADB_LENT_SECONDES)
     if not nettoye["ok"]:
-        return f"Nettoyage refuse : {nettoye['erreur']}"
+        return f"Nettoyage refuse : {erreur_courte(nettoye['erreur'])}"
     apres = executer_shell("df /data", appareil_id)
     liberes = _octets_liberes(parse_df(avant["sortie"] if avant["ok"] else ""),
                               parse_df(apres["sortie"] if apres["ok"] else ""))
