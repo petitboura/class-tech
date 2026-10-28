@@ -40,6 +40,7 @@ import core.outils_telephone_stockage  # noqa: F401
 import core.outils_telephone_systeme  # noqa: F401
 import core.outils_materiel_100  # noqa: F401
 import core.outils_performance_100  # noqa: F401
+import core.outils_profondeur_100  # noqa: F401
 import core.outils_securite_100  # noqa: F401
 from core.pont_root import outils_root_actifs
 

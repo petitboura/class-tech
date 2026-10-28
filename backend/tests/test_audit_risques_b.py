@@ -562,13 +562,13 @@ def _outils_exposes(avec_flag):
 
 def test_outils_root_absents_par_defaut():
     total, noms = _outils_exposes(avec_flag=False)
-    assert total == 31
+    assert total == 41  # 31 + 10 profonds (D34)
     assert not any(n.startswith("root_") for n in noms)
 
 
 def test_outils_root_presents_si_flag():
     total, noms = _outils_exposes(avec_flag=True)
-    assert total == 50
+    assert total == 60  # 50 + 10 profonds (D34)
     for nom in _NOMS_ROOT_ATTENDUS:
         assert nom in noms
 

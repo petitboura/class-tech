@@ -226,6 +226,57 @@ REGISTRE_AFFICHAGE_OUTILS = {
         "icone": "RefreshCw",
         "onglet": "diagnostiquer",
     },
+    # --- Palier 100 % : diagnostics profonds (lecture seule, sans root) ---
+    "lire_temperatures_internes": {
+        "label": "Températures",
+        "icone": "Thermometer",
+        "onglet": "diagnostiquer",
+    },
+    "lire_historique_batterie": {
+        "label": "Batterie détaillée",
+        "icone": "BatteryCharging",
+        "onglet": "diagnostiquer",
+    },
+    "lire_trafic_par_appli": {
+        "label": "Trafic par appli",
+        "icone": "ArrowUpDown",
+        "onglet": "diagnostiquer",
+    },
+    "lire_fluidite_ecran": {
+        "label": "Fluidité écran",
+        "icone": "Monitor",
+        "onglet": "diagnostiquer",
+    },
+    "lire_saturation_systeme": {
+        "label": "Saturation CPU/RAM",
+        "icone": "TrendingUp",
+        "onglet": "diagnostiquer",
+    },
+    "lire_reveils_planifies": {
+        "label": "Réveils planifiés",
+        "icone": "AlarmClock",
+        "onglet": "diagnostiquer",
+    },
+    "lire_journaux_systeme": {
+        "label": "Journaux système",
+        "icone": "FileText",
+        "onglet": "diagnostiquer",
+    },
+    "lire_carte_systeme": {
+        "label": "Carte système",
+        "icone": "Map",
+        "onglet": "diagnostiquer",
+    },
+    "lire_memoire_dans_le_temps": {
+        "label": "RAM dans le temps",
+        "icone": "History",
+        "onglet": "diagnostiquer",
+    },
+    "lire_verrous_veille": {
+        "label": "Verrous de veille",
+        "icone": "Lock",
+        "onglet": "diagnostiquer",
+    },
     # Palier root : onglet None partout (pas de bouton menu, affiché
     # seulement à l'exécution), confirmation exigée (voir ci-dessus).
     "root_verifier_acces": {
@@ -384,6 +435,18 @@ CATEGORIES_OUTILS = {
         "revoquer_permission",
         "verifier_securite",
         "verifier_mises_a_jour",
+    ],
+    "profonds": [
+        "lire_temperatures_internes",
+        "lire_historique_batterie",
+        "lire_trafic_par_appli",
+        "lire_fluidite_ecran",
+        "lire_saturation_systeme",
+        "lire_reveils_planifies",
+        "lire_journaux_systeme",
+        "lire_carte_systeme",
+        "lire_memoire_dans_le_temps",
+        "lire_verrous_veille",
     ],
 }
 
