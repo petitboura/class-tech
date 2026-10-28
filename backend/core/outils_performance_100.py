@@ -7,7 +7,11 @@ analyse_systeme, et renvoient un texte en français.
 
 from __future__ import annotations
 
-from core.analyse_systeme import analyser_cpu, analyser_memoire, analyser_top
+from core.analyse_systeme import (
+    analyser_cpu as analyser_cpu_systeme,
+    analyser_memoire,
+    analyser_top,
+)
 from core.outils_diagnostic_commun import mcp_diagnostic
 from core.pont_adb import executer_adb_serie, preparer_acces
 
@@ -51,7 +55,7 @@ def analyser_cpu() -> str:
     ok_charge, loadavg, _ = executer_adb_serie(adb, serie, ["shell", "cat", "/proc/loadavg"])
     if not ok_cpu and not ok_charge:
         return _avec_note(acces, "Processeur illisible sur ce téléphone.")
-    analyse = analyser_cpu(cpuinfo if ok_cpu else "", loadavg if ok_charge else "")
+    analyse = analyser_cpu_systeme(cpuinfo if ok_cpu else "", loadavg if ok_charge else "")
     return _avec_note(acces, analyse["resume"])
 
 
