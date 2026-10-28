@@ -57,11 +57,10 @@
 ## En attente de Bourama
 
 - Paliers tranchés : 80 % simple (12-15 outils), 100 % complet sans
-  root (25-35 au total), root (45-60 au total). Reste : valider les 4
-  boutons de départ (batterie, stockage, lenteurs, applis qui plantent).
+  root (25-35 au total), root (45-60 au total). Boutons de départ
+  repoussés à la phase 3 (D17, 20:03) : l'utilisateur passe par le LLM.
 - Validation locale palier 100 après la fusion (téléphone branché,
   même protocole que le palier 80).
-- Libellé à choisir : « Téléphone branché ? » (proposé par le builder
-  80) au lieu de « Détecter le phone ».
+- Libellé tranché 20:03 : garder « Détecter le phone » (D17).
 - Premières catégories d'outils phone à builder.
 - Choix de la licence.

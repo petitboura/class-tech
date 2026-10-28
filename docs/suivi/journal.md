@@ -45,8 +45,8 @@ en S2).
 | D14 | ~06:37 | Local d'abord, relais ensuite | Active | Render ne voit pas le téléphone branché au PC. |
 | D15 | 07:13 | Jamais exécuter les root + audit 3 agents | Active, en cours | Trop risqué (ordre explicite). |
 | D16 | 06:17 | Render en web service manuel | Active | Pas de blueprint trouvé. |
-| D17 | — | Libellé « Téléphone branché ? » | EN ATTENTE | Proposé par builder 80. |
-| D18 | — | 4 boutons + licence | EN ATTENTE | Questions ouvertes depuis S1. |
+| D17 | 20:03 | Garder « Détecter le phone », boutons repoussés phase 3 | Tranchée | Proposition builder écartée ; l'utilisateur le dira au LLM (chatbot normal), on y reviendra avec l'interface. |
+| D18 | — | 4 boutons + licence | EN ATTENTE | Boutons repoussés à la phase 3 avec D17 (20:03) ; licence toujours ouverte. |
 | D19 | 07:28 | Site public suivi-live (docs, refresh horaire) | Active, agent lancé | Bourama : que les gens suivent en direct. |
 | D20 | 07:30 | Specs page : thème Classinus, heures repliées + tri, notes Bourama | Active | Dictées Bourama, transmises à l'agent. |
 | D21 | 07:38 | Placement final A : class-tech Pages + lien Classinus + og: | Active | Route intégrée écartée ; aperçu partage exigé (balises og:). |
@@ -181,6 +181,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   cible (fakfak + notifs, sans trace).
 - 19:49 : D31 relais embarqué dans l'appli PC (proposition A).
   Plan d'implémentation à préparer et faire valider, rien touché.
+- 20:03 : D17 tranchée : garder « Détecter le phone » ; débat
+  boutons repoussé à la phase 3, l'utilisateur passe par le LLM ;
+  D18 ne garde que la licence.
 
 ## 5. Règles de tenue de ce journal
 
