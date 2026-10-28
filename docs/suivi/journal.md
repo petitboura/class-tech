@@ -93,6 +93,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   Samsung SM-A055F, Android 13 : détection + batterie 83 %, 31,5 °C).
 - 07:07–07:10 : fusion poussée (`2ddb772`, `1bd634f`), 50 outils.
 - 07:17–07:22 : docs strictes (journal, bilan, bugs) poussées.
+- ~08:16 : balayage local 50 outils : 25 verts, 1 rouge réel (B16),
+  24 ignorés (19 root interdits + 5 sensibles en attente OK).
+  resumer_symptome re-testé vert avec paramètres (08:19).
 
 ## 5. Règles de tenue de ce journal
 
@@ -122,3 +125,4 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 | B13 | 06:11 | Conflit rebase registre | Moi | Push avec sync | Moi (union, rien jeté) | Corrigé |
 | B14 | 07:11 | Root joignables malgré false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
 | B15 | ~06:30 | Montage cassé resté en branches | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
+| B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi après audit final | Ouvert |
