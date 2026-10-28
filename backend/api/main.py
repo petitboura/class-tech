@@ -13,11 +13,12 @@ import logging
 
 from fastapi import FastAPI
 
+from core.outils_diagnostic_commun import VERSION_SERVEUR
 from core.serveur_mcp_diagnostic import mcp_diagnostic
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Class-Tech API", version="0.1.0")
+app = FastAPI(title="Class-Tech API", version=VERSION_SERVEUR)
 
 app.mount(
     "/mcp/diagnostic",

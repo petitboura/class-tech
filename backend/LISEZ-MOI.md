@@ -11,6 +11,7 @@ Rôle de chaque fichier et dossier :
 - core/serveur_mcp_diagnostic.py : rassemble les modules d'outils sur l'objet partagé mcp_diagnostic.
 - core/outils_diagnostic_commun.py : objet FastMCP partagé par tous les outils.
 - core/outils_etat_appareil.py : outils exemple du squelette (sonde de santé, résumé du symptôme).
+- core/outils_sonde.py : sonde de test ping_serveur (répond ok, version, heure).
 - core/registre_outils.py : données signalétiques des outils (noms, labels français, icônes, onglets, catégories, outils sensibles). Sans dépendance externe.
 - connexions/ : vide, accueillera les connexions externes si un outil en a besoin un jour.
 - indexers/, migrations/, scripts/ : dossiers réservés, vides pour l'instant.

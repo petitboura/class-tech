@@ -11,4 +11,8 @@ from mcp.server.mcpserver import Context, MCPServer as FastMCP
 
 mcp_diagnostic = FastMCP(name="diagnostic")
 
-__all__ = ["Context", "mcp_diagnostic"]
+# Version du serveur, source unique (lue par api/main.py et par la
+# sonde ping_serveur, jamais recopiée ailleurs).
+VERSION_SERVEUR = "0.1.0"
+
+__all__ = ["Context", "VERSION_SERVEUR", "mcp_diagnostic"]

@@ -42,6 +42,11 @@ REGISTRE_AFFICHAGE_OUTILS = {
         "icone": "ClipboardList",
         "onglet": "diagnostiquer",
     },
+    "ping_serveur": {
+        "label": "Ping serveur",
+        "icone": "Radio",
+        "onglet": None,
+    },
 }
 
 # Verbe d'action -> (libellé, petite icône). Même source pour le texte
@@ -57,7 +62,7 @@ VERBES_ACTIONS = {
 CATEGORIES_OUTILS = {
     "telephone": ["resumer_symptome"],
     "ordinateur": ["resumer_symptome"],
-    "commun": ["verifier_chaine"],
+    "commun": ["verifier_chaine", "ping_serveur"],
 }
 
 
