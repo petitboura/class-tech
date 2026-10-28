@@ -60,6 +60,7 @@ en S2).
 | D29 | 19:10 | Confirmer les 5 outils sensibles (validation live) | Active | Ordre explicite ; 4 testés live 19:35, retrait en attente OK cible. |
 | D30 | 19:29 | Rester sur relais intégré à Classinus PC, câble d'abord | Active | Sans-fil enlève le câble, pas le programme ; appli téléphone seule reste écartée ; wifi en option plus tard. |
 | D31 | 19:49 | Relais embarqué dans l'appli Classinus PC (proposition A) | Active | Option recommandée de l'enquête : 1 seul téléchargement, relais dedans, MAJ avec l'appli ; 2e bouton écarté. |
+| D32 | 20:13 | Publier une version PC prête, installée et testée par Bourama | Active | Ordre explicite ; agent publieur lancé (A22), sans le relais (D31 viendra après). |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -86,6 +87,7 @@ en S2).
 | A19 | 11:24–15:46 | relais-install/19 | Relance A18 à l'identique (D27) | FINI (rapport) : exe 1 fichier 24,5 Mo + ADB auto, testé dossier propre + vraies données, branche `relais-install` (`afebfdd`), base et main intactes. Vérifié par moi 15:58–16:01 : rebuild depuis clone frais + essai réel (santé OK, vraies données). Limites : exe non signé, 1 téléphone, internet au 1er lancement sans ADB. |
 | A20 | 19:17–19:26 | enquete-pc/20 | Enquête version PC (ordre Bourama) | ÉCHEC technique (réseau agent, 2 essais), rien produit ; relancé A21. |
 | A21 | 19:26–19:33 | enquete-pc/21 | Relance A20, lecture seule | FINI (rapport) : Classinus PC = Electron (NSIS 1 clic, releases classinus-updates-pc, MAJ auto), install `%LOCALAPPDATA%\Programs\classinus-electron`, proposition relais embarqué (A) ou 2e bouton (B), 7 questions ouvertes. Rien modifié. |
+| A22 | dès 20:13 | publie-pc/22 | Publier version PC (D32) | EN COURS : tag pc-v + suivi workflow, aucun changement de code, sans relais. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -184,6 +186,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 20:03 : D17 tranchée : garder « Détecter le phone » ; débat
   boutons repoussé à la phase 3, l'utilisateur passe par le LLM ;
   D18 ne garde que la licence.
+- 20:13 : D32 publication PC (agent A22 lancé) ; tests sensibles
+  mis en pause (téléphone remis comme avant, serveur arrêté,
+  OK retrait déjà donné, à reprendre sur ordre).
 
 ## 5. Règles de tenue de ce journal
 
