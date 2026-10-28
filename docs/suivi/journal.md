@@ -62,6 +62,7 @@ en S2).
 | D31 | 19:49 | Relais embarqué dans l'appli Classinus PC (proposition A) | Active | Option recommandée de l'enquête : 1 seul téléchargement, relais dedans, MAJ avec l'appli ; 2e bouton écarté. |
 | D32 | 20:13 | Publier une version PC prête, installée et testée par Bourama | Active | Ordre explicite ; agent publieur lancé (A22), sans le relais (D31 viendra après). |
 | D33 | 20:49 | Laisser le root de côté (ni test, ni rootage) | Active | Téléphone non rooté, rootage trop risqué (efface tout, casse Knox) ; les 19 outils restent cachés. |
+| D34 | 21:35 | Valider 16 nouveaux outils (après) + 10 profonds (d'abord) | Active | Ordre explicite ; profonds = lecture seule niveau technicien ; agent lancé (A23 puis A24). |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -89,6 +90,8 @@ en S2).
 | A20 | 19:17–19:26 | enquete-pc/20 | Enquête version PC (ordre Bourama) | ÉCHEC technique (réseau agent, 2 essais), rien produit ; relancé A21. |
 | A21 | 19:26–19:33 | enquete-pc/21 | Relance A20, lecture seule | FINI (rapport) : Classinus PC = Electron (NSIS 1 clic, releases classinus-updates-pc, MAJ auto), install `%LOCALAPPDATA%\Programs\classinus-electron`, proposition relais embarqué (A) ou 2e bouton (B), 7 questions ouvertes. Rien modifié. |
 | A22 | 20:13–20:20 | publie-pc/22 | Publier version PC (D32) | FINI (rapport) : tag pc-v1.0.4 sur dernier main distant, release publiée (installeur 125 Mo + latest.yml), aucun changement de code. Vérifié par moi 20:29 (API releases). |
+| A23 | 21:35–21:36 | profonds/23 | Construire 10 profonds (D34) | ÉCHEC technique (réseau agent, 5 essais), rien produit ; relancé A24. |
+| A24 | dès 21:36 | profonds/24 | Relance A23 à l'identique | EN COURS : 10 outils lecture seule, tests simulés, push branche seule. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -196,6 +199,8 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   lecteur par défaut, cause trouvée ; appli photo rouverte).
 - 20:49 : D33 root laissé de côté (ni test des 19, ni rootage :
   téléphone non rooté, risques expliqués et refusés).
+- 21:35–21:36 : D34 validée (16 après, 10 profonds d'abord) ;
+  A23 échec réseau (rien écrit, vérifié), A24 relancé.
 
 ## 5. Règles de tenue de ce journal
 
