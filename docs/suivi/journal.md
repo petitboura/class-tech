@@ -87,7 +87,7 @@ en S2).
 | A19 | 11:24–15:46 | relais-install/19 | Relance A18 à l'identique (D27) | FINI (rapport) : exe 1 fichier 24,5 Mo + ADB auto, testé dossier propre + vraies données, branche `relais-install` (`afebfdd`), base et main intactes. Vérifié par moi 15:58–16:01 : rebuild depuis clone frais + essai réel (santé OK, vraies données). Limites : exe non signé, 1 téléphone, internet au 1er lancement sans ADB. |
 | A20 | 19:17–19:26 | enquete-pc/20 | Enquête version PC (ordre Bourama) | ÉCHEC technique (réseau agent, 2 essais), rien produit ; relancé A21. |
 | A21 | 19:26–19:33 | enquete-pc/21 | Relance A20, lecture seule | FINI (rapport) : Classinus PC = Electron (NSIS 1 clic, releases classinus-updates-pc, MAJ auto), install `%LOCALAPPDATA%\Programs\classinus-electron`, proposition relais embarqué (A) ou 2e bouton (B), 7 questions ouvertes. Rien modifié. |
-| A22 | dès 20:13 | publie-pc/22 | Publier version PC (D32) | EN COURS : tag pc-v + suivi workflow, aucun changement de code, sans relais. |
+| A22 | 20:13–20:20 | publie-pc/22 | Publier version PC (D32) | FINI (rapport) : tag pc-v1.0.4 sur dernier main distant, release publiée (installeur 125 Mo + latest.yml), aucun changement de code. Vérifié par moi 20:29 (API releases). |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -189,6 +189,10 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 20:13 : D32 publication PC (agent A22 lancé) ; tests sensibles
   mis en pause (téléphone remis comme avant, serveur arrêté,
   OK retrait déjà donné, à reprendre sur ordre).
+- 20:20 : release PC 1.0.4 publiée (tag sur dernier main, tout
+  le frontend dedans) ; vérifiée par moi 20:29. Bourama installe
+  et teste ; sensibles en arrière-plan (bip non entendu : pas de
+  lecteur par défaut, cause trouvée ; appli photo rouverte).
 
 ## 5. Règles de tenue de ce journal
 
