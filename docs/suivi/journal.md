@@ -80,6 +80,7 @@ en S2).
 | A16 | 08:12–08:35 | site-commentaires/16 | Commentaires + réponses Supabase (D25) | FINI (rapport) : section 2 faces, nom optionnel, sans login, `83b0ac0` + gh-pages `952e4e7`. Vérifié par moi : disque + HTTP 200 + envoi/réponse réels ; 3 lignes test restent à supprimer au dashboard. |
 | A17 | 10:34–10:53 | relais-pc/17 | Relais PC : dessiner + mettre en place + faire fonctionner (D26) | FINI (rapport) : relais local + doc + preuve live, branche `relais-pc` (`f8afcd0`), main intacte. Vérifié par moi 10:55 : santé OK + batterie réelle via relais. Installation manuelle refusée (D27), reprise A18. |
 | A18 | 10:58–11:01 | relais-install/18 | Installateur unique relais, 1 clic, zéro technique (D27) | INTERROMPU par relance --yolo (D28), rien poussé ; mission archivée dans build-tmp/REPRISE-YOLO.md, à relancer. |
+| A19 | 11:24–15:46 | relais-install/19 | Relance A18 à l'identique (D27) | FINI (rapport) : exe 1 fichier 24,5 Mo + ADB auto, testé dossier propre + vraies données, branche `relais-install` (`afebfdd`), base et main intactes. Vérifié par moi 15:58–16:01 : rebuild depuis clone frais + essai réel (santé OK, vraies données). Limites : exe non signé, 1 téléphone, internet au 1er lancement sans ADB. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -145,6 +146,17 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 11:23 : B16 vérifié sur vrai téléphone (serveur local, 31
   outils) : analyser_cpu répond vraies données (8 cœurs MT6768).
   Correctif + test + suivi poussés.
+- 11:24 : agent installateur relancé (A19, même mission que A18),
+  téléphone rebranché et visible.
+- 15:46 : installateur fini (A19) : branche `relais-install`
+  poussée (`afebfdd`), base relais-pc inchangée, main intacte ;
+  exe 1 fichier + ADB auto, testé dossier propre + vraies
+  données (batterie 98 %).
+- 15:58–16:01 : vérifié par moi : rebuild exe depuis clone
+  frais OK (24,5 Mo), essai dossier neuf port 8767 (8765 pris
+  par relais A17 oublié, B17) : santé OK + vraies données
+  (batterie 100 %, SM-A055F). Fusions relais-pc puis
+  relais-install dans main, propres, poussées.
 
 ## 5. Règles de tenue de ce journal
 
@@ -175,3 +187,4 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 | B14 | 07:11 | Root joignables malgré false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
 | B15 | ~06:30 | Montage cassé resté en branches | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
 | B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi (11:12, import renommé) | Corrigé et vérifié sur téléphone 11:23 (8 cœurs MT6768) |
+| B17 | ~16:00 | Relais A17 resté allumé, bloque le port 8765 | Moi | Vérif installateur : port occupé (PID 7840, clone relais-pc) | Personne (laissé tel quel) | Ouvert, à fermer par Bourama |

@@ -23,8 +23,12 @@
    intacte) : santé + batterie réelle via relais ; pas de tunnel
    cloud ; merge dans main après audit final.
    B16 corrigé 11:12 et vérifié sur téléphone 11:23 (8 cœurs
-   MT6768, test ciblé + 202 verts), poussé. Relais-install nettoyé
-   11:18 ; relance agent installateur après le push B16.
+   MT6768, test ciblé + 202 verts), poussé. Relais-install fini
+   15:46 (exe 1 clic + ADB auto, testé vraies données) et vérifié
+   par moi 16:01 (rebuild + essai réel) ; relais-pc et
+   relais-install fusionnés dans main, poussé. Reste : relais A17
+   oublié encore allumé (port 8765, B17, à fermer par Bourama),
+   distribution de l'exe à décider.
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)
