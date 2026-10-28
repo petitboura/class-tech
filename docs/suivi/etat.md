@@ -5,9 +5,9 @@
 1. Configuration : TERMINÉE (structure, squelette puis réduction en
    serveur d'outils, README, décision d'archi).
 2. Builder les outils + les connecter à Classinus : EN COURS
-   (readiness OK : base poussée origin/main, sonde ping_serveur, 9
-   tests, fichiers Render. Vague 2 lancée : activation/déploiement +
-   3 builders sur branches, fusionneur à la fin).
+   (readiness OK. Activation sonde par moi : registre + migration +
+   SQL + push faits ; reste création service Render puis test.
+   Builders 80/100 tournent, root en file, fusionneur à la fin).
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)
