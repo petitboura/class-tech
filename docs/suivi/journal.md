@@ -48,6 +48,7 @@ en S2).
 | D22 | 07:58 | Page : contexte hackathon Meta Global 2026 + double vue Normal/Technique | Active | Contexte public ; 2 niveaux de lecture. |
 | D23 | 07:59 | Heures vides affichées avec 'Rien pour l'instant' | Active | Jamais de trou dans la frise horaire. |
 | D24 | 08:02 | Site refresh toutes les 5 h (plus toutes les heures) | Active | Regroupement par heure inchangé ; corrige D19/D20. |
+| D25 | 08:12 | Commentaires page : nom optionnel, pas de login (Supabase) | Active | Table créée, agent A16 lancé. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -67,7 +68,8 @@ en S2).
 | A12 | 07:14–07:52 | audit-a/12 | Diagnostiquer+corriger (D15) | FINI : 24 outils audités+corrigés, branche `audit-risques-a` (`c729c36`), non mergée. |
 | A13 | 07:14–07:59 | audit-b/13 | Idem, indépendant (D15) | FINI : 24 outils audités+corrigés, branche `audit-risques-b` (`cd03da6`), 153 tests, non mergée. |
 | A14 | dès ~07:59 | audit-final | Trancher + corriger (D15) | EN COURS. |
-| A15 | dès 07:28 | site-suivi-live/14 | Page publique (D19→D21) : class-tech Pages + lien Classinus, og:, notes | EN COURS. Redirigé 2 fois (route app puis retour plan A). |
+| A15 | 07:28–~08:10 | site-suivi-live/14 | Page publique (D19→D21) : class-tech Pages + lien Classinus, og:, notes | FINI (rapport) : URL live, Normal/Technique, heures+tri, notes, refresh 5h, og:. Source + lien poussés par moi ensuite. |
+| A16 | dès 08:12 | site-commentaires/16 | Commentaires + réponses Supabase (D25) | EN COURS. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
