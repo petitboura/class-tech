@@ -47,6 +47,7 @@ en S2).
 | D21 | 07:38 | Placement final A : class-tech Pages + lien Classinus + og: | Active | Route intégrée écartée ; aperçu partage exigé (balises og:). |
 | D22 | 07:58 | Page : contexte hackathon Meta Global 2026 + double vue Normal/Technique | Active | Contexte public ; 2 niveaux de lecture. |
 | D23 | 07:59 | Heures vides affichées avec 'Rien pour l'instant' | Active | Jamais de trou dans la frise horaire. |
+| D24 | 08:02 | Site refresh toutes les 5 h (plus toutes les heures) | Active | Regroupement par heure inchangé ; corrige D19/D20. |
 
 ## 3. Agents (S2, ordre de lancement)
 
