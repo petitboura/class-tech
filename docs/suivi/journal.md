@@ -1,80 +1,89 @@
-# Journal strict (ordre chronologique, J = 28/10/2026)
+# Journal strict (28/10/2026, heures locales du PC, ordre chronologique)
 
-Tenu à jour à chaque décision et chaque agent. Les faits marqués
-"(rapport)" viennent des rapports d'agents, pas encore revérifiés par
-l'agent principal ; tout le reste est vérifié (disque, git, base, HTTP).
+Heures relevées dans les logs de session et git. S1 : 01:23–03:15.
+S2 : 04:09–en cours. Les faits marqués "(rapport)" viennent des
+rapports d'agents ; tout le reste est vérifié (disque, git, base,
+HTTP). `~` = minute approximative (déduite, pas relevée).
 
 ## 1. Sessions
 
-- S1 `01a17fdc-ca05-7f50-a006-f2fd00a83aaa` (matin, interrompue avant la
-  fin) : cadrage produit, 3 niveaux, paliers 80/root, plan V1 (12-15 /
-  25-35 / 45-60 outils), connecteurs, 3 phases, chantiers A (fini), B
-  et C (lancés, jamais livrés).
-- S2 `01a1807a-5ac7-7080-b92e-e5bddc594b09` (en cours) : reprise,
-  B/C relancés et livrés, décision serveur d'outils, réduction, phase 2.
+- S1 `01a17fdc-ca05-7f50-a006-f2fd00a83aaa` (01:23–03:15, interrompue
+  avant la fin) : cadrage produit, 3 niveaux, paliers 80/root, plan
+  V1 (12-15 / 25-35 / 45-60 outils), connecteurs, 3 phases, chantiers
+  A (fini), B et C (lancés, jamais livrés).
+- S2 `01a1807a-5ac7-7080-b92e-e5bddc594b09` (dès 04:09) : reprise, B/C
+  relancés et livrés, décision serveur d'outils, réduction, phase 2.
 
-## 2. Décisions (S2, sauf noté)
+## 2. Décisions
 
-| # | Décision | Statut | Pourquoi / pourquoi annulée |
-|---|----------|--------|------------------------------|
-| D1 | Continuer en NOUVELLE session, pas en `resume` | Active | Ancienne trop lourde (5000+ événements, ~280 messages). |
-| D2 | Relancer chantiers B et C non livrés en S1 | Active, exécutée | Finir la configuration. |
-| D3 | Ne pas lancer B | Annulée 1 min après (par D4) | Hésitation immédiate de Bourama. |
-| D4 | Lancer B quand même | Active, exécutée | Ordre explicite "lance le". |
-| D5 | class-tech = serveur d'outils MCP seul, cerveau dans Classinus | Active | Proposé par Bourama : inutile de tout ramener, le seul but est que le LLM appelle les outils. Remplace D6. |
-| D6 | Backend complet dupliqué dans class-tech | Abandonnée (remplacée par D5) | Redondant avec la prod Classinus. |
-| D7 | Branchement officiel (registre + migration) | Active | Serveur personnalisé = confirmation à chaque appel, même en lecture (vérifié dans le code). |
-| D8 | Réduire le squelette B au serveur seul | Active, exécutée | Conséquence de D5. |
-| D9 | 3 phases : 1 config (finie), 2 outils+connexion, 3 interface | Active | Plan de Bourama (interface en dernier). |
-| D10 | Paliers 80 simple / 100 complet sans root / root | Active | Correction de Bourama : affine l'ancien plan où 100 % = root. |
-| D11 | Phase 2 en 6 agents + push GitHub autorisé | Active, exécutée avec D13 | Ordre explicite (readiness, activation, 3 builders sur branches, fusionneur). |
-| D12 | Isolation worktree pour les builders | Impossible, fallback clones `build-tmp/` | Runtime refuse (dépôt non reconnu) ; ordre logique préservé : base d'abord. |
-| D13 | Activation faite par moi, agent activation annulé | Active, exécutée | Ordre explicite "toi même fais". |
-| D14 | Valider adb en local d'abord, relais PC ensuite | Active | Serveur Render ne voit pas le téléphone branché au PC ; local = zéro code pour valider vite. |
-| D15 | Interdiction d'exécuter les outils root + audit en 3 agents | Active, en cours | Trop risqué (ordre explicite). |
-| D16 | Render en web service manuel (pas de blueprint) | Active | Pas de blueprint trouvé par Bourama. |
-| D17 | Libellé « Téléphone branché ? » | EN ATTENTE | Proposé par builder 80 contre « Détecter le phone ». |
-| D18 | 4 boutons de départ + licence | EN ATTENTE | Questions ouvertes depuis S1. |
+S1 (01:23–03:15) : 01:33 V1 80 % sans root + app seule abandonnée ;
+01:34 Windows d'abord ; 01:38 chatbot normal (corrige boutons) ;
+02:23 connexion navigateur, pas token ; 02:51 build par étapes ;
+03:00 3 phases ; 03:13–03:14 questions README (sans réponse, reprises
+en S2).
+
+| # | Heure | Décision | Statut | Pourquoi |
+|---|-------|----------|--------|----------|
+| D1 | 04:20 | Nouvelle session, pas `resume` | Active | Ancienne trop lourde (5000+ événements). |
+| D2 | 04:25 | Relancer chantiers B et C | Active, exécutée | Finir la configuration. |
+| D3 | 04:25 | Ne pas lancer B | Annulée (par D4) | Hésitation immédiate de Bourama. |
+| D4 | 04:26 | Lancer B quand même | Active, exécutée | Ordre explicite. |
+| D5 | 04:48 | class-tech = serveur d'outils seul | Active | Idée Bourama : inutile de tout ramener. Remplace D6. |
+| D6 | — | Backend complet dupliqué | Abandonnée (D5) | Redondant avec la prod Classinus. |
+| D7 | 04:48 | Branchement officiel | Active | Personnalisé = confirmation à chaque appel (vérifié). |
+| D8 | 04:48 | Réduire le squelette B | Active, exécutée | Conséquence de D5. |
+| D9 | 05:00 | 3 phases, interface en dernier | Active | Plan de Bourama. |
+| D10 | 05:02 | Paliers 80 / 100 sans root / root | Active | Correction Bourama (ancien plan : 100 % = root). |
+| D11 | 05:26 | Phase 2 en 6 agents + push OK | Active | Ordre explicite. |
+| D12 | 05:26 | Fallback clones (isolation refusée) | Active | Runtime refuse le worktree ; base d'abord. |
+| D13 | 05:49 | Activation par moi, agent annulé | Active, exécutée | Ordre explicite. |
+| D14 | ~06:37 | Local d'abord, relais ensuite | Active | Render ne voit pas le téléphone branché au PC. |
+| D15 | 07:13 | Jamais exécuter les root + audit 3 agents | Active, en cours | Trop risqué (ordre explicite). |
+| D16 | 06:17 | Render en web service manuel | Active | Pas de blueprint trouvé. |
+| D17 | — | Libellé « Téléphone branché ? » | EN ATTENTE | Proposé par builder 80. |
+| D18 | — | 4 boutons + licence | EN ATTENTE | Questions ouvertes depuis S1. |
 
 ## 3. Agents (S2, ordre de lancement)
 
-| # | Agent | Pourquoi lancé | Statut et résultat |
-|---|-------|----------------|--------------------|
-| A1 | chantier-b/1 | Finir B (D2) | ANNULÉ par Bourama avant tout travail (D3). |
-| A2 | chantier-c/2 | Finir C (D2) | FINI : README + briefs images + doc étape. |
-| A3 | chantier-b/3 | Finir B (D4) | FINI : squelette chaîne LLM (réduit ensuite par D8). |
-| A4 | reduction | Réduire au serveur d'outils (D8) | FINI : 7 fichiers supprimés, MCP seul, test OK. |
-| A5 | readiness | Base + sonde avant builders (D11) | FINI : PRÊT, 2 commits poussés (`437f6da`, `7ed47e2`), sonde `ping_serveur`, 9 tests, fichiers Render. |
-| A6 | activation/6 | Activer la sonde (D11) | ÉCHEC démarrage (panne runtime), relancé en A7. |
-| A7 | activation/10 | Reprise de A6 | ANNULÉ, fait par moi (D13). |
-| A8 | builder-80/7 | 14 outils palier 80 + pont (D11) | FINI (rapport) : pont ADB + 14 outils, mergé (`baf3d08`), déployé, 37 tests, registre poussé (`81cfa3e`). |
-| A9 | builder-100/8 | 14 outils palier 100 (D11) | FINI (rapport) : 14 outils, branche `outils-100` (`0acb035`), activé (`264e986`), 26 tests. |
-| A10 | builder-root/9 | 19 outils root désactivés (D11) | FINI (rapport) : 19 outils, branche `outils-root` (`ee71d60`), `disponible=false`. |
-| A11 | fusion/11 | Fusionner, nettoyer, redéployer (D11) | FINI (rapport) : merges `2ddb772`+`1bd634f`, branches supprimées, 50 outils live sur Render, 97 tests. |
-| A12 | audit-a/12 | Diagnostiquer+corriger risques (D15) | EN COURS. |
-| A13 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
-| A14 | audit-final | Trancher + corriger pour de bon (D15) | À LANCER après A12+A13. |
+| # | Heures | Agent | Pourquoi | Statut et résultat |
+|---|--------|-------|----------|--------------------|
+| A1 | 04:25–04:25 | chantier-b/1 | Finir B (D2) | ANNULÉ avant tout travail (D3). |
+| A2 | 04:26–~04:28 | chantier-c/2 | Finir C (D2) | FINI : README + briefs + doc. |
+| A3 | 04:26–04:29 | chantier-b/3 | Finir B (D4) | FINI : squelette (réduit ensuite). |
+| A4 | ~04:50–~04:59 | reduction | Réduire au serveur (D8) | FINI : 7 fichiers supprimés, test OK. |
+| A5 | 05:26–05:40 | readiness | Base + sonde (D11) | FINI : 2 commits (`437f6da`, `7ed47e2`), `ping_serveur`, 9 tests. |
+| A6 | 05:42 | activation/6 | Activer sonde (D11) | ÉCHEC démarrage (runtime), relancé A7. |
+| A7 | 05:42–05:49 | activation/10 | Reprise A6 | ANNULÉ, fait par moi (D13). |
+| A8 | 05:42–~06:47 | builder-80/7 | 14 outils + pont (D11) | FINI (rapport) : pont + 14, mergé, déployé, 37 tests, registre `81cfa3e`. |
+| A9 | 05:42–06:22 | builder-100/8 | 14 outils 100 (D11) | FINI (rapport) : 14 outils, branche `0acb035`, activé `264e986`, 26 tests. |
+| A10 | file 05:42, run 06:22–06:51 | builder-root/9 | 19 outils désactivés (D11) | FINI (rapport) : 19 outils, branche `ee71d60`, `disponible=false`. |
+| A11 | ~06:52–07:11 | fusion/11 | Fusionner etc. (D11) | FINI (rapport) : merges `2ddb772`+`1bd634f`, branches supprimées, 50 outils live, 97 tests. |
+| A12 | dès 07:14 | audit-a/12 | Diagnostiquer+corriger (D15) | EN COURS. |
+| A13 | dès 07:14 | audit-b/13 | Idem, indépendant (D15) | EN COURS. |
+| A14 | — | audit-final | Trancher + corriger (D15) | À LANCER après A12+A13. |
 
-S1 : 13 lancés, 11 livrés (inspecteur, lecteurs, inventaire, audit
-connexions, 5 installateurs, audit README, chantier A) ; B/C lancés
-jamais livrés (repris en A2/A3).
+S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
+inventaire, audit connexions, 5 installateurs, audit README, chantier
+A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 
-## 4. Étapes et jalons vérifiés
+## 4. Étapes et jalons vérifiés (heures)
 
-- Phase 1 finie : structure (A), squelette (B) puis réduction serveur,
-  README (C), décision archi (étape 2).
-- Activation sonde faite par moi : 5 entrées registre + migration SQL
-  + ligne Supabase `disponible=true` (relue) + push `40d176e`
-  (rebase résolu par union avec le travail parallèle).
-- Service Render `class-tech-outils` créé par Bourama
-  (`https://class-tech-outils.onrender.com`, `srv-dbgocjui0phs738j7heg`),
-  répond 200, URL conforme au registre.
-- Test bout-en-bout ping via Clovis : OK (réponse oui).
-- Validation locale 80 sur vrai téléphone (R92WC0N34BP, Samsung
-  SM-A055F, Android 13) : 17 outils listés, détection + batterie
-  réelles (83 %, 31,5 °C).
-- Fusion vérifiée sur disque : merges dans main, branches distantes
-  supprimées, 50 outils = 3 base + 14 + 14 + 19.
+- 05:38–05:39 : base + sonde poussées (`437f6da`, `7ed47e2`).
+- 06:11 : activation poussée `40d176e` (rebase résolu par union).
+- 06:12–06:13 : suivi vague 2 poussé.
+- 06:15–06:17 : palier 80 poussé + mergé (`6bc8e09`, `baf3d08`).
+- 06:19–06:21 : palier 100 poussé + activé (`0acb035`, `264e986`).
+- ~06:26 : service Render créé par Bourama ; ~06:29 : URL répond 200,
+  list_tools OK (adresse conforme au registre).
+- 06:30 : correctif Render 80 (`1de1d0b`).
+- 06:36 : test bout-en-bout ping via Clovis OK (réponse oui).
+- 06:39 : registre 80 poussé (`81cfa3e`).
+- 06:44–06:50 : palier root poussé + enregistré désactivé (`ee71d60`,
+  `3f3f267`).
+- ~07:02 : validation locale 80 sur vrai téléphone (R92WC0N34BP,
+  Samsung SM-A055F, Android 13 : détection + batterie 83 %, 31,5 °C).
+- 07:07–07:10 : fusion poussée (`2ddb772`, `1bd634f`), 50 outils.
+- 07:17–07:22 : docs strictes (journal, bilan, bugs) poussées.
 
 ## 5. Règles de tenue de ce journal
 
@@ -82,27 +91,25 @@ jamais livrés (repris en A2/A3).
   en attente) et motif ; une annulation n'efface jamais la ligne.
 - Tout agent lancé y entre avec son pourquoi et son résultat.
 - Faits vérifiés distingués des rapports d'agents.
-- Mis à jour dans le même geste que l'événement, jamais après coup.
-- Horodatage : passé = date 28/10/2026 + n° d'ordre (heures exactes
-  dans les logs de session) ; toute nouvelle entrée = date + heure
-  relevées au shell au moment de l'écrire.
+- Chaque entrée porte date + heure relevées (logs session, git) dans
+  le même geste que l'événement, jamais après coup.
 
-## 6. Bugs et incidents (qui a trouvé, comment)
+## 6. Bugs et incidents (qui a trouvé, comment, quand)
 
-| # | Quoi | Trouvé par | Comment | Corrigé par | Statut |
-|---|------|------------|---------|-------------|--------|
-| B1 | Montage HTTP MCP cassé (api/main.py) | Builder 80 | Déploiement Render : rien ne répondait | Builder 80 (duree_vie + hôtes autorisés) | Corrigé, gardé par fusionneur |
-| B2 | Gestionnaire sessions MCP non démarré | Builder 80 | Idem | Builder 80 | Corrigé |
-| B3 | Anti-rebond DNS bloque l'hôte Render | Builder 80 | Idem | Builder 80 (via env, pas en dur) | Corrigé |
-| B4 | pont_adb.py dupliqué, API divergentes 80 vs 100 | Builder 100 | Lecture des deux branches | Fusionneur (pont unique, 28 appels adaptés) | Corrigé |
-| B5 | Shell sandbox principal en panne (deny_read_acl_state) | Moi | Échecs répétés | Contourné : shell escaladé + shells agents | Ouvert (système) |
-| B6 | Prompts d'approbation désactivés un temps | Moi | Appel refusé | Cause inconnue, refonctionne depuis | Clos |
-| B7 | Token Supabase mal décodé (UTF-16 vs UTF-8) | Moi | API : JWT could not be decoded | Moi (décodage UTF-8) | Corrigé |
-| B8 | Branche locale master + dépôt GitHub vide | Readiness | Inspection git | Readiness (renommée main + push) | Corrigé |
-| B9 | Tests registre en égalité exacte après union | Fusionneur | pytest | Fusionneur (sous-ensemble) | Corrigé |
-| B10 | 3 textes approximatifs (__init__, docstring) | Réduction | Relecture | Personne | Ouvert mineur |
-| B11 | Pas d'endpoint /health (render.yaml) | Readiness | Lecture render.yaml | Personne (optionnel) | Ouvert mineur |
-| B12 | Installateurs CLI bloqués EPERM npm (S1, rapports) | Installateurs S1 | Sorties shell | Non (contourné) | Clos S1 |
-| B13 | Conflit rebase registre (staging parallèle) | Moi | Push avec sync | Moi (union, rien jeté) | Corrigé |
-| B14 | Outils root joignables malgré disponible=false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
-| B15 | Montage cassé resté dans branches 100/root | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
+| # | Heure | Quoi | Trouvé par | Comment | Corrigé par | Statut |
+|---|-------|------|------------|---------|-------------|--------|
+| B1 | ~06:05 | Montage HTTP MCP cassé | Builder 80 | Déploiement : rien ne répondait | Builder 80 | Corrigé, gardé par fusionneur |
+| B2 | ~06:05 | Sessions MCP non démarrées | Builder 80 | Idem | Builder 80 | Corrigé |
+| B3 | ~06:15 | Anti-rebond bloque hôte Render | Builder 80 | Idem | Builder 80 (via env) | Corrigé |
+| B4 | 06:19 | pont_adb dupliqué, API divergentes | Builder 100 | Lecture des 2 branches | Fusionneur (pont unique) | Corrigé |
+| B5 | 04:10 | Shell sandbox principal en panne | Moi | Échecs répétés | Contourné (escaladé + agents) | Ouvert (système) |
+| B6 | ~06:55 | Approbations désactivées un temps | Moi | Appel refusé | Cause inconnue, refonctionne | Clos |
+| B7 | 05:55 | Token Supabase mal décodé | Moi | API : JWT illisible | Moi (UTF-8) | Corrigé |
+| B8 | 05:38 | Branche master + dépôt vide | Readiness | Inspection git | Readiness (main + push) | Corrigé |
+| B9 | ~07:08 | Tests en égalité exacte après union | Fusionneur | pytest | Fusionneur (sous-ensemble) | Corrigé |
+| B10 | ~04:55 | 3 textes approximatifs | Réduction | Relecture | Personne | Ouvert mineur |
+| B11 | ~05:39 | Pas d'endpoint /health | Readiness | Lecture render.yaml | Personne (optionnel) | Ouvert mineur |
+| B12 | S1 ~02:25 | Installateurs CLI bloqués EPERM | Installateurs S1 | Sorties shell | Non (contourné) | Clos S1 |
+| B13 | 06:11 | Conflit rebase registre | Moi | Push avec sync | Moi (union, rien jeté) | Corrigé |
+| B14 | 07:11 | Root joignables malgré false ? | Fusionneur (doute) | Lecture code | Audit en cours | SUSPECT, non confirmé |
+| B15 | ~06:30 | Montage cassé resté en branches | Builder 80 | Comparaison | Fusionneur (gardé le sien) | Corrigé |
