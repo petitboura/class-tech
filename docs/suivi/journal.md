@@ -64,6 +64,7 @@ en S2).
 | D33 | 20:49 | Laisser le root de côté (ni test, ni rootage) | Active | Téléphone non rooté, rootage trop risqué (efface tout, casse Knox) ; les 19 outils restent cachés. |
 | D34 | 21:35 | Valider 16 nouveaux outils (après) + 10 profonds (d'abord) | Active | Ordre explicite ; profonds = lecture seule niveau technicien ; agent lancé (A23 puis A24). |
 | D35 | ~21:45 | Adapter le diagnostic à iOS (agent A25) | Active | Ordre explicite ; clone frais ios-pont, lecture seule, sans jailbreak. |
+| D36 | 23:52 | Relais embarqué construit + fusionné + publié en 1.0.5 | Active | Ordre explicite "vite" ; agent lancé (A27), clone frais, tag pc-v1.0.5. |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -95,6 +96,7 @@ en S2).
 | A24 | 21:36–~21:55 | profonds/24 | Relance A23 à l'identique | ÉCHEC réseau en fin de travail : 4 fichiers écrits non committés (2 nouveaux, 2 modifiés), récupérés par moi, finis en direct. |
 | A25 | ~21:45–~21:55 | ios-pont/25 | Pont iOS + faisabilité 31 (D35) | ÉCHEC réseau (clone frais créé, contenu à vérifier), à relancer quand le réseau agents revient. |
 | A26 | ~23:20 | merge-profonds/26 | Fusionner profonds dans main | ÉCHEC réseau au démarrage, rien produit ; fusion faite par moi en direct (propre, 213 verts, poussée). |
+| A27 | dès 23:52 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | EN COURS : clone frais, Electron + plugin + carte, tag pc-v1.0.5, release. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -220,6 +222,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
   erreur = normal, le cloud ne voit aucun téléphone (D31 réglera).
+- 23:52 : agent Meta lent : 38 lectures, 0 écriture en 2h30 +
+  config git frontend effacée (B19, réparée par moi) ; D36
+  relais embarqué publié 1.0.5 (agent A27 lancé).
 
 ## 5. Règles de tenue de ce journal
 
@@ -252,3 +257,4 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 | B16 | ~08:16 | analyser_cpu s'appelle lui-même (import masqué par l'outil) | Moi | Balayage local : takes 0 args but 2 given | Moi (11:12, import renommé) | Corrigé et vérifié sur téléphone 11:23 (8 cœurs MT6768) |
 | B17 | ~16:00 | Relais A17 resté allumé, bloque le port 8765 | Moi | Vérif installateur : port occupé (PID 7840, clone relais-pc) | Personne (déjà fermé avant mon geste) | Fermé, constaté 19:15 (port libre) |
 | B18 | ~19:35 | Liste caméras incohérente (2 annoncées, 5 façades) | Moi | Test live tester_camera : "2 caméras (arrière, avant, arrière, avant, arrière)" | Personne | SUSPECT, non confirmé |
+| B19 | 23:52 | Config git frontend effacée (fichier plein de zéros) | Moi | Enquête agent Meta lent : git frontend en erreur partout | Moi (reconstruite depuis FETCH_HEAD, vérifiée) | Corrigé |
