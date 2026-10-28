@@ -94,6 +94,7 @@ en S2).
 | A23 | 21:35–21:36 | profonds/23 | Construire 10 profonds (D34) | ÉCHEC technique (réseau agent, 5 essais), rien produit ; relancé A24. |
 | A24 | 21:36–~21:55 | profonds/24 | Relance A23 à l'identique | ÉCHEC réseau en fin de travail : 4 fichiers écrits non committés (2 nouveaux, 2 modifiés), récupérés par moi, finis en direct. |
 | A25 | ~21:45–~21:55 | ios-pont/25 | Pont iOS + faisabilité 31 (D35) | ÉCHEC réseau (clone frais créé, contenu à vérifier), à relancer quand le réseau agents revient. |
+| A26 | ~23:20 | merge-profonds/26 | Fusionner profonds dans main | ÉCHEC réseau au démarrage, rien produit ; fusion faite par moi en direct (propre, 213 verts, poussée). |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -215,6 +216,10 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   (9 données réelles, trafic indisponible sur ce Samsung) ;
   2 correctifs (procstats TOTAL, lshal 200) ; branche poussée,
   fusion à ordonner.
+- 23:27 : fusion profonds ordonnée puis faite en direct (A26
+  tombé réseau) : propre, 213 verts, poussée ; Render à 41
+  outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
+  erreur = normal, le cloud ne voit aucun téléphone (D31 réglera).
 
 ## 5. Règles de tenue de ce journal
 
