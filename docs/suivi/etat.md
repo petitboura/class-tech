@@ -7,7 +7,15 @@
 2. Builder les outils + les connecter à Classinus : EN COURS
    (readiness OK. Activation sonde par moi : registre + migration +
    SQL + push faits ; reste création service Render puis test.
-   Builders 80/100 tournent, root en file, fusionneur à la fin).
+   Builders 80, 100 et root finis et fusionnés dans main (50 outils,
+   branches supprimées, Render redéployé). Audit sécurité root lancé
+   (2 parallèles puis 1 final : diagnostiquer + corriger, JAMAIS
+   d'exécution live des outils root).
+   Render live (17 outils listés). Test bout-en-bout ping OK via
+   Clovis. Décidé : local d'abord pour valider, relais PC ensuite.
+   Validation locale 80 OK sur vrai téléphone (Samsung SM-A055F,
+   Android 13 : détection + batterie réelles). Reste : valider le
+   palier 100 après fusion, relais PC à designer ensuite.
 3. Construire l'interface : après.
 
 ## Ce qui est en place (vérifié sur disque)
@@ -34,5 +42,9 @@
 - Paliers tranchés : 80 % simple (12-15 outils), 100 % complet sans
   root (25-35 au total), root (45-60 au total). Reste : valider les 4
   boutons de départ (batterie, stockage, lenteurs, applis qui plantent).
+- Validation locale palier 100 après la fusion (téléphone branché,
+  même protocole que le palier 80).
+- Libellé à choisir : « Téléphone branché ? » (proposé par le builder
+  80) au lieu de « Détecter le phone ».
 - Premières catégories d'outils phone à builder.
 - Choix de la licence.

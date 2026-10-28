@@ -9,6 +9,10 @@ pour reprendre dans une nouvelle session comme si de rien n'était.
 - `etat.md` : où on en est, ce qui est fini, ce qui est en cours, ce qui
   attend Bourama. Le fichier à lire en premier.
 - `decisions.md` : les décisions prises, avec leur date.
+- `journal.md` : le registre strict (décisions actives/annulées/en
+  attente avec motifs, tous les agents avec pourquoi et résultat).
+- `bilan.md` : le bilan Bourama (but, erreurs, décisions,
+  délégations, rôle), tenu à jour à chaque phase.
 - Les docs `etape-*.md` à la racine de `docs/` restent les traces
   détaillées de chaque étape (on ne les réécrit pas).
 

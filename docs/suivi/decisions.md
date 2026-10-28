@@ -19,3 +19,9 @@
   fusionneur avec push + redéploiement). Push GitHub autorisé. Le
   builder 80 % merge, pousse et déploie lui-même. Paliers : 80 %
   simple, 100 % complet sans root, root désactivé (disponible=false).
+- 28/10/2026 : exécution adb en local d'abord pour valider les outils
+  (zéro code en plus), relais PC ensuite pour le produit. Test
+  bout-en-bout ping_serveur OK via Clovis.
+- 28/10/2026 : interdiction d'exécuter les outils root (tests live).
+  Audit sécurité en 3 agents après fusion (2 diagnostics+corrections
+  parallèles, 1 final qui tranche et corrige pour de bon).
