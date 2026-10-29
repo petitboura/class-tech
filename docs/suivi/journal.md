@@ -66,6 +66,7 @@ en S2).
 | D35 | ~21:45 | Adapter le diagnostic à iOS (agent A25) | Active | Ordre explicite ; clone frais ios-pont, lecture seule, sans jailbreak. |
 | D36 | 23:52 | Relais embarqué construit + fusionné + publié en 1.0.5 | Active | Ordre explicite "vite" ; agent lancé (A27), clone frais, tag pc-v1.0.5. |
 | D37 | 00:55 | Zéro étape : brancher + demander à l'IA, relais auto-démarré | Active | Refus des étapes interface (dont le bouton Lancer obligatoire) ; la carte devient voyant d'état ; agent lancé (A29). |
+| D38 | 01:30 | Diagnostic PC par l'appli locale + secours préparé | Active | Ordre explicite ; appli soigne son propre PC (sans risque), secours panne préparé sans coder ; agent lancé (A30). |
 
 ## 3. Agents (S2, ordre de lancement)
 
@@ -100,6 +101,7 @@ en S2).
 | A27 | 23:52–00:44 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | FINI partiel (rapport, vérifié) : code + merge main (04316a0) + tag pc-v1.0.5 OK, release BLOQUÉE (secret CLASS_TECH_LECTURE manquant, à créer par Bourama puis relancer le run). |
 | A28 | 00:43–00:59 | ios-pont/28 | Relance A25 (D35) | FINI (rapport, vérifié) : pont iOS lecture seule + 4 outils (détection, batterie, stockage, version) + faisabilité des 31 (18 impossibles Apple), 225 tests, branche poussée, non testé live (pas d'iPhone), non fusionné. |
 | A29 | dès 00:55 | relais-auto/29 | Relais auto-démarré + tag 1.0.5 déplacé (D37) | EN COURS : clone frais, démarrage auto, carte en voyant, merge + re-tag. |
+| A30 | dès 01:30 | pc-diag/30 | Diagnostic PC local + secours préparé (D38) | EN COURS : clone frais, lectures + réparations sans risque, proposition secours sans coder. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
 inventaire, audit connexions, 5 installateurs, audit README, chantier
@@ -232,6 +234,8 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 01:03 : secret CLASS_TECH_LECTURE créé par Bourama (vérifié
   par moi, noms seuls) ; build 1.0.5 débloqué, attend A29
   (re-tag auto).
+- 01:30 : D38 diagnostic PC local (appli soigne son PC) +
+  secours panne préparé sans coder ; agent A30 lancé.
 - 23:27 : fusion profonds ordonnée puis faite en direct (A26
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
