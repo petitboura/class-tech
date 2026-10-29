@@ -98,7 +98,7 @@ en S2).
 | A25 | ~21:45–~21:55 | ios-pont/25 | Pont iOS + faisabilité 31 (D35) | ÉCHEC réseau (clone frais créé, contenu à vérifier), à relancer quand le réseau agents revient. |
 | A26 | ~23:20 | merge-profonds/26 | Fusionner profonds dans main | ÉCHEC réseau au démarrage, rien produit ; fusion faite par moi en direct (propre, 213 verts, poussée). |
 | A27 | 23:52–00:44 | relais-embarque/27 | Construire + fusionner + publier relais (D36) | FINI partiel (rapport, vérifié) : code + merge main (04316a0) + tag pc-v1.0.5 OK, release BLOQUÉE (secret CLASS_TECH_LECTURE manquant, à créer par Bourama puis relancer le run). |
-| A28 | dès 00:43 | ios-pont/28 | Relance A25 (D35) | EN COURS : réutilise le clone, pont iOS + faisabilité 31, push branche seule. |
+| A28 | 00:43–00:59 | ios-pont/28 | Relance A25 (D35) | FINI (rapport, vérifié) : pont iOS lecture seule + 4 outils (détection, batterie, stockage, version) + faisabilité des 31 (18 impossibles Apple), 225 tests, branche poussée, non testé live (pas d'iPhone), non fusionné. |
 | A29 | dès 00:55 | relais-auto/29 | Relais auto-démarré + tag 1.0.5 déplacé (D37) | EN COURS : clone frais, démarrage auto, carte en voyant, merge + re-tag. |
 
 S1 : 13 lancés 01:52–03:14, 11 livrés (inspecteur, lecteurs,
@@ -226,6 +226,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
   à Bourama) ; agent iOS relancé (A28).
 - 00:55 : D37 zéro étape (brancher + demander, relais auto,
   carte en voyant) ; agent A29 lancé (correctif + re-tag 1.0.5).
+- 00:59 : iOS fini (A28, vérifié) : pont + 4 outils de base,
+  18 outils impossibles chez Apple, branche poussée, ni testé
+  live ni fusionné.
 - 23:27 : fusion profonds ordonnée puis faite en direct (A26
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
