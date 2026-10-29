@@ -229,6 +229,9 @@ A) ; B/C S1 lancés jamais livrés (repris en A2/A3).
 - 00:59 : iOS fini (A28, vérifié) : pont + 4 outils de base,
   18 outils impossibles chez Apple, branche poussée, ni testé
   live ni fusionné.
+- 01:03 : secret CLASS_TECH_LECTURE créé par Bourama (vérifié
+  par moi, noms seuls) ; build 1.0.5 débloqué, attend A29
+  (re-tag auto).
 - 23:27 : fusion profonds ordonnée puis faite en direct (A26
   tombé réseau) : propre, 213 verts, poussée ; Render à 41
   outils, 0 root. Test 1.0.4 de Bourama : outils trouvés mais
