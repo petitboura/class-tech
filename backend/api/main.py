@@ -106,4 +106,15 @@ async def duree_vie(_app):
 
 app = FastAPI(title="Class-Tech API", version=VERSION_SERVEUR, lifespan=duree_vie)
 
+
+@app.get("/health")
+def health():
+    return {"ok": True, "service": "Class-Tech", "version": VERSION_SERVEUR}
+
+
+@app.get("/")
+def root():
+    return {"ok": True, "service": "Class-Tech", "version": VERSION_SERVEUR}
+
+
 app.mount("/mcp/diagnostic", app_mcp)
