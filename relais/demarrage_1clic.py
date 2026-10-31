@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import os
 import sys
+import json
+import socket
 import threading
 import webbrowser
 
@@ -30,6 +32,7 @@ from relais_config import (  # noqa: E402
 ENV_DELAI_PAGE = "RELAIS_PC_DELAI_PAGE"
 CLE_DELAI_PAGE = "delai_ouverture_page_s"
 DELAI_PAGE_SECOURS_S = 3
+PORT_SECOURS_FIN = 10  # 8765 -> 8775 max
 
 
 def delai_ouverture_page():
@@ -59,6 +62,50 @@ def ouvrir_page_plus_tard(url, delai):
     minuteur = threading.Timer(delai, _ouvrir)
     minuteur.daemon = True
     minuteur.start()
+
+
+def port_libre(hote, port):
+    """Vrai si on peut écouter sur hote:port."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((hote, port))
+        s.close()
+        return True
+    except OSError:
+        try:
+            s.close()
+        except Exception:
+            pass
+        return False
+
+
+def choisir_port(hote, port_prefere):
+    """Port préféré s'il est libre, sinon le suivant jusqu'à +10."""
+    for decalage in range(PORT_SECOURS_FIN + 1):
+        port = port_prefere + decalage
+        if 1 <= port <= 65535 and port_libre(hote, port):
+            return port
+    return port_prefere
+
+
+def memoriser_port(port_effectif):
+    """Écrit le port effectif pour que l'appli le retrouve."""
+    try:
+        from relais_config import chemin_fichier_reglages as _chemin
+        fichier = _chemin()
+        try:
+            with open(fichier, encoding="utf-8") as f:
+                donnees = json.load(f)
+        except Exception:
+            donnees = {}
+        if not isinstance(donnees, dict):
+            donnees = {}
+        donnees["port"] = port_effectif
+        with open(fichier, "w", encoding="utf-8") as f:
+            json.dump(donnees, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
 
 
 def attendre_avant_fermeture():
@@ -92,7 +139,11 @@ def main():
 
     from serveur_relais import app
 
-    base = adresse_base(reglages)
+    port_effectif = choisir_port(reglages["hote"], reglages["port"])
+    if port_effectif != reglages["port"]:
+        print(f"Port {reglages['port']} pris, bascule sur {port_effectif}.")
+        memoriser_port(port_effectif)
+    base = adresse_base({**reglages, "port": port_effectif})
     page_sante = base + "/relais/sante"
     print("Relais PC Class-Tech en route sur " + base)
     print("Page de sante : " + page_sante)
@@ -100,7 +151,7 @@ def main():
     print("Pour arreter, ferme cette fenetre.")
     ouvrir_page_plus_tard(page_sante, delai_ouverture_page())
     try:
-        uvicorn.run(app, host=reglages["hote"], port=reglages["port"])
+        uvicorn.run(app, host=reglages["hote"], port=port_effectif)
     except KeyboardInterrupt:
         print("Relais arrete, a bientot.")
     return 0
