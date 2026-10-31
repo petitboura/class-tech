@@ -10,9 +10,12 @@ sont refusés par construction.
 
 from __future__ import annotations
 
+import copy
 import inspect
 import os
 import sys
+import threading
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,15 +110,68 @@ class AppelOutil(BaseModel):
     args: dict = {}
 
 
+# --- Liaison ADB en cache -------------------------------------------------
+# resumer_liaison() lance `adb devices` (timeout jusqu'a 90 s) : l'appeler
+# dans /relais/sante bloquait la reponse bien au-dela du delai HTTP de
+# l'appli PC (3 s), qui concluait a tort que le relais etait mort.
+# Une tache de fond rafraichit donc la liaison, et la sante ne lit que le
+# cache : elle repond immediatement, toujours.
+INTERVALLE_LIAISON_S = 5
+
+_cache_liaison: dict | None = None
+_verrou_liaison = threading.Lock()
+
+
+def _liaison_en_attente():
+    return {
+        "adb_trouve": False,
+        "adb_chemin": None,
+        "appareils": [],
+        "appareil_choisi": None,
+        "pret": False,
+        "message": "Liaison telephone en cours de verification, reessaie dans un moment.",
+    }
+
+
+def _rafraichir_liaison():
+    global _cache_liaison
+    while True:
+        try:
+            liaison = resumer_liaison()
+        except Exception:
+            liaison = None
+        if isinstance(liaison, dict):
+            with _verrou_liaison:
+                _cache_liaison = liaison
+        time.sleep(INTERVALLE_LIAISON_S)
+
+
+def _demarrer_surveillance_liaison():
+    fil = threading.Thread(target=_rafraichir_liaison, daemon=True, name="liaison-adb")
+    fil.start()
+    return fil
+
+
+_surveillance_liaison = _demarrer_surveillance_liaison()
+
+
+def liaison_en_cache():
+    """Derniere liaison connue, sans jamais attendre ADB."""
+    with _verrou_liaison:
+        if _cache_liaison is None:
+            return _liaison_en_attente()
+        return copy.deepcopy(_cache_liaison)
+
+
 @app.get("/relais/sante")
 def sante_relais():
-    """État du relais et du téléphone vu, en JSON."""
+    """État du relais et du téléphone vu, en JSON. Réponse immédiate."""
     return {
         "ok": True,
         "service": "Relais PC Class-Tech",
         "version": VERSION_SERVEUR,
         "outils": sorted(OUTILS_LECTURE),
-        "liaison": resumer_liaison(),
+        "liaison": liaison_en_cache(),
     }
 
 
