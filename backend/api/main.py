@@ -107,6 +107,29 @@ async def duree_vie(_app):
 app = FastAPI(title="Class-Tech API", version=VERSION_SERVEUR, lifespan=duree_vie)
 
 
+class SansRedirectionMcp:
+    """Fait repondre /mcp/diagnostic directement, sans redirection.
+
+    Starlette redirige /mcp/diagnostic vers /mcp/diagnostic/ (307). Derriere
+    le proxy de Railway, cette redirection pointait vers une adresse http://
+    puis le proxy la renvoyait en https avec une methode GET : la requete POST
+    d'initialisation n'arrivait jamais au serveur et les outils ne repondaient
+    pas. On reecrit donc le chemin avant le routage : une seule requete, pas
+    de redirection, et les deux formes d'adresse (avec ou sans slash final)
+    marchent.
+    """
+
+    CHEMIN = "/mcp/diagnostic"
+
+    def __init__(self, application):
+        self.application = application
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket") and scope.get("path") == self.CHEMIN:
+            scope = dict(scope, path=self.CHEMIN + "/", raw_path=(self.CHEMIN + "/").encode())
+        await self.application(scope, receive, send)
+
+
 @app.get("/health")
 def health():
     return {"ok": True, "service": "Class-Tech", "version": VERSION_SERVEUR}
@@ -118,3 +141,4 @@ def root():
 
 
 app.mount("/mcp/diagnostic", app_mcp)
+app.add_middleware(SansRedirectionMcp)
