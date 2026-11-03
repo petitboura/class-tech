@@ -28,6 +28,20 @@ SENSIBLES = (
 )
 
 
+PROFONDS = (
+    "lire_temperatures_internes",
+    "lire_historique_batterie",
+    "lire_trafic_par_appli",
+    "lire_fluidite_ecran",
+    "lire_saturation_systeme",
+    "lire_reveils_planifies",
+    "lire_journaux_systeme",
+    "lire_carte_systeme",
+    "lire_memoire_dans_le_temps",
+    "lire_verrous_veille",
+)
+
+
 @pytest.fixture(scope="module")
 def client():
     return fastapi_testclient.TestClient(serveur_relais.app)
@@ -55,3 +69,16 @@ def test_revoquer_permission_sans_arguments_donne_une_erreur_claire(client):
     reponse = client.post("/relais/outil/revoquer_permission", json={}).json()
     assert reponse["ok"] is False
     assert "Arguments" in reponse["erreur"]
+
+
+def test_les_10_outils_profonds_sont_dans_le_relais():
+    for nom in PROFONDS:
+        assert nom in serveur_relais.OUTILS_LECTURE
+
+
+@pytest.mark.parametrize("nom", PROFONDS)
+def test_outil_profond_est_execute_et_pas_refuse(client, nom):
+    reponse = client.post(f"/relais/outil/{nom}", json={}).json()
+    assert reponse["ok"] is True
+    assert "inconnu" not in str(reponse.get("erreur", ""))
+    assert "refusé" not in str(reponse.get("erreur", ""))

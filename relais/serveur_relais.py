@@ -41,6 +41,18 @@ from core.outils_performance_100 import (  # noqa: E402
     analyser_cpu,
     analyser_memoire_vive,
 )
+from core.outils_profondeur_100 import (  # noqa: E402
+    lire_carte_systeme,
+    lire_fluidite_ecran,
+    lire_historique_batterie,
+    lire_journaux_systeme,
+    lire_memoire_dans_le_temps,
+    lire_reveils_planifies,
+    lire_saturation_systeme,
+    lire_temperatures_internes,
+    lire_trafic_par_appli,
+    lire_verrous_veille,
+)
 from core.outils_securite_100 import (  # noqa: E402
     lister_permissions_risquees,
     revoquer_permission,
@@ -100,6 +112,18 @@ OUTILS_LECTURE = {
     "lister_permissions_risquees": lister_permissions_risquees,
     "verifier_securite": verifier_securite,
     "verifier_mises_a_jour": verifier_mises_a_jour,
+    # Outils profonds, sans root (décision D34) : lectures seules, ils
+    # n'écrivent rien sur le téléphone.
+    "lire_temperatures_internes": lire_temperatures_internes,
+    "lire_historique_batterie": lire_historique_batterie,
+    "lire_trafic_par_appli": lire_trafic_par_appli,
+    "lire_fluidite_ecran": lire_fluidite_ecran,
+    "lire_saturation_systeme": lire_saturation_systeme,
+    "lire_reveils_planifies": lire_reveils_planifies,
+    "lire_journaux_systeme": lire_journaux_systeme,
+    "lire_carte_systeme": lire_carte_systeme,
+    "lire_memoire_dans_le_temps": lire_memoire_dans_le_temps,
+    "lire_verrous_veille": lire_verrous_veille,
     # Outils sensibles : effet réel sur le téléphone. Classinus exige la
     # confirmation de l'utilisateur AVANT de les envoyer ici (voir
     # OUTILS_SENSIBLES dans classinus-backend, core/registre_outils.py).

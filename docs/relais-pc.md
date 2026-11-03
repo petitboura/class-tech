@@ -49,8 +49,8 @@ Le diagnostic local répond avec les vraies données du téléphone.
 - Deux routes simples pour le diagnostic local : /relais/sante
   (état et téléphone vu) et /relais/outil/nom (exécute un outil
   de lecture et renvoie son texte).
-- Les lectures et les 5 outils sensibles (confirmés d'abord par
-  l'utilisateur dans Classinus). Tous les outils root sont refusés par
+- Les lectures (dont les 10 outils profonds sans root) et les 5 outils
+  sensibles (confirmés d'abord par l'utilisateur dans Classinus). Tous les outils root sont refusés par
   construction.
 
 ## Choix simples assumés
