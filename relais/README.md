@@ -52,7 +52,10 @@ Aucun port ni chemin ni adresse n'est écrit en dur dans le code.
 - Relais injoignable : vérifie que la fenêtre du relais est toujours
   ouverte.
 
-## Lecture seule
+## Outils sensibles et root
 
-Le relais n'expose que des lectures. Les 5 outils sensibles et tous
-les outils root sont refusés par construction.
+Le relais exécute les lectures (dont les 10 outils profonds sans root) et les 5 outils sensibles (vider les
+caches, haut-parleur, vibreur, caméra, retirer une permission). Ces 5
+outils agissent vraiment sur le téléphone : Classinus demande la
+confirmation de l'utilisateur avant de les envoyer au relais. Tous les
+outils root sont refusés par construction.

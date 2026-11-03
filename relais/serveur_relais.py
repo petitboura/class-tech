@@ -4,8 +4,10 @@ Ce module réutilise tel quel le code du dépôt : l'application de
 api.main (qui porte le serveur MCP sur /mcp/diagnostic) reçoit ici
 deux routes simples en plus, sous /relais. Les outils appelés sont
 les vraies fonctions du dépôt, sans copie ni réécriture.
-Seules des lectures sont exposées. Les outils sensibles et root
-sont refusés par construction.
+Les outils root sont refusés par construction. Les 5 outils sensibles
+(vider les caches, haut-parleur, vibreur, caméra, retirer une
+permission) sont exécutés ici, mais seulement après la confirmation de
+l'utilisateur dans Classinus, qui reste le garde-fou.
 """
 
 from __future__ import annotations
@@ -27,17 +29,33 @@ from api.main import app  # noqa: E402
 from core.outils_diagnostic_commun import VERSION_SERVEUR  # noqa: E402
 from core.outils_materiel_100 import (  # noqa: E402
     tester_boutons,
+    tester_camera,
     tester_ecran_tactile,
     tester_gps,
+    tester_haut_parleur,
     tester_micro,
+    tester_vibreur,
 )
 from core.outils_performance_100 import (  # noqa: E402
     analyser_applications_gourmandes,
     analyser_cpu,
     analyser_memoire_vive,
 )
+from core.outils_profondeur_100 import (  # noqa: E402
+    lire_carte_systeme,
+    lire_fluidite_ecran,
+    lire_historique_batterie,
+    lire_journaux_systeme,
+    lire_memoire_dans_le_temps,
+    lire_reveils_planifies,
+    lire_saturation_systeme,
+    lire_temperatures_internes,
+    lire_trafic_par_appli,
+    lire_verrous_veille,
+)
 from core.outils_securite_100 import (  # noqa: E402
     lister_permissions_risquees,
+    revoquer_permission,
     verifier_mises_a_jour,
     verifier_securite,
 )
@@ -60,6 +78,7 @@ from core.outils_telephone_reseau import (  # noqa: E402
 from core.outils_telephone_stockage import (  # noqa: E402
     lire_stockage,
     lister_gros_fichiers,
+    vider_cache_applis,
 )
 from core.outils_telephone_systeme import (  # noqa: E402
     lire_erreurs_recentes,
@@ -93,15 +112,30 @@ OUTILS_LECTURE = {
     "lister_permissions_risquees": lister_permissions_risquees,
     "verifier_securite": verifier_securite,
     "verifier_mises_a_jour": verifier_mises_a_jour,
+    # Outils profonds, sans root (décision D34) : lectures seules, ils
+    # n'écrivent rien sur le téléphone.
+    "lire_temperatures_internes": lire_temperatures_internes,
+    "lire_historique_batterie": lire_historique_batterie,
+    "lire_trafic_par_appli": lire_trafic_par_appli,
+    "lire_fluidite_ecran": lire_fluidite_ecran,
+    "lire_saturation_systeme": lire_saturation_systeme,
+    "lire_reveils_planifies": lire_reveils_planifies,
+    "lire_journaux_systeme": lire_journaux_systeme,
+    "lire_carte_systeme": lire_carte_systeme,
+    "lire_memoire_dans_le_temps": lire_memoire_dans_le_temps,
+    "lire_verrous_veille": lire_verrous_veille,
+    # Outils sensibles : effet réel sur le téléphone. Classinus exige la
+    # confirmation de l'utilisateur AVANT de les envoyer ici (voir
+    # OUTILS_SENSIBLES dans classinus-backend, core/registre_outils.py).
+    "vider_cache_applis": vider_cache_applis,
+    "tester_haut_parleur": tester_haut_parleur,
+    "tester_vibreur": tester_vibreur,
+    "tester_camera": tester_camera,
+    "revoquer_permission": revoquer_permission,
 }
 
-OUTILS_SENSIBLES_REFUSES = frozenset({
-    "vider_cache_applis",
-    "tester_haut_parleur",
-    "tester_vibreur",
-    "tester_camera",
-    "revoquer_permission",
-})
+# Refus par construction : tout nom qui commence par « root ».
+PREFIXE_OUTILS_REFUSES = "root"
 
 
 class AppelOutil(BaseModel):
@@ -194,12 +228,12 @@ def _args_acceptes(fonction, args):
 
 @app.post("/relais/outil/{nom}")
 def appeler_outil(nom: str, appel: AppelOutil | None = None):
-    """Exécute un outil de lecture et renvoie son texte."""
-    if nom in OUTILS_SENSIBLES_REFUSES or nom.startswith("root"):
+    """Exécute un outil du relais et renvoie son texte."""
+    if nom.startswith(PREFIXE_OUTILS_REFUSES):
         return {
             "ok": False,
             "outil": nom,
-            "erreur": "Outil refusé par le relais : lecture seule ici.",
+            "erreur": "Outil refusé par le relais : les outils root ne passent pas ici.",
         }
     fonction = OUTILS_LECTURE.get(nom)
     if fonction is None:
@@ -215,7 +249,7 @@ def appeler_outil(nom: str, appel: AppelOutil | None = None):
         return {
             "ok": False,
             "outil": nom,
-            "erreur": "Arguments refusés par l'outil. Réessaie sans arguments.",
+            "erreur": "Arguments manquants ou refusés par l'outil. Vérifie les arguments demandés par l'outil, puis réessaie.",
         }
     except Exception:
         return {
