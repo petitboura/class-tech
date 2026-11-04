@@ -12,6 +12,7 @@ l'utilisateur dans Classinus, qui reste le garde-fou.
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import inspect
 import os
@@ -197,6 +198,34 @@ def liaison_en_cache():
         return copy.deepcopy(_cache_liaison)
 
 
+_cache_hors_relais: list[str] | None = None
+
+
+def outils_hors_relais() -> list[str] | None:
+    """Outils déclarés par le serveur MCP de ce même code, mais pas exécutés ici.
+
+    Sert à voir d'un coup d'oeil, sur la page de santé, ce qu'un relais
+    n'exécute pas (les outils root sont refusés par construction, les
+    autres sont à ajouter). Renvoie None si la liste n'a pas pu être lue :
+    la page de santé ne doit jamais tomber pour ça.
+    """
+    global _cache_hors_relais
+    if _cache_hors_relais is not None:
+        return _cache_hors_relais
+    try:
+        from core.outils_diagnostic_commun import mcp_diagnostic
+
+        declares = {outil.name for outil in asyncio.run(mcp_diagnostic.list_tools())}
+    except Exception:
+        return None
+    _cache_hors_relais = sorted(
+        nom
+        for nom in declares
+        if nom not in OUTILS_LECTURE and not nom.startswith(PREFIXE_OUTILS_REFUSES)
+    )
+    return _cache_hors_relais
+
+
 @app.get("/relais/sante")
 def sante_relais():
     """État du relais et du téléphone vu, en JSON. Réponse immédiate."""
@@ -204,7 +233,9 @@ def sante_relais():
         "ok": True,
         "service": "Relais PC Class-Tech",
         "version": VERSION_SERVEUR,
+        "nombre_outils": len(OUTILS_LECTURE),
         "outils": sorted(OUTILS_LECTURE),
+        "outils_hors_relais": outils_hors_relais(),
         "liaison": liaison_en_cache(),
     }
 

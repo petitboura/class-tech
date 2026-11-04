@@ -14,6 +14,6 @@ mcp_diagnostic = FastMCP(name="diagnostic")
 # Version du serveur, source unique (lue par api/main.py et par la
 # sonde ping_serveur, jamais recopiée ailleurs). 0.2.0 : palier 80 %,
 # pont ADB et 14 outils téléphone.
-VERSION_SERVEUR = "0.2.0"
+VERSION_SERVEUR = "0.3.0"
 
 __all__ = ["Context", "VERSION_SERVEUR", "mcp_diagnostic"]
