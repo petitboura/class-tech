@@ -1,45 +1,47 @@
-# Étape 1 : chantier C, README vitrine de class-tech
+> [English version] · [Français](./etape-1-chantier-c.fr.md)
 
-Date : 28/10/2026.
+# Step 1: Workstream C, class-tech README Showcase
 
-## But
+Date: 28/10/2026.
 
-Écrire le README.md de la racine (vitrine du dépôt) et les briefs des visuels, sans toucher à aucun autre fichier. Ni commit ni push.
+## Goal
 
-## Vérifications avant de commencer
+Write the root README.md (repository showcase) and the visual briefs, without touching any other file. No commit or push.
 
-- C:\Users\dell\class-tech existe (dépôt présent).
-- README.md racine : absent (normal, réservé à ce chantier, confirmé dans docs/etape-1-chantier-a.md).
-- État réel du dépôt relu le 28/10/2026 : MUSE.md, .gitignore, backend/LISEZ-MOI.md, frontend/LISEZ-MOI.md, docs/README.md, docs/etape-1-chantier-a.md. Aucun code backend, aucun requirements.txt, aucun exemple de variables : le chantier B n'a pas encore eu lieu (docs/etape-1-chantier-b.md absent).
-- classinus-backend lu en lecture seule (requirements.txt : FastAPI, uvicorn, supabase, fournisseurs LLM). Aucun fichier d'exemple de variables trouvé dans classinus-backend. Sources non modifiées.
-- Skill classinus-standards-dev et MUSE.md lus et appliqués : pas de supposition, doutes signalés ci-dessous au lieu d'être tranchés seul.
-- Texte affiché vérifié : aucun "--" dans le README (règle MUSE.md).
+## Checks before starting
 
-## Fichiers créés
+- C:\Users\dell\class-tech exists (repository present).
+- Root README.md: absent (expected, reserved for this workstream, confirmed in docs/etape-1-chantier-a.md).
+- Actual repository state reread on 28/10/2026: MUSE.md, .gitignore, backend/LISEZ-MOI.md, frontend/LISEZ-MOI.md, docs/README.md, docs/etape-1-chantier-a.md. No backend code, no requirements.txt, no example environment variables: workstream B had not happened yet (docs/etape-1-chantier-b.md absent).
+- classinus-backend read in read-only mode (requirements.txt: FastAPI, uvicorn, supabase, LLM providers). No example environment file found in classinus-backend. Sources not modified.
+- classinus-standards-dev skill and MUSE.md were read and applied: do not assume; list uncertainties below instead of deciding them unilaterally.
+- Displayed text checked: no "--" in the README (MUSE.md rule).
 
-- README.md : titre, description courte (diagnostic phone puis PC par LLM), prérequis, démarrage rapide, variables essentielles, production en bref, structure du dépôt, contribuer, licence. Emplacements des visuels prévus : docs/img/banniere.png, docs/img/schema-demarrage.png, docs/img/schema-architecture.png.
-- docs/briefs-images.md : trois briefs précis (contenu, style, nom de fichier) pour la bannière et les deux schémas. Les images elles-mêmes seront générées par un autre chantier.
-- docs/etape-1-chantier-c.md : ce fichier.
+## Files created
 
-## Choix faits
+- README.md: title, short description (phone diagnostics first, then PC, using an LLM), prerequisites, quick start, essential variables, production overview, repository structure, contribution, license. Planned visual locations: docs/img/banniere.png, docs/img/schema-demarrage.png, docs/img/schema-architecture.png.
+- docs/briefs-images.md: three detailed briefs (content, style, filename) for the banner and two diagrams. The images themselves will be generated in another workstream.
+- docs/etape-1-chantier-c.md: this file.
 
-- Sections techniques (prérequis, démarrage rapide, variables, production) écrites en brouillon marqué "À FINALISER après le chantier B", inspiré de classinus-backend mais sans rien affirmer : il n'y a pas encore de code à vérifier dans class-tech, et en cas de doute le code fait foi.
-- Section structure en 7 lignes, marquée "À FINALISER après les chantiers A et B", brouillon basé sur la structure vide vérifiée du chantier A.
-- README rédigé en français simple, cohérent avec le reste du dépôt.
+## Decisions made
 
-## Doutes signalés (à trancher par Bourama, pas par moi)
+- Technical sections (prerequisites, quick start, variables, production) written as drafts marked "TO BE FINALIZED after workstream B", inspired by classinus-backend but without claiming anything: there was no code to verify in class-tech yet, and the code is authoritative when in doubt.
+- Structure section contains 7 lines, marked "TO BE FINALIZED after workstreams A and B", as a draft based on the empty structure verified in workstream A.
+- README written in simple French, consistent with the rest of the repository.
 
-1. Commandes, versions et noms de variables du README : à confirmer contre le vrai code quand le chantier B sera livré.
-2. Licence du dépôt : aucune choisie, section en attente dans le README.
-3. Schéma d'architecture : mon brouillon suppose FastAPI plus Supabase plus LLM (repris de classinus-backend). Si le chantier B choisit autre chose, le brief est à revoir avant de générer l'image.
+## Open questions (for Bourama to decide, not assumed)
 
-## Interdits respectés
+1. README commands, versions, and variable names: must be checked against the actual code after workstream B is delivered.
+2. Repository license: none has been chosen; pending Bourama's decision.
+3. Architecture diagram: the draft assumes FastAPI plus Supabase plus LLM (borrowed from classinus-backend). If workstream B chooses something else, revise the brief before generating the image.
 
-- Aucun autre fichier touché. Ni commit ni push.
+## Restrictions respected
 
-## Suites
+- No other file touched. No commit or push.
 
-- Chantier B : amener la chaîne IA dans backend/.
-- Après le chantier B : finaliser les sections marquées ⏳ dans le README (commandes, variables, production, structure exacte).
-- Autre chantier : générer les trois images vers docs/img/ en suivant docs/briefs-images.md.
-- Bourama : choisir la licence.
+## Next steps
+
+- Workstream B: bring the AI pipeline into backend/.
+- After workstream B: finalize README sections marked ⏳ against the reduced code, then generate the images.
+- Another workstream: generate the three images in docs/img/ following docs/briefs-images.md.
+- Bourama: choose the license.

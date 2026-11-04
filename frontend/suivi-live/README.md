@@ -1,80 +1,47 @@
-# Suivi en direct (page publique)
+> [English version] · [Français](./README.fr.md)
 
-Page web qui affiche la documentation du projet pour le public :
-elle lit les fichiers en direct sur la branche main GitHub et se
-ré-affiche seule toutes les 5 heures.
+# Live Tracking (Public Page)
 
-- Page : https://petitboura.github.io/class-tech/
-- Dépôt lu : petitboura/class-tech, branche main
-- Actualisation : toutes les 5 heures (voir `config.js`,
-  `refreshMinutes`), plus au retour sur l'onglet si le délai est
-  passé. La mention « Dernière mise à jour » affiche la date et
-  l'heure du dernier chargement réussi, plus le compte à rebours
-  avant la prochaine.
+Web page that displays project documentation for the public: it reads files live from the GitHub main branch and refreshes itself every 5 hours.
 
-## Deux faces
+- Page: https://petitboura.github.io/class-tech/
+- Repository read: petitboura/class-tech, main branch
+- Refresh: every 5 hours (see `config.js`, `refreshMinutes`), and when returning to the tab if the interval has elapsed. "Last updated" shows the date and time of the last successful load, plus the countdown to the next one.
 
-Bascule Normal / Technique en haut de page (Normal par défaut),
-même fond, deux niveaux de lecture.
+## Two views
 
-Normal : Accueil (état + contexte hackathon), Journal
-(progression regroupée par heure, repliée, tri récent ou ancien,
-plus le journal complet), Notes de Bourama (état vide tant que
-Bourama ne dicte rien), Commentaires (avis des visiteurs, sans
-compte, avec réponses), Bilan, Décisions, Étapes et documents,
-Contexte.
+Normal / Technical switch at the top of the page (Normal by default), same background, two levels of detail.
 
-Technique : Accueil, Commits (derniers commits sur main, en
-direct), Outils (registre en direct : total, par palier, avec
-mention quand une confirmation est exigée), Tests (totaux cités
-dans le journal + fichiers de test sur main), Architecture,
-Journal, Étapes et documents, Commentaires.
+Normal: Home (status + hackathon context), Journal (progress grouped by hour, collapsed, newest or oldest first, plus the full journal), Bourama's Notes (empty until Bourama dictates something), Comments (visitor feedback, no account, with replies), Review, Decisions, Steps and documents, Context.
 
-Le regroupement par heure affiche toutes les tranches, même
-vides (« Rien pour l'instant »), sans jamais sauter une heure.
+Technical: Home, Commits (latest commits on main, live), Tools (live registry: total, by tier, with a note when confirmation is required), Tests (totals quoted in the journal + test files on main), Architecture, Journal, Steps and documents, Comments.
 
-## Fichiers
+Hourly grouping displays every time slot, including empty ones ("Nothing yet"), without ever skipping an hour.
 
-- `index.html` : structure, balises Open Graph, appel des scripts.
-- `config.js` : seul endroit avec le dépôt, la branche, la liste
-  des documents, le délai et le contexte hackathon. Rien d'autre
-  n'est écrit en dur.
-- `app.js` : lecture des documents, navigation, faces, réaffichage.
-- `md.js` : petit rendu markdown maison (titres, listes, tableaux,
-  code, liens). Testé sur les vrais docs (voir plus bas).
-- `progression.js` : regroupement du journal par heure.
-- `technique.js` : lecture du registre d'outils et des totaux de
-  tests cités dans le journal.
-- `commentaires-config.js` : adresse Supabase, clé publique et nom
-  de table pour les commentaires. Seul fichier à remplir.
-- `commentaires.js` : liste, réponses indentées, formulaires
-  d'envoi, états de chargement et d'erreur.
-- `styles.css` : thème repris de Classinus (tons dorés, clair et
-  sombre suivis du téléphone).
-- `favicon.svg`, `apercu.jpg` : icône et image d'aperçu de partage.
+## Files
 
-## Commentaires
+- `index.html`: structure, Open Graph tags, script loading.
+- `config.js`: the only place containing the repository, branch, document list, refresh interval, and hackathon context. Nothing else is hardcoded.
+- `app.js`: document loading, navigation, views, rerendering.
+- `md.js`: small custom Markdown renderer (headings, lists, tables, code, links). Tested against the real documents (see below).
+- `progression.js`: groups the journal by hour.
+- `technique.js`: reads the tool registry and test totals quoted in the journal.
+- `commentaires-config.js`: Supabase address, public key, and comments table name. The only file to fill in.
+- `commentaires.js`: list, indented replies, submission forms, loading and error states.
+- `styles.css`: theme adapted from Classinus (gold tones, light and dark modes follow the phone).
+- `favicon.svg`, `apercu.jpg`: icon and share-preview image.
 
-Section Commentaires dans les deux faces, sans compte (nom
-optionnel, vide = Anonyme). Modération par suppression dans le
-tableau de bord Supabase (table `suivi_commentaires`), rien à
-coder côté page.
+## Comments
 
-## Vérifications avant de toucher
+Comments section in both views, no account required (name optional, blank = Anonymous). Moderation is done by deleting entries in the Supabase dashboard (table `suivi_commentaires`); nothing needs to be coded on the page.
 
-- `node C:\Users\dell\suivi-live-test\verifier.js` contrôle le rendu,
-  le regroupement et le registre sur les vrais documents.
-- `node C:\Users\dell\suivi-live-test\tirets.js` contrôle qu'aucun
-  texte affiché ne contient `--` nu ni tiret long.
-- `node C:\Users\dell\suivi-live-test\live.js` rejoue le chemin live
-  exact (fichiers raw + API GitHub). Ces sondes vivent hors dépôt,
-  elles ne sont pas livrées.
-- Texte affiché : jamais de `--` ni de tiret long, français simple.
+## Checks before making changes
 
-## Déploiement
+- `node C:\Users\dell\suivi-live-test\verifier.js` checks rendering, grouping, and registry against the real documents.
+- `node C:\Users\dell\suivi-live-test\tirets.js` checks that no displayed text contains a bare `--` or an em dash.
+- `node C:\Users\dell\suivi-live-test\live.js` replays the exact live path (raw files + GitHub API). These probes live outside the repository and are not delivered.
+- Displayed text: never use `--` or an em dash; use simple French.
 
-La page est servie par GitHub Pages depuis la branche `gh-pages`
-(racine = contenu de ce dossier). Pour republier après un
-changement : committer ce dossier sur main, puis pousser le
-sous-arbre vers `gh-pages` (voir l'historique des commandes dans
-la session du 28/10/2026).
+## Deployment
+
+The page is served by GitHub Pages from the `gh-pages` branch (root = contents of this directory). To republish after a change: commit this directory to main, then push the subtree to `gh-pages` (see command history in the 28/10/2026 session).

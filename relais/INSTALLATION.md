@@ -1,5 +1,8 @@
-# Relais Class-Tech sur ton PC
-1. Branche ton téléphone au PC avec un câble USB.
-2. Récupère le fichier Relais-Class-Tech puis double clique dessus, la page de santé s'ouvre toute seule.
-3. Si le téléphone demande une autorisation, valide sur son écran.
-4. Laisse cette fenêtre ouverte pendant le diagnostic, ferme la pour arrêter.
+> [English version] · [Français](./INSTALLATION.fr.md)
+
+# Class-Tech Relay on Your PC
+
+1. Connect your phone to the PC with a USB cable.
+2. Get the Relais-Class-Tech file and double-click it. The health page opens automatically.
+3. If the phone asks for permission, approve it on the phone screen.
+4. Keep that window open during diagnosis. Close it to stop the relay.

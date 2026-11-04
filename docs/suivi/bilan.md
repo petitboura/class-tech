@@ -1,91 +1,47 @@
-# Bilan Bourama (ténu à jour à chaque phase, 28/10/2026)
+> [English version] · [Français](./bilan.fr.md)
 
-Document demandé par Bourama : ce qu'il voulait, ses erreurs, ses
-décisions, ses délégations, son rôle. Sans filtre, sans flatterie. Le
-détail daté vit dans `journal.md`, ce fichier est la lecture
-qualitative. Heures locales du PC.
+# Bourama's Review (updated at every phase, 28/10/2026)
 
-## 1. Ce qu'il voulait faire
+Document requested by Bourama: what he wanted, his mistakes, decisions, delegations, and role. No filtering and no flattery. The dated details are in `journal.md`; this file is the qualitative overview. Times are the PC's local times.
 
-Un chatbot normal qui diagnostique par IA : téléphones Android via le
-PC d'abord (sans root), puis PC, puis élargir. Le LLM ne fait que des
-appels d'outils, lecture libre, et rien ne se corrige sans son OK.
-V1 à 80 %, puis 100 %, puis root. Cap tenu du début (S1, 01:23) à ce
-jour.
+## 1. What he wanted to build
 
-## 2. Erreurs des deux côtés, séparées
+A regular chatbot that diagnoses devices using AI: Android phones connected through a PC first (without root), then PCs, then broader coverage. The LLM only calls tools, read access is unrestricted, and nothing is fixed without his approval. V1 at 80%, then 100%, then root. This direction remained consistent from the beginning (S1, 01:23) through the present.
 
-### Côté Bourama (4, toutes corrigées)
+## 2. Mistakes on both sides, listed separately
 
-- **E1 — Ordre de lancement des agents (05:43).** L'activation s'est
-  retrouvée en file derrière les builders. Détecté par Bourama
-  lui-même, corrigé par repriorisation (activation par moi).
-- **E2 — Hésitation chantier B (04:25–04:26).** Annulé puis relancé
-  en une minute. Coût nul : l'agent annulé n'avait rien produit.
-- **E3 — Ambiguïté 100 % vs root (S1 01:33 → S2 05:02).** L'ancien
-  plan disait 100 % = avec root ; redéfini en palier sans root.
-  Clarifié ensemble, sans impact code.
-- **E4 — Point de vigilance, pas une faute (07:10).** Outils root
-  mergés et déployés (protégés par flags + hors catégorie). Risque
-  couvert par l'audit en 3 agents exigé par Bourama lui-même.
+### Bourama's side (4, all resolved)
 
-### Côté Muse, l'IA (12, toutes corrigées)
+- **E1: Agent launch order (05:43).** Activation ended up queued behind the builders. Bourama himself spotted it; it was fixed by reprioritization (activation done by me).
+- **E2: Hesitation about workstream B (04:25–04:26).** Cancelled and restarted within one minute. No cost: the cancelled agent had produced nothing.
+- **E3: Ambiguity around 100% vs. root (S1 01:33 → S2 05:02).** The old plan said 100% meant root access; it was redefined as a tier without root. Clarified together, with no code impact.
+- **E4: A point to watch, not a mistake (07:10).** Root tools were merged and deployed (protected by flags and outside the category). The risk was covered by the three-agent audit Bourama himself required.
 
-- **M1 — Flux routeur présenté comme la prod (04:41).** En réalité
-  routeur mort, demander/garder réels. Trouvé par Bourama,
-  corrigé par retraçage du vrai chemin exécuté.
-- **M2 — Ordre et priorité des agents faux (05:43).** Activation en
-  file derrière les builders. Trouvé par Bourama, corrigé par
-  repriorisation + activation par moi.
-- **M3 — Catégories proposées au lieu des paliers (05:02).** Trouvé
-  par Bourama, corrigé par relecture de l'ancienne session.
-- **M4 — Interface à boutons proposée (S1 01:38).** Trouvé par
-  Bourama (chatbot normal), corrigé (log S1).
-- **M5 — Isolation worktree supposée dispo (05:26).** 3 rejets
-  runtime. Trouvé par le runtime, corrigé (clones build-tmp).
-- **M6 — Écritures fichiers en parallèle en conflit (05:03).** Trouvé
-  par moi (erreurs outil), corrigé en séquentiel.
-- **M7 — edit_file multiligne sur CRLF, 3 échecs (~06:02).** Trouvé
-  par moi, corrigé (script python + consigne aux builders).
-- **M8 — pip install système avant le skill (~07:00).** Trouvé par
-  rappel système, corrigé (venv ensuite).
-- **M9 — Check MCP sans follow_redirects (~07:03).** Trouvé par moi
-  (test), corrigé.
-- **M10 — Edit suivi devancé par commit (06:12).** Trouvé par moi
-  (git status), corrigé (recommit).
-- **M11 — Téléphone affirmé non rooté sans preuve (~10:20).**
-  Trouvé par Bourama, corrigé par vérification outil sur son
-  ordre (10:30) : non rooté confirmé.
-- **M12 — Commit suivi parti sur la branche de l'agent (~21:45).**
-  Le checkout partagé avait basculé sur outils-profonds.
-  Trouvé par moi (sortie git), corrigé (rejoué sur main,
-  branche remise au propre) ; clone frais imposé aux agents suivants.
+### Muse's side, the AI (12, all resolved)
 
-Total : 5 détectées par Bourama, 7 par moi, le système ou le runtime.
-Détail bugs techniques dans `journal.md` §6.
+- **M1: Router flow presented as production behavior (04:41).** In reality, the router was disabled; demander/garder were the real flow. Bourama found it; corrected by tracing the actual execution path.
+- **M2: Agent order and priority were wrong (05:43).** Activation was queued behind builders. Bourama found it; corrected by reprioritization and activation by me.
+- **M3: Categories proposed instead of tiers (05:02).** Bourama found it; corrected by rereading the previous session.
+- **M4: Button-based interface proposed (S1 01:38).** Bourama corrected it: a normal chatbot. Fixed in the S1 log.
+- **M5: Worktree isolation assumed to be available (05:26).** Three runtime rejections. Found by the runtime; corrected with build-tmp clones.
+- **M6: Parallel file writes conflicted (05:03).** Found by me through tool errors; corrected by switching to sequential writes.
+- **M7: Multiline edit_file failed on CRLF, three failures (~06:02).** Found by me; corrected with a Python script and instructions to the builders.
+- **M8: System pip install before reading the skill (~07:00).** Found by a system reminder; corrected by using a venv afterward.
+- **M9: MCP check without follow_redirects (~07:03).** Found by me during testing; corrected.
+- **M10: Follow-up edit was overtaken by a commit (06:12).** Found by me through git status; corrected with another commit.
+- **M11: Phone declared non-rooted without evidence (~10:20).** Bourama found it; corrected by running the tool at his request (10:30), which confirmed that it was not rooted.
+- **M12: Follow-up commit landed on the agent's branch (~21:45).** The shared checkout had switched to outils-profonds. Found by me in git output; corrected by replaying on main and cleaning the branch. A fresh clone was required for subsequent agents.
 
-## 3. Ce qu'il a décidé
+Total: 5 detected by Bourama, 7 by me, the system, or the runtime. Technical bug details are in `journal.md`, section 6.
 
-Tout ce qui compte (détail daté dans `journal.md` §2) : périmètre
-(pont PC, pas d'app seule, Windows d'abord), 3 phases (interface en
-dernier), architecture serveur d'outils seule — sa meilleure
-simplification —, branchement officiel, 6 agents + push autorisé,
-activation par l'agent principal, interdiction des tests root, local
-avant relais, Render en web service manuel, site suivi public +
-commentaires sans login.
+## 3. What he decided
 
-## 4. Ce qu'il a délégué
+All major decisions (dated details in `journal.md`, section 2): scope (PC bridge, no standalone phone app, Windows first), three phases (interface last), tools-server-only architecture (his most important simplification), official integration, six agents plus authorized push, activation by the main agent, no root tests, local testing before relay, Render as a manual web service, public tracking site plus comments without login.
 
-Tout le code (readiness, 3 builders, fusion, audits), l'activation
-technique, les vérifications, la documentation. Gardé pour lui : les
-décisions go/no-go, le dashboard Render, le téléphone de test, les
-tests via le chat. Voir `journal.md` §3 pour l'inventaire exact des
-25 agents et leur résultat.
+## 4. What he delegated
 
-## 5. Son rôle
+All code (readiness, three builders, merge, audits), technical activation, checks, and documentation. He kept the go/no-go decisions, Render dashboard, test phone, and chat-based testing. See `journal.md`, section 3, for the exact inventory of 25 agents and their outcomes.
 
-Décideur et valideur : il tranche, dit go ou non à chaque étape, et
-teste en conditions réelles (téléphone branché, chat, Render). Jamais
-exécutant du code. C'est le partage qui a fait avancer le projet sans
-dérive : aucune ligne écrite sans son ordre, aucune décision
-technique prise sans sa validation.
+## 5. His role
+
+Decision-maker and approver: he decides, gives or withholds approval at every stage, and tests in real conditions (phone connected, chat, Render). He never executes code himself. This division of responsibilities moved the project forward without drifting: no line was written without his instruction, and no technical decision was made without his approval.

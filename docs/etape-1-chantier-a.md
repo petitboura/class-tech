@@ -1,46 +1,48 @@
-# Étape 1 : chantier A, structure du dépôt class-tech
+> [English version] · [Français](./etape-1-chantier-a.fr.md)
 
-Date : 28/10/2026.
+# Step 1: Workstream A, class-tech Repository Structure
 
-## But
+Date: 28/10/2026.
 
-Créer la structure vide du nouveau dépôt class-tech, prête à recevoir la chaîne LLM (chantier B) puis le README (chantier C). Ne rien coder, ne rien publier.
+## Goal
 
-## Vérifications avant de commencer
+Create the empty structure of the new class-tech repository, ready to receive the LLM pipeline (workstream B) and then the README (workstream C). Do not code or publish anything.
 
-- C:\Users\dell\class-tech existe et ne contient que .git (clone frais, vide). Condition remplie, chantier lancé.
-- Origine du clone : https://github.com/petitboura/class-tech.git (lue dans .git/config).
-- Dépôts sources étudiés en lecture seule, jamais modifiés :
-  - C:\Users\dell\classinus-backend : README.md (structure core/, api/, connexions/, indexers/, migrations/, scripts/, ...), CLAUDE.md (2 règles), .gitignore, requirements.txt.
-  - C:\Users\dell\classinus-frontend : README.md (structure Next.js app/, components/, lib/, ...), CLAUDE.md (6 règles), .gitignore, .env.local.example, package.json.
+## Checks before starting
 
-## Fichiers créés
+- C:\Users\dell\class-tech exists and contains only .git (fresh, empty clone). Requirement met; workstream started.
+- Clone origin: https://github.com/petitboura/class-tech.git (read from .git/config).
+- Source repositories reviewed in read-only mode and never modified:
+  - C:\Users\dell\classinus-backend: README.md (core/, api/, connexions/, indexers/, migrations/, scripts/, etc. structure), CLAUDE.md (2 rules), .gitignore, requirements.txt.
+  - C:\Users\dell\classinus-frontend: README.md (Next.js app/, components/, lib/, etc. structure), CLAUDE.md (6 rules), .gitignore, .env.local.example, package.json.
 
-- MUSE.md : fusion des deux CLAUDE.md, adaptée à class-tech (backend aujourd'hui, règles frontend en sommeil, chantiers A/B/C, lecture seule des sources).
-- .gitignore : fusion des deux .gitignore (Python + Next.js), chemins frontend préfixés par frontend/.
-- backend/LISEZ-MOI.md : rôle de chaque dossier (api/, core/, connexions/, indexers/, migrations/, scripts/, tests/).
-- backend/api/.gitkeep, backend/core/.gitkeep, backend/connexions/.gitkeep, backend/indexers/.gitkeep, backend/migrations/.gitkeep, backend/scripts/.gitkeep, backend/tests/.gitkeep : dossiers vides conservés dans git.
-- frontend/LISEZ-MOI.md : note "phase plus tard", rien à construire.
-- docs/README.md : base de la doc (un fichier par étape).
-- docs/etape-1-chantier-a.md : ce fichier.
+## Files created
 
-## Choix faits
+- MUSE.md: merged the two CLAUDE.md files, adapted to class-tech (backend today, frontend rules inactive, workstreams A/B/C, source repositories read-only).
+- .gitignore: merged both .gitignore files (Python + Next.js), with frontend paths prefixed by frontend/.
+- backend/LISEZ-MOI.md: role of each directory (api/, core/, connexions/, indexers/, migrations/, scripts/, tests/).
+- backend/api/.gitkeep, backend/core/.gitkeep, backend/connexions/.gitkeep, backend/indexers/.gitkeep, backend/migrations/.gitkeep, backend/scripts/.gitkeep, backend/tests/.gitkeep: empty directories kept in git.
+- frontend/LISEZ-MOI.md: note that this is a later phase; nothing to build yet.
+- docs/README.md: documentation baseline (one file per step).
+- docs/etape-1-chantier-a.md: this file.
 
-- Structure backend miroir de classinus-backend (mêmes noms de dossiers), sans les dossiers désactivés ni le déploiement (Dockerfile, Procfile, railpack) : le chantier B amènera le code, avec son déploiement si besoin.
-- Pas de __init__.py ni de code : tout code backend appartient au chantier B.
-- LISEZ-MOI.md dans les sous dossiers plutôt que README.md, pour ne pas confondre avec le README.md racine du chantier C.
-- Règles frontend gardées dans MUSE.md mais marquées "en sommeil" : elles s'appliqueront quand frontend/ sera construit.
-- .gitignore avec .venv/ et .pytest_cache/ en plus des sources, pour un environnement Python propre.
+## Decisions made
 
-## Interdits respectés
+- Backend structure mirrors classinus-backend (same directory names), without disabled directories or deployment files (Dockerfile, Procfile, railpack): workstream B will bring the code and its deployment setup if needed.
+- No __init__.py or code: all backend code belongs to workstream B.
+- LISEZ-MOI.md files in subdirectories rather than README.md, to avoid confusing them with the root README.md for workstream C.
+- Frontend rules kept in MUSE.md but marked "inactive": they apply when frontend/ is built.
+- .gitignore includes .venv/ and .pytest_cache/ in addition to source patterns, for a clean Python environment.
 
-- README.md racine : ni créé ni modifié (chantier C).
-- Code de la chaîne LLM : aucun (chantier B).
-- Ni commit ni push.
-- Sources classinus-backend et classinus-frontend : lues seulement, aucune modification.
+## Restrictions respected
 
-## Suites
+- Root README.md: neither created nor modified (workstream C).
+- LLM pipeline code: none (workstream B).
+- No commit or push.
+- classinus-backend and classinus-frontend sources: read only, no changes.
 
-- Chantier B : amener la chaîne LLM dans backend/ (remplace les .gitkeep).
-- Chantier C : écrire le README.md racine.
-- Phase plus tard : construire frontend/.
+## Next steps
+
+- Workstream B: bring the LLM pipeline into backend/ (replacing the .gitkeep files).
+- Workstream C: write the root README.md.
+- Later phase: build frontend/.

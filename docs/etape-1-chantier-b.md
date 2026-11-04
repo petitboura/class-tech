@@ -1,199 +1,103 @@
-# Étape 1 : chantier B, chaîne LLM dans backend/
+> [English version] · [Français](./etape-1-chantier-b.fr.md)
 
-Date : 28/10/2026.
+# Step 1: Workstream B, LLM Pipeline in backend/
 
-## But
+Date: 28/10/2026.
 
-Amener la chaîne LLM dans class-tech/backend/, en squelette adapté au
-nouveau projet (diagnostic du téléphone d'abord, de l'ordinateur
-ensuite). Le squelette reprend l'architecture de classinus-backend (lu
-en lecture seule, jamais modifié) : question reçue en HTTP, boucle avec
-le modèle, outils via un serveur MCP interne, catalogue d'outils exposé.
-Sans secrets, sans valeurs en dur, sans base de données pour l'instant.
+## Goal
 
-## Vérifications avant de commencer
+Bring the LLM pipeline into class-tech/backend/, as a skeleton adapted to the new project (phone diagnostics first, computer diagnostics later). The skeleton follows the classinus-backend architecture (read-only, never modified): question received over HTTP, model loop, tools through an internal MCP server, exposed tool catalog. No secrets, no hardcoded values, and no database for now.
 
-- C:\Users\dell\class-tech\backend existe avec la structure du chantier A
-  (api/, core/, connexions/, indexers/, migrations/, scripts/, tests/,
-  chacun avec .gitkeep, plus LISEZ-MOI.md). Condition remplie.
-- C:\Users\dell\class-tech\docs\etape-1-chantier-a.md lu : le chantier B
-  amène le code et le chantier C écrira le README racine.
-- Skill classinus-standards-dev lu via read_skill, MUSE.md de class-tech
-  lu. Règles appliquées : ne jamais deviner (les doutes sont listés plus
-  bas au lieu d'être tranchés seul), aucune valeur en dur (tout passe
-  par l'environnement), dépôts sources jamais modifiés.
+## Checks before starting
 
-## Sources lues dans classinus-backend (preuves)
+- C:\Users\dell\class-tech\backend exists with the structure from workstream A (api/, core/, connexions/, indexers/, migrations/, scripts/, tests/, each with .gitkeep, plus LISEZ-MOI.md). Requirement met.
+- C:\Users\dell\class-tech\docs\etape-1-chantier-a.md was read: workstream B brings the code, and workstream C writes the root README.
+- The classinus-standards-dev skill and class-tech MUSE.md were read. Rules applied: never guess (uncertainties are listed below instead of being decided unilaterally), no hardcoded values (everything comes from the environment), source repositories are never modified.
 
-Lecture seule uniquement. Ce qui a été repris de chaque fichier :
+## Sources read in classinus-backend (evidence)
 
-- api/chat.py : route POST /api/chat (fonction envoyer_message), payload
-  Pydantic, conversion du générateur Python en flux SSE (data: {...} puis
-  data: [DONE]) via StreamingResponse. Repris dans api/diagnostic.py.
-- core/main.py : fonction chat(), générateur d'événements (statut,
-  outil_resultat, reponse, confirmation_requise avec etat_reprise,
-  meta). Repris en version courte dans core/diagnostic.py.
-- core/boucle_agent.py : boucle qui appelle le modèle, exécute les outils
-  demandés, interrompt sur outil sensible. Repris dans _boucle().
-- core/registre_outils.py : SERVEURS_MCP (entrées nom, url_builder,
-  headers_builder, outils_autorises, prefixe_outils),
-  REGISTRE_AFFICHAGE_OUTILS (label, icone, onglet), VERBES_ACTIONS,
-  CATEGORIES_OUTILS, OUTILS_SENSIBLES, outils_de_la_categorie().
-  Repris en version réduite dans core/registre_outils.py.
-- core/mcp_tools.py : moteur générique (list_tools sur chaque serveur,
-  conversion au format LLM, rappel du bon serveur à l'exécution).
-  Repris dans core/moteur_outils.py.
-- core/outils_generation_commun.py : objet FastMCP partagé
-  (mcp_generation = FastMCP(name=...)). Repris tel quel comme
-  mcp_diagnostic dans core/outils_diagnostic_commun.py.
-- core/serveur_mcp_generation.py : motif "rassembler les modules
-  outils_*.py par import". Repris dans core/serveur_mcp_diagnostic.py.
-- core/outils_minuteurs.py (outil gerer_minuteur) : motif d'outil
-  (@mcp.tool(), paramètres typés, texte français renvoyé au modèle).
-  Repris pour les deux outils exemples.
-- core/serveur_mcp_public.py (outils ping, qui_suis_je) : motif de sonde
-  de santé sans donnée utilisateur. Repris pour verifier_chaine.
-- api/outils_registre.py : route GET /api/outils/registre qui sérialise
-  le registre (outils, verbes_actions, prefixes_applis). Repris à
-  l'identique dans api/outils_registre.py.
-- api/main.py : app FastAPI, include_router des routes, montage des
-  serveurs MCP via app.mount("/mcp/...",
-  mcp.streamable_http_app(...)). Repris dans api/main.py.
-- core/fournisseurs_llm.py et core/clients_outils_llm.py (rôle
-  seulement) : appel modèle avec outils. Repris en version
-  mono fournisseur OpenAI compatible dans core/fournisseur_llm.py.
-- requirements.txt : versions repères (mcp==2.0.0). Reprise dans
-  backend/requirements.txt.
+Read-only access only. What was reused from each file:
 
-## Fichiers créés
+- api/chat.py: POST /api/chat route (envoyer_message function), Pydantic payload, conversion of the Python generator into an SSE stream (data: {...} followed by data: [DONE]) through StreamingResponse. Reused in api/diagnostic.py.
+- core/main.py: chat() function, event generator (status, outil_resultat, reponse, confirmation_requise with etat_reprise, meta). Reused in a shorter version in core/diagnostic.py.
+- core/boucle_agent.py: loop that calls the model, runs requested tools, and pauses on a sensitive tool. Reused in _boucle().
+- core/registre_outils.py: SERVEURS_MCP (entries for name, url_builder, headers_builder, outils_autorises, prefixe_outils), REGISTRE_AFFICHAGE_OUTILS (label, icone, onglet), VERBES_ACTIONS, CATEGORIES_OUTILS, OUTILS_SENSIBLES, outils_de_la_categorie(). Reused in reduced form in core/registre_outils.py.
+- core/mcp_tools.py: generic engine (list_tools on each server, conversion to LLM format, call to the correct server during execution). Reused in core/moteur_outils.py.
+- core/outils_generation_commun.py: shared FastMCP object (mcp_generation = FastMCP(name=...)). Reused as mcp_diagnostic in core/outils_diagnostic_commun.py.
+- core/serveur_mcp_generation.py: pattern of gathering the outils_*.py tool modules through imports. Reused in core/serveur_mcp_diagnostic.py.
+- core/outils_minuteurs.py (gerer_minuteur tool): tool pattern (@mcp.tool(), typed parameters, French text returned to the model). Reused for the two example tools.
+- core/serveur_mcp_public.py (ping, qui_suis_je tools): health-probe pattern without user data. Reused for verifier_chaine.
+- api/outils_registre.py: GET /api/outils/registre route serializing the registry (tools, verbes_actions, prefixes_applis). Reused identically in api/outils_registre.py.
+- api/main.py: FastAPI app, include_router for routes, MCP server mounts through app.mount("/mcp/...", mcp.streamable_http_app(...)). Reused in api/main.py.
+- core/fournisseurs_llm.py and core/clients_outils_llm.py (role only): model call with tools. Reused in a single-provider, OpenAI-compatible version in core/fournisseur_llm.py.
+- requirements.txt: reference versions (mcp==2.0.0). Reused in backend/requirements.txt.
 
-Tous dans C:\Users\dell\class-tech\backend (patch : aucun fichier du
-chantier A modifié, aucun fichier modifié dans classinus-backend) :
+## Files created
 
-- requirements.txt : dépendances (fastapi, uvicorn, mcp, httpx, pytest).
-- .env.example : toutes les variables lues par le squelette, sans
-  secrets. À copier vers .env (ignoré par git).
-- core/configuration.py : seul module qui lit l'environnement
-  (get_secret, PORT, délais, plafonds).
-- core/registre_outils.py : SERVEURS_MCP (serveur interne diagnostic),
-  TYPES_APPAREILS (telephone, ordinateur), REGISTRE_AFFICHAGE_OUTILS,
-  VERBES_ACTIONS, CATEGORIES_OUTILS, OUTILS_SENSIBLES (vide),
-  outils_de_la_categorie(). Sans dépendance externe.
-- core/outils_diagnostic_commun.py : objet FastMCP partagé.
-- core/outils_etat_appareil.py : outils exemples verifier_chaine
-  (sonde) et resumer_symptome (fiche structurée, sans diagnostic).
-- core/serveur_mcp_diagnostic.py : rassemble les modules d'outils,
-  réexporte mcp_diagnostic.
-- core/moteur_outils.py : liste les outils de chaque serveur MCP,
-  exécute un outil sur le bon serveur.
-- core/fournisseur_llm.py : appel modèle OpenAI compatible (adresse,
-  clé, modèle depuis l'environnement). Erreur claire si non configuré.
-- core/diagnostic.py : diagnostiquer(), générateur d'événements
-  (statut, outil_resultat, reponse, confirmation_requise, meta,
-  erreur), avec reprise après confirmation et filtre par appareil.
-- api/diagnostic.py : route POST /api/diagnostic en flux SSE.
-- api/outils_registre.py : route GET /api/outils/registre.
-- api/main.py : app FastAPI, routes branchées, serveur MCP monté sur
-  /mcp/diagnostic. Lancement : depuis backend/,
-  uvicorn api.main:app (port 8000).
-- api/__init__.py, core/__init__.py, connexions/__init__.py,
-  tests/__init__.py : paquets Python (connexions reste vide, pour plus
-  tard, comme prévu au chantier A).
-- tests/test_registre_outils.py : cohérence du registre (serveurs,
-  catégories, entrées complètes, aucun tiret double affiché, outils
-  sensibles connus). Tourne sans dépendance externe.
+All in C:\Users\dell\class-tech\backend (patch: no workstream A file modified, no file modified in classinus-backend):
 
-## Comment la chaîne fonctionne
+- requirements.txt: dependencies (fastapi, uvicorn, mcp, httpx, pytest).
+- .env.example: all variables read by the skeleton, no secrets. Copy to .env (ignored by git).
+- core/configuration.py: only module that reads the environment (get_secret, PORT, timeouts, limits).
+- core/registre_outils.py: SERVEURS_MCP (internal diagnostic server), TYPES_APPAREILS (telephone, ordinateur), REGISTRE_AFFICHAGE_OUTILS, VERBES_ACTIONS, CATEGORIES_OUTILS, OUTILS_SENSIBLES (empty), outils_de_la_categorie(). No external dependency.
+- core/outils_diagnostic_commun.py: shared FastMCP object.
+- core/outils_etat_appareil.py: example tools verifier_chaine (probe) and resumer_symptome (structured record, no diagnosis).
+- core/serveur_mcp_diagnostic.py: gathers the tool modules and re-exports mcp_diagnostic.
+- core/moteur_outils.py: lists tools from each MCP server and executes a tool on the correct server.
+- core/fournisseur_llm.py: OpenAI-compatible model call (address, key, and model from the environment). Clear error if not configured.
+- core/diagnostic.py: diagnostiquer(), event generator (statut, outil_resultat, reponse, confirmation_requise, meta, erreur), with resume after confirmation and device filtering.
+- api/diagnostic.py: POST /api/diagnostic route using SSE.
+- api/outils_registre.py: GET /api/outils/registre route.
+- api/main.py: FastAPI app, routes connected, MCP server mounted at /mcp/diagnostic. Launch from backend/: uvicorn api.main:app (port 8000).
+- api/__init__.py, core/__init__.py, connexions/__init__.py, tests/__init__.py: Python packages (connexions remains empty for later, as planned in workstream A).
+- tests/test_registre_outils.py: registry consistency (servers, categories, complete entries, no displayed double hyphens, known sensitive tools). Runs without external dependencies.
 
-1. Le client envoie POST /api/diagnostic avec le message (et
-   l'historique, la fiche, l'appareil, ou une reprise).
-2. La route appelle diagnostiquer(), qui liste les outils via le moteur
-   MCP (le serveur interne répond sur /mcp/diagnostic, même processus).
-3. La boucle appelle le modèle avec les outils, exécute chaque outil
-   demandé, renvoie les résultats au modèle, jusqu'à la réponse finale.
-4. Chaque étape sort en flux SSE : statut, outil_resultat, reponse,
-   puis meta. Un outil sensible déclenche confirmation_requise et attend
-   l'accord avant de continuer.
-5. Le futur site lit GET /api/outils/registre pour afficher les outils
-   (labels, icônes) sans jamais coder leur liste en dur.
+## How the pipeline works
 
-## Choix faits et simplifications assumées
+1. The client sends POST /api/diagnostic with the message (and history, record, device, or a continuation).
+2. The route calls diagnostiquer(), which lists tools through the MCP engine (the internal server responds at /mcp/diagnostic in the same process).
+3. The loop calls the model with the tools, executes each requested tool, returns the results to the model, and repeats until the final response.
+4. Each step is emitted as an SSE stream: statut, outil_resultat, reponse, then meta. A sensitive tool triggers confirmation_requise and waits for approval before continuing.
+5. The future site reads GET /api/outils/registre to display tools (labels, icons) without hardcoding the list.
 
-- Noms adaptés au diagnostic (diagnostiquer, resumer_symptome,
-  fiche_id, appareil) plutôt que copiés du scolaire (chat, eleve,
-  conversation). La correspondance exacte est donnée plus haut.
-- Imports en paquets (from core.x import ...) plutôt que le sys.path de
-  la source : lancement depuis backend/, plus propre pour un dépôt neuf.
-- Un seul serveur MCP interne (diagnostic), un seul outil métier
-  exemple, une seule catégorie par appareil : le minimum qui prouve que
-  la chaîne complète fonctionne.
-- Fournisseur LLM au format OpenAI compatible, sans SDK : l'adresse, la
-  clé et le modèle viennent de l'environnement, aucun fournisseur codé
-  en dur (le choix reste ouvert, voir plus bas).
-- Réponse en un seul bloc (pas de streaming mot à mot), pas de mémoire,
-  pas d'historique persisté, pas de cascade multi modèles : repris plus
-  tard depuis la source si besoin.
-- OUTILS_SENSIBLES vide : aucun outil destructeur sans validation de
-  Bourama. La plomberie de confirmation existe déjà et attend le premier
-  outil sensible.
-- Règle MUSE.md sur les données liées à un compte : sans objet pour ce
-  squelette, qui ne stocke rien (ni table, ni fichier). Rappel noté dans
-  l'outil exemple pour la première donnée future.
-- Pas de mécanisme de traduction pour l'instant (signalé, comme le
-  demande le skill quand il n'existe pas) : tous les textes sont en
-  français direct.
-- Les .gitkeep du chantier A sont laissés en place : ma consigne
-  interdisait de toucher aux fichiers du chantier A, même si la doc du
-  chantier A prévoyait leur remplacement. À trancher (voir plus bas).
+## Decisions made and deliberate simplifications
 
-## Points ouverts pour Bourama (à trancher, pas devinés)
+- Names adapted to diagnostics (diagnostiquer, resumer_symptome, fiche_id, appareil) rather than copied from the education project (chat, eleve, conversation). The exact mapping is given above.
+- Package imports (from core.x import ...) instead of the source repository's sys.path approach: launch from backend/, cleaner for a new repository.
+- One internal MCP server (diagnostic), one example business tool, one category per device: the minimum needed to prove the complete pipeline works.
+- LLM provider uses the OpenAI-compatible format, without an SDK: address, key, and model come from the environment; no provider is hardcoded (the choice remains open, see below).
+- One-block response (no word-by-word streaming), no memory, no persisted history, no multi-model cascade: these can be reused later from the source if needed.
+- OUTILS_SENSIBLES is empty: no destructive tool without Bourama's validation. Confirmation plumbing already exists and awaits the first sensitive tool.
+- No translation mechanism for now (reported, as requested when none exists): all text is directly in French.
+- Workstream A .gitkeep files remain in place: the instruction prohibited touching workstream A files, even though its documentation expected them to be replaced. To be decided (see below).
 
-1. Fournisseur LLM : Groq, OpenAI, Claude, Gemini, DeepSeek, autre ?
-   Le squelette accepte tout service OpenAI compatible via .env, mais le
-   choix officiel (et la clé) manque pour un premier vrai diagnostic.
-2. Faut il retirer les .gitkeep maintenant que le code est là, ou les
-   garder tant que indexers/, migrations/ et scripts/ sont vides ?
-3. Authentification : confirmer qu'on reste sans comptes (donc sans
-   user_id) jusqu'à nouvel ordre.
-4. Base de données : confirmer que le squelette reste sans état (pas de
-   Supabase) pour l'instant.
-5. Contrat du futur site : les formats SSE et registre sont repris de
-   la source, à valider quand le site se construira.
+## Open points for Bourama (to decide, not guessed)
 
-## Vérifications faites
+1. LLM provider: Groq, OpenAI, Claude, Gemini, DeepSeek, or another? The skeleton accepts any OpenAI-compatible service through .env, but the official choice (and key) is missing for a first real diagnosis.
+2. Should the .gitkeep files be removed now that code exists, or kept while indexers/, migrations/, and scripts/ are empty?
+3. Authentication: confirm whether we remain without accounts (and therefore without user_id) until further notice.
+4. Database: confirm whether the skeleton remains stateless (no Supabase) for now.
+5. Future site contract: SSE and registry formats were reused from the source; validate them when the site is built.
 
-- Compilation de tous les fichiers : python -m compileall sur api,
-  core, tests, connexions, sans erreur.
-- Test du registre : python tests/test_registre_outils.py affiche OK
-  (7 contrôles : serveurs, catégories, entrées, tirets doubles,
-  sensibles, filtre, appareils).
-- Câblage complet avec doublures des librairies tierces (script
-  temporaire, supprimé après usage) : routes branchées, serveur MCP
-  monté, outils enregistrés, chemins sans LLM (message vide, reprise
-  incomplète, outils exemples, flux SSE, registre), aucun tiret double
-  dans les textes affichés. Affiche OK.
-- Recherche de tirets doubles dans backend : uniquement dans une
-  commande shell en commentaire et dans le test qui les interdit, jamais
-  dans un texte affiché.
-- Lancement réel non fait ici : les dépendances (fastapi, mcp, httpx)
-  ne sont pas installées sur ce poste et le modèle demande une clé.
-  Commande prévue : depuis backend/, pip install -r requirements.txt
-  puis uvicorn api.main:app (port 8000).
+## Checks performed
 
-## Interdits respectés
+- Compilation of all files: python -m compileall across api, core, tests, and connexions, no errors.
+- Registry test: python tests/test_registre_outils.py reports OK (7 checks: servers, categories, entries, double hyphens, sensitive tools, filter, devices).
+- Full wiring with third-party library stubs (temporary script, deleted after use): routes connected, MCP server mounted, tools registered, paths without LLM (empty message, incomplete continuation, example tools, SSE stream, registry), no double hyphens in displayed text. Reports OK.
+- Search for double hyphens in backend: found only in a shell command comment and in the test that forbids them, never in displayed text.
+- Actual launch not performed here: dependencies (fastapi, mcp, httpx) are not installed on this machine, and the model requires a key. Planned command: from backend/, pip install -r requirements.txt, then uvicorn api.main:app (port 8000).
 
-- README.md racine : ni créé ni modifié (chantier C).
-- MUSE.md : non modifié.
-- Fichiers du chantier A (LISEZ-MOI.md, .gitkeep, etape-1-chantier-a.md,
-  docs/README.md, .gitignore) : non modifiés.
-- classinus-backend : lu seulement (11 fichiers lus, voir plus haut),
-  aucune modification.
-- Ni commit ni push.
+## Restrictions respected
 
-## Suites
+- Root README.md: neither created nor modified (workstream C).
+- LLM pipeline code: none (workstream B).
+- MUSE.md: not modified.
+- Workstream A files (LISEZ-MOI.md, .gitkeep, etape-1-chantier-a.md, docs/README.md, .gitignore): not modified.
+- classinus-backend: read only (11 files read, see above), no changes.
+- No commit or push.
 
-- Chantier C : écrire le README.md racine (contrat du dépôt).
-- Réponses de Bourama aux 5 points ouverts, puis premier vrai tour de
-  diagnostic avec le fournisseur retenu.
-- Plus tard : mémoire, historique, comptes, streaming mot à mot,
-  deuxième outil métier, puis frontend/.
+## Next steps
+
+- Workstream C: write the root README.md (repository overview).
+- Bourama's answers to the 5 open points, then the first real diagnostic using the selected provider.
+- Later: memory, history, accounts, word-by-word streaming, second business tool, then frontend/.
