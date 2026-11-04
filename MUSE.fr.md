@@ -60,3 +60,12 @@ Reprises de classinus-frontend. À appliquer dès qu'on construit dans frontend/
 - Après chaque changement, vérifier son impact réel sur le fonctionnement, pas seulement que ça compile.
 - Expliquer en langage simple, sans jargon inutile. Bourama n'a pas de background code.
 - Tenir à jour docs/suivi/ (état, décisions, contexte) à chaque avancée importante, pour reprendre en nouvelle session comme si de rien n'était.
+
+
+## Règles de documentation
+
+- Toute la documentation du projet et des composants doit être rangée dans `docs/`, organisée par thèmes.
+- Seuls `README.md`, `README.fr.md`, `MUSE.md` et `MUSE.fr.md` restent à la racine du dépôt.
+- Ne pas placer de guides à côté des dossiers d'implémentation comme `backend/`, `frontend/` ou `relais/`.
+- Le document par défaut est en anglais (`.md`) ; son compagnon français est en `.fr.md`. Garder les liens de langue et les deux index à jour.
+- Ajouter chaque document dans `docs/README.md` et `docs/README.fr.md`.

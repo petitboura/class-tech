@@ -1,4 +1,4 @@
-> [English version](./LISEZ-MOI.md) · **Version française**
+> [English version](./README.md) · **Version française**
 
 # backend/ : serveur d'outils MCP de diagnostic (étape 2, paliers 80 %, 100 % et root)
 

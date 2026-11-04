@@ -67,6 +67,10 @@ class-tech/
 └── README.md     this file
 ```
 
+## Documentation
+
+Browse the full documentation index: [English](docs/README.md) · [Français](docs/README.fr.md).
+
 ## Contributing
 
 The project is new, and contribution rules have not yet been written. For now: read `MUSE.md` before making any change, touch only what has been requested, and never guess when in doubt.

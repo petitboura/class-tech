@@ -1,4 +1,4 @@
-> [English version](./relais-pc.md) · **Version française**
+> [English version](./OVERVIEW.md) · **Version française**
 
 # Le relais PC Class-Tech
 

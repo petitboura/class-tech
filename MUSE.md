@@ -60,3 +60,11 @@ Adapted from classinus-frontend. Apply them as soon as frontend/ is built:
 - After every change, verify its real impact on behavior, not just that it compiles.
 - Explain in simple language, without unnecessary jargon. Bourama has no coding background.
 - Keep docs/suivi/ up to date (status, decisions, context) after every important advance, so work can resume in a new session as though nothing had happened.
+
+## Documentation rules
+
+- Keep all project and component documentation in `docs/`, organized into clear topic folders.
+- Only `README.md`, `README.fr.md`, `MUSE.md`, and `MUSE.fr.md` stay at the repository root.
+- Do not put guides beside implementation folders such as `backend/`, `frontend/`, or `relais/`.
+- The default document is English (`.md`); its French companion is `.fr.md`. Keep the language switch links and both documentation indexes in sync.
+- Add every document to both `docs/README.md` and `docs/README.fr.md`.
