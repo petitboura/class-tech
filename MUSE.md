@@ -60,3 +60,14 @@ Adapted from classinus-frontend. Apply them as soon as frontend/ is built:
 - After every change, verify its real impact on behavior, not just that it compiles.
 - Explain in simple language, without unnecessary jargon. Bourama has no coding background.
 - Keep docs/suivi/ up to date (status, decisions, context) after every important advance, so work can resume in a new session as though nothing had happened.
+
+## Documentation: always up to date, always organized, always translated
+
+Bourama's decision from 4 November 2026. This rule is mandatory for documentation work: apply it every time, without asking and without waiting for him to repeat it. It takes precedence over "ask when in doubt" for documentation only.
+
+- **Always up to date.** Whenever code, behavior, configuration, or a decision changes, update the affected documentation in the same change.
+- **Never leave a mess.** Never drop a loose Markdown file at the repository root or anywhere at random. Every new document goes in `docs/` (step documents as `etape-N-subject.md`, project follow-up in `docs/suivi/`), or in a themed subfolder once a topic grows. Create a new document or a new folder whenever it keeps things clear; do not ask first.
+- **Always organized.** Every new document is added to the index in `docs/README.md` and `docs/README.fr.md` in the same change. A guide that only describes one module (for example `relais/README.md`) may stay next to the code it describes.
+- **Always translated.** Every document exists in English (default, `.md`) and French (`.fr.md`), with the language switch line at the top of both. Update both versions together, never only one.
+- Only `README` and `MUSE` (and their `.fr.md` versions) stay at the root.
+- Never write a secret, token, or password in documentation.

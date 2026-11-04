@@ -60,3 +60,14 @@ Reprises de classinus-frontend. À appliquer dès qu'on construit dans frontend/
 - Après chaque changement, vérifier son impact réel sur le fonctionnement, pas seulement que ça compile.
 - Expliquer en langage simple, sans jargon inutile. Bourama n'a pas de background code.
 - Tenir à jour docs/suivi/ (état, décisions, contexte) à chaque avancée importante, pour reprendre en nouvelle session comme si de rien n'était.
+
+## Documentation : toujours à jour, toujours rangée, toujours traduite
+
+Décision de Bourama du 4 novembre 2026. Cette règle est obligatoire pour la documentation : l'appliquer à chaque fois, sans demander et sans attendre qu'il la répète. Elle l'emporte sur « demander en cas de doute » pour la documentation uniquement.
+
+- **Toujours à jour.** Dès que le code, un comportement, une configuration ou une décision change, mettre à jour la documentation concernée dans la même modification.
+- **Jamais de bazar.** Ne jamais déposer un fichier Markdown en vrac à la racine du dépôt ni n'importe où. Tout nouveau document va dans `docs/` (documents d'étape en `etape-N-sujet.md`, suivi du projet dans `docs/suivi/`), ou dans un sous-dossier thématique quand un sujet grossit. Créer un nouveau document ou un nouveau dossier dès que cela rend les choses plus claires, sans demander.
+- **Toujours rangée.** Chaque nouveau document est ajouté à l'index de `docs/README.md` et `docs/README.fr.md` dans la même modification. Un guide qui ne décrit qu'un module (par exemple `relais/README.md`) peut rester à côté du code qu'il décrit.
+- **Toujours traduite.** Chaque document existe en anglais (par défaut, `.md`) et en français (`.fr.md`), avec la ligne de choix de langue en tête des deux. Mettre à jour les deux versions ensemble, jamais une seule.
+- Seuls `README` et `MUSE` (et leurs versions `.fr.md`) restent à la racine.
+- Ne jamais écrire de secret, de jeton ou de mot de passe dans la documentation.
