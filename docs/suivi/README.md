@@ -1,26 +1,20 @@
-# Suivi du projet (mémoire entre les sessions)
+> [English version] · [Français](./README.fr.md)
 
-Ce dossier est la mémoire du projet. Tout ce qui est important va ici,
-pour reprendre dans une nouvelle session comme si de rien n'était.
+# Project Tracking (Memory Between Sessions)
 
-## Les fichiers
+This directory is the project's memory. Everything important goes here, so work can resume in a new session as though nothing had happened.
 
-- `contexte.md` : les faits stables (but, dépôts, archi, règles clé).
-- `etat.md` : où on en est, ce qui est fini, ce qui est en cours, ce qui
-  attend Bourama. Le fichier à lire en premier.
-- `decisions.md` : les décisions prises, avec leur date.
-- `journal.md` : le registre strict (décisions actives/annulées/en
-  attente avec motifs, tous les agents avec pourquoi et résultat).
-- `bilan.md` : le bilan Bourama (but, erreurs, décisions,
-  délégations, rôle), tenu à jour à chaque phase.
-- Les docs `etape-*.md` à la racine de `docs/` restent les traces
-  détaillées de chaque étape (on ne les réécrit pas).
+## Files
 
-## Protocole (règle miroir dans MUSE.md)
+- `contexte.md`: stable facts (goal, repositories, architecture, key rules).
+- `etat.md`: current status, what is complete, what is in progress, and what is waiting for Bourama. Read this file first.
+- `decisions.md`: decisions made, with their dates.
+- `journal.md`: strict log (active, cancelled, or pending decisions with reasons; every agent with its purpose and outcome).
+- `bilan.md`: Bourama's review (goal, mistakes, decisions, delegations, role), kept up to date at every phase.
+- The `etape-*.md` documents at the root of `docs/` remain detailed records of each step and must not be rewritten.
 
-- Début de session : lire `etat.md`, puis `decisions.md` (et
-  `contexte.md` au besoin) avant d'agir.
-- À chaque avancée importante : mettre à jour `etat.md` aussitôt, et
-  `decisions.md` si une décision a été prise.
-- Ne jamais laisser `etat.md` dire l'inverse du dépôt : en cas de doute,
-  relire le code réel avant d'écrire.
+## Protocol (also required by MUSE.md)
+
+- At the start of a session: read `etat.md`, then `decisions.md` (and `contexte.md` if needed) before acting.
+- After every important advance: update `etat.md` immediately, and update `decisions.md` if a decision was made.
+- Never let `etat.md` contradict the repository: when in doubt, reread the actual code before writing.

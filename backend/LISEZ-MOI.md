@@ -1,49 +1,46 @@
-# backend/ : serveur d'outils MCP de diagnostic (étape 2, paliers 80 %, 100 % et root)
+> [English version] · [Français](./LISEZ-MOI.fr.md)
 
-Plus de chaîne LLM dans ce dossier : le cerveau (modèle, boucle
-d'outils, confirmations, affichage) vit dans Classinus, qui appelle ce
-serveur en HTTP MCP. Ici, seulement les outils de diagnostic et leur
-serveur (voir docs/etape-2-decision-architecture.md).
+# backend/: MCP Diagnostic Tools Server (Step 2, 80%, 100%, and Root Tiers)
 
-Rôle de chaque fichier et dossier :
+There is no longer an LLM pipeline in this directory: the brain (model, tool loop, confirmations, and display) lives in Classinus, which calls this server over HTTP MCP. This directory contains only the diagnostic tools and their server (see docs/etape-2-decision-architecture.md).
 
-- api/main.py : app FastAPI minimale, monte le serveur MCP sur /mcp/diagnostic (avec démarrage explicite du gestionnaire de sessions).
-- core/serveur_mcp_diagnostic.py : rassemble les modules d'outils sur l'objet partagé mcp_diagnostic.
-- core/outils_diagnostic_commun.py : objet FastMCP partagé par tous les outils.
-- core/outils_etat_appareil.py : outils exemple du squelette (sonde de santé, résumé du symptôme).
-- core/outils_sonde.py : sonde de test ping_serveur (répond ok, version, heure).
-- core/pont_adb.py : pont PC vers téléphone via ADB (recherche d'ADB, appareils, exécution, messages standards). Aucun outil, que du transport partagé.
-- core/outils_telephone_base.py : détection du téléphone branché (modèle, version Android).
-- core/outils_telephone_batterie.py : état batterie, conso par appli.
-- core/outils_telephone_stockage.py : espace disque, gros fichiers, vide des caches (sensible).
-- core/outils_telephone_applis.py : liste des applis, plantages récents, applis inutilisées.
-- core/outils_telephone_systeme.py : version Android, erreurs récentes.
-- core/outils_telephone_reseau.py : état réseau, détails wifi.
-- core/outils_telephone_capteurs.py : test groupé des capteurs.
-- core/pont_root.py : transport root partagé (commandes su, vérification root, marque non testé).
-- core/outils_root_acces.py : vérification root, infos su et modules.
-- core/outils_root_systeme.py : fichiers système protégés, erreurs et paniques noyau.
-- core/outils_root_partitions.py : partitions, montages, intégrité du système.
-- core/outils_root_batterie.py : batterie brute, températures, remise à zéro des stats.
-- core/outils_root_firmware.py : firmware, bootloader, slot de démarrage A/B.
-- core/outils_root_processus.py : processus gourmands, verrous de réveil.
-- core/outils_root_corrections.py : corrections profondes (crashs, Dalvik, trim, reboot).
-- core/registre_outils.py : données signalétiques des outils (noms, labels français, icônes, onglets, catégories, outils sensibles). Sans dépendance externe.
-- connexions/ : vide, accueillera les connexions externes si un outil en a besoin un jour.
-- indexers/, migrations/, scripts/ : dossiers réservés, vides pour l'instant.
-- tests/ : tests (registre et pont ADB sans dépendance externe, le reste avec les dépendances installées).
-- requirements.txt : dépendances utiles seules.
+Role of each file and directory:
 
-Palier root : 19 outils root (tous sensibles, confirmation exigée),
-non testés sur appareil rooté (aucun disponible), chaque réponse le
-signale.
+- api/main.py: minimal FastAPI app, mounts the MCP server at /mcp/diagnostic (with explicit session-manager startup).
+- core/serveur_mcp_diagnostic.py: gathers the tool modules on the shared mcp_diagnostic object.
+- core/outils_diagnostic_commun.py: FastMCP object shared by all tools.
+- core/outils_etat_appareil.py: example skeleton tools (health probe and symptom summary).
+- core/outils_sonde.py: ping_serveur test probe (returns ok, version, and time).
+- core/pont_adb.py: PC-to-phone bridge through ADB (ADB discovery, devices, execution, standard messages). No tools here, only shared transport.
+- core/outils_telephone_base.py: detects the connected phone (model, Android version).
+- core/outils_telephone_batterie.py: battery status and per-app consumption.
+- core/outils_telephone_stockage.py: disk space, large files, cache clearing (sensitive).
+- core/outils_telephone_applis.py: app list, recent crashes, unused apps.
+- core/outils_telephone_systeme.py: Android version and recent errors.
+- core/outils_telephone_reseau.py: network status and Wi-Fi details.
+- core/outils_telephone_capteurs.py: grouped sensor test.
+- core/pont_root.py: shared root transport (su commands, root check, marks the tool as untested).
+- core/outils_root_acces.py: root check, su information, and modules.
+- core/outils_root_systeme.py: protected system files, errors, and kernel panics.
+- core/outils_root_partitions.py: partitions, mounts, and system integrity.
+- core/outils_root_batterie.py: raw battery data, temperatures, and battery-stat resets.
+- core/outils_root_firmware.py: firmware, bootloader, and A/B boot slot.
+- core/outils_root_processus.py: resource-intensive processes and wake locks.
+- core/outils_root_corrections.py: deep fixes (crashes, Dalvik, trim, reboot).
+- core/registre_outils.py: tool metadata (names, French labels, icons, tabs, categories, sensitive tools). No external dependency.
+- connexions/: empty; will host external connections if a tool needs one in the future.
+- indexers/, migrations/, scripts/: reserved directories, empty for now.
+- tests/: tests (registry and ADB bridge without external dependencies, the rest with dependencies installed).
+- requirements.txt: only the required dependencies.
 
-Lancement local (depuis backend/) :
+Root tier: 19 root tools (all sensitive, confirmation required), not tested on a rooted device (none available); every response says so.
+
+Local launch (from backend/):
 
     uvicorn api.main:app --port 8000
 
-Tests (depuis backend/, dépendances installées) :
+Tests (from backend/, dependencies installed):
 
     pytest tests
 
-Pour ajouter un outil : mode d'emploi en tête de core/registre_outils.py.
+To add a tool: follow the instructions at the top of core/registre_outils.py.

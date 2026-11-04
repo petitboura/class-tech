@@ -1,71 +1,53 @@
-# Le relais PC Class-Tech
+> [English version] · [Français](./relais-pc.fr.md)
 
-Date : 28/10/2026. Branche relais-pc.
+# The Class-Tech PC Relay
 
-## Le problème
+Date: 28/10/2026. Branch: relais-pc.
 
-Le serveur Class-Tech tourne dans le cloud. Le cloud ne voit pas le
-téléphone branché en USB sur le PC de l'utilisateur. Sans relais, seul
-le PC qui héberge le serveur peut diagnostiquer un téléphone.
+## The problem
 
-## Le rôle exact du relais
+The Class-Tech server runs in the cloud. The cloud cannot see a phone connected by USB to the user's PC. Without a relay, only the PC hosting the server can diagnose a phone.
 
-Le relais est un petit serveur qui tourne sur le PC de l'utilisateur,
-à côté du téléphone branché. Il réutilise tel quel le pont ADB et les
-outils du dépôt. Il reçoit les demandes de diagnostic et les exécute
-en local, là où le téléphone est visible.
+## The relay's exact role
 
-## D'où il tourne
+The relay is a small server running on the user's PC, next to the connected phone. It reuses the repository's existing ADB bridge and tools as they are. It receives diagnostic requests and executes them locally, where the phone is visible.
 
-Sur le PC de l'utilisateur, dans le dossier du dépôt (branche
-relais-pc). Un seul programme à lancer. Il écoute sur une adresse
-locale, avec un port réglable dans relais/reglages.json.
+## Where it runs
 
-## Comment le téléphone branché devient joignable
+On the user's PC, inside the repository directory (relais-pc branch). It is a single program to launch. It listens on a local address, with a port configurable in relais/reglages.json.
 
-1. L'utilisateur branche son téléphone en USB, avec le débogage USB
-   actif, et valide la demande sur l'écran du téléphone.
-2. Le relais tourne sur ce même PC, donc le pont ADB existant trouve
-   le téléphone par le câble, sans rien changer au code des outils.
-3. Le diagnostic demandé est exécuté sur place et la réponse repart
-   vers le demandeur.
+## How the connected phone becomes reachable
 
-## Schéma
+1. The user connects the phone over USB, with USB debugging enabled, and approves the request on the phone screen.
+2. The relay runs on that same PC, so the existing ADB bridge finds the phone over the cable, without changing the tools' code.
+3. The requested diagnosis runs locally, and the response is sent back to the requester.
+
+## Diagram
 
 ```text
-Produit visé :
-[Telephone en USB] relié à [Relais sur le PC] relié à [Cerveau Classinus]
-Le relais exécute près du téléphone. Le cerveau guide depuis le cloud.
+Target product:
+[Phone over USB] connected to [Relay on PC] connected to [Classinus Brain]
+The relay executes next to the phone. The brain guides the process from the cloud.
 
-Ce qui marche aujourd'hui :
-[Telephone en USB] relié à [Relais sur le PC]
-Le diagnostic local répond avec les vraies données du téléphone.
+What works today:
+[Phone over USB] connected to [Relay on PC]
+The local diagnostic returns real data from the phone.
 ```
 
-## Ce que le relais expose
+## What the relay exposes
 
-- Le serveur d'outils MCP existant, sur /mcp/diagnostic, pour le
-  branchement futur au cerveau.
-- Deux routes simples pour le diagnostic local : /relais/sante
-  (état et téléphone vu) et /relais/outil/nom (exécute un outil
-  de lecture et renvoie son texte).
-- Les lectures (dont les 10 outils profonds sans root) et les 5 outils
-  sensibles (confirmés d'abord par l'utilisateur dans Classinus). Tous les outils root sont refusés par
-  construction.
+- The existing MCP tools server at /mcp/diagnostic, for future integration with the brain.
+- Two simple routes for local diagnostics: /relais/sante (status and whether a phone is detected) and /relais/outil/name (runs a read-only tool and returns its text).
+- Read operations (including the 10 deep tools without root) and the 5 sensitive tools (confirmed first by the user in Classinus). All root tools are rejected by design.
 
-## Choix simples assumés
+## Deliberate simplifications
 
-- Un seul programme, un seul port, pas de service à installer.
-- Port, adresse, délai et chemin ADB en réglages, jamais en dur.
-- Pas de tunnel vers le cloud dans cette version. Le diagnostic
-  local marche. Le lien vers le cerveau viendra ensuite, par une
-  connexion sortante depuis le relais, sans ouvrir de port sur le PC.
+- One program, one port, no service to install.
+- Port, address, timeout, and ADB path are configurable, never hardcoded.
+- No cloud tunnel in this version. Local diagnostics work. The connection to the brain will come later, through an outbound connection from the relay, without opening a port on the PC.
 
-## Limites connues
+## Known limitations
 
-- Le PC doit rester allumé, avec le relais lancé et le téléphone
-  branché pendant le diagnostic.
-- Windows d'abord. Le pont ADB sait chercher sur d'autres systèmes,
-  mais seul Windows est testé.
-- Un seul téléphone à la fois. S'il y en a plusieurs, le premier
-  prêt est utilisé.
+- The PC must stay on, with the relay running and the phone connected during diagnosis.
+- Windows first. The ADB bridge can search on other systems, but only Windows has been tested.
+- One phone at a time. If several are connected, the first ready device is used.

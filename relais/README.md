@@ -1,61 +1,46 @@
-# Relais PC Class-Tech
+> [English version] · [Français](./README.fr.md)
 
-Le relais est le petit serveur qui tourne sur ton PC, à côté du
-téléphone branché en USB. Il exécute le diagnostic en local, là où le
-téléphone est visible, avec les vrais outils Class-Tech.
+# Class-Tech PC Relay
 
-## Étape 1 : préparer le téléphone et le PC
+The relay is a small server running on your PC, next to the phone connected over USB. It runs diagnostics locally, where the phone is visible, using the actual Class-Tech tools.
 
-Sur le téléphone :
+## Step 1: Prepare the phone and PC
 
-- Active le mode développeur puis le débogage USB.
-- Branche le téléphone au PC avec un câble USB.
-- Valide la demande d'autorisation sur l'écran du téléphone.
+On the phone:
 
-Sur le PC :
+- Enable developer mode and USB debugging.
+- Connect the phone to the PC with a USB cable.
+- Approve the permission request on the phone screen.
 
-- Installe Python 3.12 ou plus récent.
-- Installe les platform-tools Google (le programme ADB).
+On the PC:
 
-## Étape 2 : récupérer le relais et installer
+- Install Python 3.12 or later.
+- Install Google's platform-tools (the ADB program).
 
-- Récupère la branche relais-pc du dépôt class-tech sur ton PC.
-- Depuis la racine du dépôt, installe les dépendances :
+## Step 2: Get the relay and install it
 
-  python -m pip install -r backend/requirements.txt
+- Get the relais-pc branch of the class-tech repository on your PC.
+- From the repository root, install the dependencies:
 
-## Étape 3 : lancer et vérifier
+  `python -m pip install -r backend/requirements.txt`
 
-- Double clique sur Lancer-Relais.bat dans le dossier relais. Une
-  fenêtre dit sur quelle adresse le relais écoute.
-- Ouvre la page de santé dans un navigateur, à l'adresse dite par la
-  fenêtre, plus /relais/sante.
-- Preuve : python relais/verifier_relais.py affiche les vraies
-  données du téléphone branché.
+## Step 3: Start and verify
 
-## Réglages
+- Double-click `Lancer-Relais.bat` in the relais folder. A window shows the address where the relay is listening.
+- Open the health page in a browser, at the address shown in the window, followed by `/relais/sante`.
+- Proof: `python relais/verifier_relais.py` displays the real data from the connected phone.
 
-Tout est dans relais/reglages.json : hote (adresse d'écoute), port,
-delai_lancement_s (attente maxi d'une réponse) et chemin_adb (vide
-veut dire recherche auto, sinon chemin complet vers adb). Chaque
-valeur peut aussi être forcée par une variable d'environnement :
-RELAIS_PC_HOTE, RELAIS_PC_PORT, RELAIS_PC_DELAI, RELAIS_PC_ADB.
-Aucun port ni chemin ni adresse n'est écrit en dur dans le code.
+## Settings
 
-## Dépannage
+Everything is in `relais/reglages.json`: host (listening address), port, `delai_lancement_s` (maximum wait for a response), and `chemin_adb` (empty means automatic discovery; otherwise, the full path to adb). Each value can also be overridden by an environment variable: `RELAIS_PC_HOTE`, `RELAIS_PC_PORT`, `RELAIS_PC_DELAI`, `RELAIS_PC_ADB`. No port, path, or address is hardcoded in the code.
 
-- Téléphone pas vu : change de câble ou de port USB, vérifie le
-  débogage USB, revalide la demande sur l'écran du téléphone.
-- ADB introuvable : renseigne chemin_adb dans relais/reglages.json
-  avec le chemin complet vers adb.
-- Port occupé : change port dans relais/reglages.json puis relance.
-- Relais injoignable : vérifie que la fenêtre du relais est toujours
-  ouverte.
+## Troubleshooting
 
-## Outils sensibles et root
+- Phone not detected: change cable or USB port, check USB debugging, and approve the request again on the phone.
+- ADB not found: set `chemin_adb` in `relais/reglages.json` to the full path to adb.
+- Port busy: change the port in `relais/reglages.json` and restart.
+- Relay unreachable: make sure the relay window is still open.
 
-Le relais exécute les lectures (dont les 10 outils profonds sans root) et les 5 outils sensibles (vider les
-caches, haut-parleur, vibreur, caméra, retirer une permission). Ces 5
-outils agissent vraiment sur le téléphone : Classinus demande la
-confirmation de l'utilisateur avant de les envoyer au relais. Tous les
-outils root sont refusés par construction.
+## Sensitive tools and root
+
+The relay runs read operations (including the 10 deep tools without root) and the five sensitive tools (clear caches, speaker, vibration, camera, revoke a permission). These five tools really affect the phone: Classinus asks the user for confirmation before sending them to the relay. All root tools are rejected by design.

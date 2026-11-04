@@ -1,6 +1,7 @@
-# Notes de Bourama
+> [English version] · [Français](./notes-bourama.fr.md)
 
-Bourama dicte, l'agent principal ajoute ici (une note = date + heure +
-texte). Affiché sur la page suivi-live, section « Notes de Bourama ».
+# Bourama's Notes
 
-_Aucune note pour l'instant._
+Bourama dictates; the main agent adds each note here (one note = date + time + text). Displayed on the live-tracking page, in the "Bourama's Notes" section.
+
+_No notes yet._

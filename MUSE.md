@@ -1,60 +1,62 @@
-# Instructions permanentes pour Muse sur ce dépôt
+> [English version] · [Français](./MUSE.fr.md)
 
-Ce fichier remplace les anciens CLAUDE.md de Classinus (renommé pour Muse).
-Il s'applique à tout le dépôt class-tech : backend/ aujourd'hui, frontend/ plus tard.
+# Permanent Instructions for Muse in This Repository
 
-## Le dépôt et les chantiers
+This file replaces the former Classinus CLAUDE.md files (renamed for Muse).
+It applies to the entire class-tech repository: backend/ today, frontend/ later.
 
-- class-tech a deux parties : backend/ (serveur d'outils MCP de diagnostic, le cerveau reste dans Classinus) et frontend/ (interface, phase plus tard).
-- Les dépôts sources classinus-backend et classinus-frontend ont servi de modèles. Ils se lisent en lecture seule, on ne les modifie jamais depuis ce dépôt.
-- Étape 1 terminée : chantier A (structure), chantier B (squelette, voir docs/etape-1-chantier-b.md), chantier C (README.md). Étape 2 (voir docs/etape-2-decision-architecture.md) : backend réduit au seul serveur d'outils, plus de chaîne LLM ici.
-- README.md de la racine : sections À FINALISER contre le code réduit (voir docs/etape-1-chantier-c.md), ne le réécrire qu'avec une consigne explicite.
-- Ni commit ni push sans consigne explicite de Bourama.
-- En cas de doute, le code fait foi, pas les vieux documents.
+## The repository and its workstreams
 
-## Jamais de tirets doubles ("--") dans un texte AFFICHÉ
+- class-tech has two parts: backend/ (an MCP diagnostic tools server; the brain remains in Classinus) and frontend/ (the interface, in a later phase).
+- The classinus-backend and classinus-frontend source repositories served as references. They are read-only and must never be modified from this repository.
+- Step 1 is complete: workstream A (structure), workstream B (skeleton, see docs/etape-1-chantier-b.md), and workstream C (README.md). Step 2 (see docs/etape-2-decision-architecture.md): backend reduced to the tools server only, with no LLM pipeline here.
+- The root README.md contains sections marked TO BE FINALIZED against the reduced codebase (see docs/etape-1-chantier-c.md). Rewrite it only after an explicit instruction.
+- No commit or push without Bourama's explicit instruction.
+- When in doubt, the code is authoritative, not old documents.
 
-Bourama déteste totalement les "--" (substitut de tiret long) dans tout texte qu'un utilisateur voit à l'écran. Concrètement, jamais dans :
-- les messages d'erreur renvoyés par l'API ;
-- le texte que les outils renvoient à l'IA pour être relayé en chat ;
-- tout label, nom ou description généré et stocké pour être affiché ;
-- plus tard côté frontend : labels, titres, placeholders, messages d'erreur, textes de boutons en JSX, et tout texte injecté dynamiquement.
+## Never use double hyphens ("--") in displayed text
 
-Ça reste totalement acceptable dans :
-- le code lui-même (commentaires, docstrings) ;
-- les séparateurs markdown intentionnels de type ligne horizontale.
+Bourama strongly dislikes double hyphens ("--") used as a substitute for an em dash in any text a user sees. Specifically, never use them in:
+- error messages returned by the API;
+- text returned by tools to the AI for relay in chat;
+- any label, name, or description generated and stored for display;
+- later, in the frontend: labels, titles, placeholders, error messages, JSX button text, and any dynamically injected text.
 
-À la place : une virgule, un point, une parenthèse, ou reformuler la phrase.
-À vérifier avant de livrer tout texte destiné à être affiché, sans que Bourama ait à le répéter.
+They are fully acceptable in:
+- code itself (comments, docstrings);
+- intentional Markdown separators such as horizontal rules.
 
-## Toute nouvelle donnée liée à un utilisateur doit être purgée à la suppression du compte
+Use a comma, period, parentheses, or rephrase instead.
+Check all text intended for display before delivery, without making Bourama repeat this rule.
 
-Repris de classinus-backend (erreur constatée le 12/10/2026 : la suppression de compte ne supprimait qu'une partie des données, car presque aucune table n'a de suppression en cascade vers le compte).
+## All new user-related data must be purged when an account is deleted
 
-Règle, à appliquer sans que Bourama ait à la répéter : chaque fois qu'on crée une table, une colonne ou un fichier de stockage qui contient une donnée d'un utilisateur (colonne user_id, owner_id, proprietaire_id, etudiant_id, auteur_id, etc.), dans la même livraison :
-1. l'ajouter à la purge de compte (équivalent de core/purge_compte.py) ;
-2. l'ajouter à l'export des données personnelles ;
-3. préférer ON DELETE CASCADE vers auth.users, et ne jamais créer de clé étrangère sans cascade vers un compte (elle bloque la suppression) ;
-4. vérifier le schéma réel de la base, pas seulement le code ;
-5. si la donnée est volontairement gardée (journal de sécurité), le dire dans la politique de confidentialité.
+Adapted from classinus-backend (issue observed on 12/10/2026: account deletion removed only some data because almost no tables had cascading deletion to the account).
 
-Aucune table liée à un compte ne doit être livrée sans passer par ces points.
+Rule, to apply without Bourama having to repeat it: whenever a table, column, or storage file containing a user's data is created (user_id, owner_id, proprietaire_id, etudiant_id, auteur_id, etc.), in the same delivery:
+1. add it to account-deletion cleanup (equivalent to core/purge_compte.py);
+2. add it to personal-data export;
+3. prefer ON DELETE CASCADE toward auth.users, and never create a foreign key without cascading deletion to an account (it would block deletion);
+4. verify the actual database schema, not just the code;
+5. if data is intentionally retained (security log), state that in the privacy policy.
 
-## Règles frontend (dorment jusqu'à la phase frontend)
+No account-linked table may be delivered without passing these checks.
 
-Reprises de classinus-frontend. À appliquer dès qu'on construit dans frontend/ :
+## Frontend rules (inactive until the frontend phase)
 
-- Base FAQ/AEO : dès qu'une fonctionnalité, un comportement ou un affichage change, mettre à jour la documentation publique correspondante dans le même geste.
-- Couche du haut réservée à l'agent (z-index) : les éléments de l'agent restent au dessus de tout (plein écran, popups, menus). Source unique pour ces valeurs, aucun autre élément ne les dépasse, jamais de valeur en dur ailleurs.
-- STAGING : le blocage d'indexation de la copie de test ne va JAMAIS dans main ni en production. Ne jamais le copier, le fusionner ou l'assouplir, et vérifier chaque fusion de staging vers main.
-- Menus, listes et bulles ancrés : toujours via le composant d'ancrage partagé, jamais de placement réglé au cas par cas.
-- Listes et cases à cocher : jamais de select ni de checkbox natifs, toujours les composants maison. Le choix de langue vit dans les paramètres, pas en pastille flottante.
+Adapted from classinus-frontend. Apply them as soon as frontend/ is built:
 
-## Façon de travailler
+- FAQ/AEO baseline: whenever a feature, behavior, or display changes, update the corresponding public documentation in the same change.
+- Top layer reserved for the agent (z-index): agent elements stay above everything (fullscreen views, popups, menus). Use one source of truth for these values. No other element may exceed them, and never hardcode the values elsewhere.
+- STAGING: the indexing block for the test copy must NEVER go into main or production. Never copy it, merge it, or relax it, and check every merge from staging to main.
+- Anchored menus, lists, and bubbles: always use the shared anchoring component, never case-by-case positioning.
+- Lists and checkboxes: never use native select or checkbox elements; always use the custom components. Language selection belongs in settings, not in a floating pill.
 
-- Ne jamais supposer, ne jamais deviner. En cas de doute, demander à Bourama avant d'agir.
-- Avant d'ajouter quoi que ce soit, lire le code réel et vérifier l'état réel du dépôt (il peut avoir changé hors de cette conversation).
-- S'en tenir strictement à la demande explicite, ne rien ajouter par extrapolation.
-- Après chaque changement, vérifier son impact réel sur le fonctionnement, pas seulement que ça compile.
-- Expliquer en langage simple, sans jargon inutile. Bourama n'a pas de background code.
-- Tenir à jour docs/suivi/ (état, décisions, contexte) à chaque avancée importante, pour reprendre en nouvelle session comme si de rien n'était.
+## Working method
+
+- Never assume or guess. When in doubt, ask Bourama before acting.
+- Before adding anything, read the actual code and verify the repository's actual state (it may have changed outside this conversation).
+- Follow the explicit request strictly. Do not add anything by extrapolation.
+- After every change, verify its real impact on behavior, not just that it compiles.
+- Explain in simple language, without unnecessary jargon. Bourama has no coding background.
+- Keep docs/suivi/ up to date (status, decisions, context) after every important advance, so work can resume in a new session as though nothing had happened.

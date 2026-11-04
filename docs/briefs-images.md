@@ -1,27 +1,29 @@
-# Briefs des visuels du README
+> [English version] · [Français](./briefs-images.fr.md)
 
-Ces images ne sont pas encore créées. Un autre chantier s'occupera de les générer en suivant chaque brief ci-dessous. Formats : PNG, fond adapté au thème clair et sombre de GitHub (fond neutre foncé de préférence).
+# README Visual Briefs
 
-## 1. Bannière du README
+These images have not been created yet. Another workstream will generate them according to the briefs below. Formats: PNG, background suitable for both GitHub light and dark themes (prefer a neutral dark background).
 
-- Fichier : `docs/img/banniere.png`
-- Format : large (environ 1280 x 400), PNG
-- Contenu : à gauche, un téléphone avec une conversation de diagnostic (bulle de question, bulle de réponse) ; à droite, en plus petit et légèrement en retrait, un PC portable avec le même type de conversation, pour montrer que le PC arrive après le phone. Au centre ou en arrière-plan discret, un motif léger de circuit ou de nœuds reliés, qui évoque l'IA.
-- Style : illustration moderne et épurée, couleurs sobres (bleu et gris), aucun texte long dans l'image, juste le nom "Class-Tech" en titre. Lisible en petit comme en grand.
-- Utilisé dans : `README.md`, sous le titre.
+## 1. README banner
 
-## 2. Schéma de démarrage
+- File: `docs/img/banniere.png`
+- Format: wide (approximately 1280 x 400), PNG
+- Content: on the left, a phone showing a diagnostic conversation (question bubble and answer bubble); on the right, smaller and slightly set back, a laptop showing the same type of conversation, to indicate that PC support comes after phone support. In the center or subtle background, a light circuit or connected-node pattern suggesting AI.
+- Style: modern, clean illustration, restrained colors (blue and gray), no long text in the image, only the name "Class-Tech" as a title. Readable at both small and large sizes.
+- Used in: `README.md`, below the title.
 
-- Fichier : `docs/img/schema-demarrage.png`
-- Format : moyen (environ 900 x 400), PNG
-- Contenu : trois cases reliées par des flèches, de gauche à droite. Case 1 : "Installer" (pictogramme de paquet ou de terminal). Case 2 : "Configurer les clés" (pictogramme de clé). Case 3 : "Lancer le serveur" (pictogramme de flèche de lecture ou de serveur). Sous la case 3, une petite note "doc interactive dans le navigateur".
-- Style : schéma simple, fond uni, cases arrondies, mêmes couleurs que la bannière. Texte court en français, police lisible.
-- Utilisé dans : `README.md`, section Démarrage rapide.
+## 2. Startup diagram
 
-## 3. Schéma d'architecture
+- File: `docs/img/schema-demarrage.png`
+- Format: medium (approximately 900 x 400), PNG
+- Content: three boxes connected by arrows, from left to right. Box 1: "Install" (package or terminal icon). Box 2: "Configure keys" (key icon). Box 3: "Start server" (play or server icon). Below box 3, a small note: "interactive docs in browser".
+- Style: simple diagram, solid background, rounded boxes, same colors as the banner. Short, readable text in French.
+- Used in: `README.md`, Quick start section.
 
-- Fichier : `docs/img/schema-architecture.png`
-- Format : moyen (environ 900 x 500), PNG
-- Contenu : en haut, deux clients côte à côte : "Téléphone (en premier)" et "PC (ensuite)", avec le PC en pointillés ou en transparence pour montrer que c'est la phase suivante. Une flèche de chaque client vers une case centrale "Backend FastAPI". De cette case, deux flèches sortent : une vers "Modèle IA (LLM)" et une vers "Base Supabase".
-- Style : même style que le schéma de démarrage (cases arrondies, fond uni, couleurs assorties à la bannière). Texte court en français.
-- Utilisé dans : `README.md`, section Production en bref.
+## 3. Architecture diagram
+
+- File: `docs/img/schema-architecture.png`
+- Format: medium (approximately 900 x 500), PNG
+- Content: at the top, two clients side by side: "Phone (first)" and "PC (later)", with the PC shown in dotted lines or transparency to indicate that it is a later phase. An arrow from each client points to a central "FastAPI Backend" box. Two arrows leave that box: one toward "AI Model (LLM)" and one toward "Supabase Database".
+- Style: same style as the startup diagram (rounded boxes, solid background, colors matching the banner). Short text in French.
+- Used in: `README.md`, Production at a glance section.

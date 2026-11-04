@@ -1,58 +1,46 @@
-# Étape 2 : décision d'architecture, class-tech devient un serveur d'outils
+> [English version] · [Français](./etape-2-decision-architecture.fr.md)
 
-Date : 28/10/2026. Décidé par Bourama (3 réponses du 28/10).
+# Step 2: Architecture Decision, class-tech Becomes a Tools Server
 
-## Décisions
+Date: 28/10/2026. Decided by Bourama (3 answers from 28/10).
 
-1. Fini le backend complet dans class-tech : plus de chaîne LLM dupliquée
-   (moteur, boucle, routes de diagnostic). Le cerveau reste dans
-   Classinus, qui tourne déjà en prod.
-2. class-tech ne contient que nos outils de diagnostic et leur serveur
-   MCP. Classinus les appellera comme n'importe quel serveur d'outils ;
-   `demander_outils` les trouvera, `garder_outils` les gardera.
-3. Branchement en entrée officielle plus tard (entrée registre +
-   migration SQL dans classinus-backend, geste normal d'ajout d'outil),
-   pas en serveur personnalisé (confirmation exigée à chaque appel, même
-   en lecture, vérifié dans le code).
-4. Le squelette du chantier B est réduit au serveur d'outils (cette
-   étape). La structure (A), les règles (MUSE.md) et le README (C)
-   restent valables.
+## Decisions
 
-## Cible
+1. No more full backend in class-tech: no duplicated LLM pipeline (engine, loop, diagnostic routes). The brain stays in Classinus, which is already running in production.
+2. class-tech contains only our diagnostic tools and their MCP server. Classinus will call it like any other tools server; `demander_outils` will discover them and `garder_outils` will retain them.
+3. Official registry integration later (registry entry + SQL migration in classinus-backend, the normal tool-addition workflow), not as a custom server (confirmation required on every call, even reads, verified in code).
+4. The workstream B skeleton is reduced to the tools server only (this step). The structure (A), rules (MUSE.md), and README (C) remain valid.
+
+## Target architecture
 
 ```
-Classinus (cerveau : routeur mort, demander_outils, garder_outils,
-moteur MCP, confirmations, affichage)
-   | appelle en HTTP MCP
-class-tech/backend (serveur d'outils MCP : outils diagnostic + serveur)
+Classinus (brain: disabled router, demander_outils, garder_outils,
+memory tools, confirmations, display)
+   | calls over HTTP MCP
+class-tech/backend (MCP tools server: diagnostic tools + server)
 ```
 
-## Sort des fichiers du chantier B
+## Fate of the workstream B files
 
-- SUPPRIMER : core/moteur_outils.py, core/fournisseur_llm.py,
+- DELETE: core/moteur_outils.py, core/fournisseur_llm.py,
   core/diagnostic.py, api/diagnostic.py, api/outils_registre.py.
-- RÉDUIRE : api/main.py (app minimale qui monte /mcp/diagnostic,
-  `uvicorn api.main:app` reste la commande), core/registre_outils.py
-  (seules données signalétiques : noms, labels, icônes, onglets,
-  catégories, sensibles + outils_de_la_categorie), tests adapté,
-  backend/LISEZ-MOI.md (rôles réels).
-- SUPPRIMER SI INUTILISÉS : core/configuration.py, .env.example (si plus
-  rien ne les référence, sinon réduire au strict utile).
-- GARDER : outils (core/outils_*.py), serveur (serveur_mcp_diagnostic.py),
-  requirements.txt (dépendances utiles seules), docs/etape-1-*.md
-  (traces, jamais réécrites), MUSE.md (mis à jour séparément).
+- REDUCE: api/main.py (minimal app mounting /mcp/diagnostic,
+  `uvicorn api.main:app` remains the command), core/registre_outils.py
+  (metadata only: names, labels, icons, tabs, categories, sensitive tools + outils_de_la_categorie), adapted tests,
+  backend/LISEZ-MOI.md (actual roles).
+- DELETE IF UNUSED: core/configuration.py, .env.example (if nothing references them anymore; otherwise reduce to what is strictly needed).
+- KEEP: tools (core/outils_*.py), server (serveur_mcp_diagnostic.py),
+  requirements.txt (only required dependencies), docs/etape-1-*.md
+  (historical records, never rewrite), MUSE.md (updated separately).
 
-## Interdits de cette étape
+## Restrictions for this step
 
-- Ne pas toucher à classinus-backend ni classinus-frontend (l'entrée
-  officielle viendra plus tard, quand de vrais outils existeront).
-- Ni commit ni push.
+- Do not touch classinus-backend or classinus-frontend (official integration will come later, once real tools exist).
+- No commit or push.
 
-## Suites
+## Next steps
 
-- Mettre à jour MUSE.md (backend = serveur d'outils MCP, plus chaîne LLM).
-- Finaliser les sections du README marquées À FINALISER contre le code
-  réduit, puis générer les images.
-- Construire les vrais outils diagnostic (téléphone d'abord).
-- Quand ils existent : entrée officielle dans Classinus (registre +
-  migration SQL).
+- Update MUSE.md (backend = MCP tools server, no longer an LLM pipeline).
+- Finalize the README sections marked TO BE FINALIZED against the reduced code, then generate the images.
+- Build the real diagnostic tools (phone first).
+- Once they exist: official Classinus integration (registry + migration).

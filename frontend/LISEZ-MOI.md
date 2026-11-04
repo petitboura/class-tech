@@ -1,5 +1,7 @@
-# frontend/ : phase plus tard
+> [English version] · [Français](./LISEZ-MOI.fr.md)
 
-Rien à construire ici au chantier A.
+# frontend/: Later Phase
 
-Le frontend (interface web, puis mobile et PC) sera amené dans une phase plus tard, en s'inspirant de classinus-frontend. En attendant, ce dossier reste vide et les règles frontend de MUSE.md dorment.
+Nothing to build here during workstream A.
+
+The frontend (web interface, then mobile and PC) will be added in a later phase, using classinus-frontend as a reference. Until then, this directory remains empty and the frontend rules in MUSE.md remain inactive.

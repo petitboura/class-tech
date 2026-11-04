@@ -1,68 +1,35 @@
-# État au 28/10/2026 au soir
+> [English version] · [Français](./etat.fr.md)
 
-## Phases (3, décidées par Bourama)
+# Status as of the Evening of 28/10/2026
 
-1. Configuration : TERMINÉE (structure, squelette puis réduction en
-   serveur d'outils, README, décision d'archi).
-2. Builder les outils + les connecter à Classinus : EN COURS
-   (readiness OK. Activation sonde par moi : registre + migration +
-   SQL + push faits ; reste création service Render puis test.
-   Builders 80, 100 et root finis et fusionnés dans main (50 outils,
-   branches supprimées, Render redéployé). Audit sécurité root lancé
-   (2 parallèles puis 1 final : diagnostiquer + corriger, JAMAIS
-   d'exécution live des outils root).
-   Render live (17 outils listés). Test bout-en-bout ping OK via
-   Clovis. Décidé : local d'abord pour valider, relais PC ensuite.
-   Validation locale 80 OK sur vrai téléphone (Samsung SM-A055F,
-   Android 13 : détection + batterie réelles). Reste : valider le
-   palier 100 après fusion, relais PC à designer ensuite.
-   Site suivi-live public + commentaires (nom optionnel, sans login)
-   live et vérifiés 08:36 ; 3 lignes test à effacer au dashboard
-   Supabase (table suivi_commentaires).
-   Relais PC fini et vérifié 10:55 (branche relais-pc, main
-   intacte) : santé + batterie réelle via relais ; pas de tunnel
-   cloud ; merge dans main après audit final.
-   B16 corrigé 11:12 et vérifié sur téléphone 11:23 (8 cœurs
-   MT6768, test ciblé + 202 verts), poussé. Relais-install fini
-   15:46 (exe 1 clic + ADB auto, testé vraies données) et vérifié
-   par moi 16:01 (rebuild + essai réel) ; relais-pc et
-   relais-install fusionnés dans main, poussé. B17 fermé (constaté
-   19:15). Enquête version PC finie 19:33 (A21) : Electron 1 clic,
-   MAJ auto, proposition relais embarqué ou 2e bouton, à trancher.
-   D29 : 5 sensibles confirmés, 4 testés live 19:35 (bip, vibreur,
-   photo : perceptions de Bourama attendues ; B18 suspect listing
-   caméras) ; retrait en attente OK cible. D30 : relais intégré
-   Classinus PC, câble d'abord. D34 : 10 profonds d'abord (A24
-   tombé réseau, travail récupéré, fini en direct), 16 après.
-   D35 : iOS (A25 tombé réseau, à relancer).
-3. Construire l'interface : après.
+## Phases (3, decided by Bourama)
 
-## Ce qui est en place (vérifié sur disque)
+1. Configuration: COMPLETE (structure, skeleton then reduction to a tools server, README, architecture decision).
+2. Build tools + connect them to Classinus: IN PROGRESS (readiness OK. Probe activation by me: registry + migration + SQL + push completed; Render service creation and testing remain. Builders for 80, 100, and root finished and merged into main (50 tools, branches deleted, Render redeployed). Root security audit launched (two parallel agents, then one final agent: diagnose + fix, NEVER run root tools live).
+   Render live (17 tools listed). End-to-end ping test succeeded through Clovis. Decision: validate locally first, then PC relay.
+   Local 80% validation OK on a real phone (Samsung SM-A055F, Android 13: real detection + battery data). Remaining: validate 100% after merge, then design PC relay.
+   Public live tracking site + comments (optional name, no login) live and verified at 08:36; three test rows must be deleted from the Supabase dashboard (table suivi_commentaires).
+   PC relay completed and verified at 10:55 (relais-pc branch, main unchanged): health + real battery data through relay; no cloud tunnel; merge into main after final audit.
+   B16 fixed at 11:12 and verified on phone at 11:23 (8 MT6768 cores, targeted test + 202 passing); pushed. Relay installer completed at 15:46 (one-click executable + automatic ADB, tested with real data) and verified by me at 16:01 (rebuild + real test); relais-pc and relais-install merged into main and pushed. B17 closed (observed at 19:15). PC version investigation completed at 19:33 (A21): one-click Electron, automatic updates, proposed embedded relay or second button, pending decision.
+   D29: five sensitive tools confirmed, four tested live at 19:35 (beep, vibration, photo: awaiting Bourama's observations; B18 suspected camera listing issue); removal pending target OK. D30: relay integrated into Classinus PC, cable first. D34: ten deep tools first (A24 network failure, work recovered and finished directly), sixteen later. D35: iOS (A25 network failure, to restart).
+3. Build the interface: later.
 
-- `backend/` : serveur d'outils MCP seul. `api/main.py` monte
-  `/mcp/diagnostic` (`uvicorn api.main:app` depuis backend/).
-  2 outils exemple : sonde `verifier_chaine`, `resumer_symptome`.
-  Registre réduit aux données signalétiques, test adapté OK,
-  `LISEZ-MOI.md` à jour, MUSE.md à jour.
-- `docs/` : traces etape-1 (A, B, C), décision etape-2, ce dossier suivi.
-- `README.md` : vitrine rédigée, briefs des 3 images prêts.
+## What is in place (verified on disk)
 
-## Restes connus (pas oubliés)
+- `backend/`: MCP tools server only. `api/main.py` mounts `/mcp/diagnostic` (`uvicorn api.main:app` from backend/). Two example tools: probe `verifier_chaine` and `resumer_symptome`. Registry reduced to metadata, adapted test passes, `LISEZ-MOI.md` updated, MUSE.md updated.
+- `docs/`: workstream 1 records (A, B, C), step 2 decision, and this tracking directory.
+- `README.md`: showcase draft written; briefs for the three images are ready.
 
-- README : sections À FINALISER contre le code réduit ; licence à
-  choisir (Bourama) ; brief du schéma d'archi à ajuster (pas de
-  Supabase pour l'instant).
-- 3 petits textes approximatifs (`api/__init__.py`, `core/__init__.py`,
-  docstring du serveur : mots "chaîne", "même processus").
-- Lancement uvicorn réel jamais fait (dépendances non installées).
+## Known remaining items (not forgotten)
 
-## En attente de Bourama
+- README: sections marked TO BE FINALIZED against the reduced code; license to be chosen by Bourama; architecture diagram brief needs adjustment (no Supabase for now).
+- Three small approximate texts (`api/__init__.py`, `core/__init__.py`, server docstring: words "pipeline", "same process").
+- A real uvicorn launch has never been performed (dependencies not installed).
 
-- Paliers tranchés : 80 % simple (12-15 outils), 100 % complet sans
-  root (25-35 au total), root (45-60 au total). Boutons de départ
-  repoussés à la phase 3 (D17, 20:03) : l'utilisateur passe par le LLM.
-- Validation locale palier 100 après la fusion (téléphone branché,
-  même protocole que le palier 80).
-- Libellé tranché 20:03 : garder « Détecter le phone » (D17).
-- Premières catégories d'outils phone à builder.
-- Choix de la licence.
+## Waiting for Bourama
+
+- Tiers decided: simple 80% (12 to 15 tools), complete 100% without root (25 to 35 total), root (45 to 60 total). Starter buttons postponed to phase 3 (D17, 20:03): the user goes through the LLM.
+- Validate the 100% tier locally after merge (phone connected, same procedure as the 80% tier).
+- Label decided at 20:03: keep "Détecter le phone".
+- First phone tool categories to build.
+- Choose the license.

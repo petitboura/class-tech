@@ -1,26 +1,28 @@
+> [English version] · [Français](./README.fr.md)
+
 # Class-Tech
 
-Diagnostic technique intelligent, d'abord sur téléphone, puis sur PC, grâce à un modèle d'IA (LLM).
+Intelligent technical diagnostics, starting with phones and then expanding to PCs, powered by an AI model (LLM).
 
-![Bannière Class-Tech](docs/img/banniere.png)
+![Class-Tech banner](docs/img/banniere.png)
 
-Class-Tech aide à comprendre ce qui ne va pas avec un appareil : l'utilisateur décrit le problème avec ses mots, et l'IA guide le diagnostic étape par étape. Le projet commence par les téléphones, puis s'étendra aux PC.
+Class-Tech helps users understand what is wrong with a device: users describe the problem in their own words, and the AI guides them through the diagnosis step by step. The project starts with phones and will later expand to PCs.
 
-> Note : le dépôt est en construction. La chaîne IA (dossier `backend/`) arrive au chantier B, l'interface (dossier `frontend/`) dans une phase plus tard.
+> Note: this repository is under construction. The AI pipeline (the `backend/` directory) is planned for workstream B, and the interface (the `frontend/` directory) will come in a later phase.
 
-## Prérequis
+## Prerequisites
 
-> ⏳ À FINALISER après le chantier B (brouillon ci-dessous, à vérifier contre le vrai code).
+> ⏳ TO BE FINALIZED after workstream B (draft below, to be checked against the actual code).
 
-Brouillon, inspiré du dépôt source classinus-backend :
+Draft, inspired by the classinus-backend source repository:
 
-- Python récent avec `pip`
-- Une clé API pour au moins un fournisseur de modèle IA
-- Une base Supabase (URL de projet et clé)
+- A recent version of Python with `pip`
+- An API key for at least one AI model provider
+- A Supabase database (project URL and key)
 
-## Démarrage rapide
+## Quick start
 
-> ⏳ À FINALISER après le chantier B (brouillon ci-dessous, à vérifier contre le vrai code).
+> ⏳ TO BE FINALIZED after workstream B (draft below, to be checked against the actual code).
 
 ```bash
 cd backend
@@ -28,47 +30,47 @@ pip install -r requirements.txt
 uvicorn api.main:app --reload
 ```
 
-Puis ouvrir la documentation interactive de l'API dans le navigateur.
+Then open the interactive API documentation in your browser.
 
-![Schéma de démarrage](docs/img/schema-demarrage.png)
+![Startup diagram](docs/img/schema-demarrage.png)
 
-## Variables essentielles
+## Essential environment variables
 
-> ⏳ À FINALISER après le chantier B (brouillon ci-dessous, à vérifier contre le vrai code).
+> ⏳ TO BE FINALIZED after workstream B (draft below, to be checked against the actual code).
 
-| Variable | Rôle |
+| Variable | Purpose |
 | --- | --- |
-| Clé API du modèle IA | Permet au backend d'appeler le modèle |
-| URL du projet Supabase | Adresse de la base de données |
-| Clé Supabase | Accès à la base de données |
+| AI model API key | Allows the backend to call the model |
+| Supabase project URL | Database address |
+| Supabase key | Database access |
 
-Les noms exacts seront confirmés quand le code du chantier B sera en place.
+The exact names will be confirmed once the workstream B code is in place.
 
-## Production en bref
+## Production at a glance
 
-> ⏳ À FINALISER après le chantier B.
+> ⏳ TO BE FINALIZED after workstream B.
 
-Principe prévu : le même backend tourne en production avec des clés de production, derrière HTTPS. Les détails du déploiement (plateforme, commandes) seront écrits ici quand le chantier B aura apporté son mode de déploiement, s'il y en a un.
+Planned approach: the same backend runs in production with production keys, behind HTTPS. Deployment details (platform and commands) will be documented here once workstream B provides its deployment method, if applicable.
 
-![Schéma d'architecture](docs/img/schema-architecture.png)
+![Architecture diagram](docs/img/schema-architecture.png)
 
-## Structure du dépôt
+## Repository structure
 
-> ⏳ À FINALISER après les chantiers A et B. Brouillon basé sur le chantier A (structure vide vérifiée le 28/10/2026) :
+> ⏳ TO BE FINALIZED after workstreams A and B. Draft based on the empty structure verified on 28/10/2026:
 
 ```text
 class-tech/
-├── backend/      chaîne IA : api/, core/, connexions/, indexers/, migrations/, scripts/, tests/
-├── frontend/     interface (phase plus tard, vide pour l'instant)
-├── docs/         un fichier par étape du projet, plus les visuels dans docs/img/
-├── MUSE.md     règles de travail sur ce dépôt
-└── README.md     ce fichier
+├── backend/      AI pipeline: api/, core/, connexions/, indexers/, migrations/, scripts/, tests/
+├── frontend/     interface (later phase, empty for now)
+├── docs/         one file per project step, plus visuals in docs/img/
+├── MUSE.md       working rules for this repository
+└── README.md     this file
 ```
 
-## Contribuer
+## Contributing
 
-Le projet est jeune et les règles de contribution ne sont pas encore écrites. En attendant : lire `MUSE.md` avant toute modification, ne toucher qu'à ce qui est demandé, et ne jamais deviner en cas de doute.
+The project is new, and contribution rules have not yet been written. For now: read `MUSE.md` before making any change, touch only what has been requested, and never guess when in doubt.
 
-## Licence
+## License
 
-⏳ À préciser par Bourama : aucune licence n'a encore été choisie pour ce dépôt.
+⏳ To be specified by Bourama: no license has been chosen for this repository yet.

@@ -1,81 +1,55 @@
-# Contexte stable
+> [English version] · [Français](./contexte.fr.md)
 
-## But
+# Stable Context
 
-Class-Tech : diagnostiquer par IA d'abord les téléphones (Android), puis
-les PC, puis élargir. L'utilisateur décrit le problème avec ses mots,
-l'IA guide le diagnostic, propose des corrections, et rien ne s'exécute
-sans validation.
+## Goal
 
-## Dépôts (C:\Users\dell)
+Class-Tech: use AI to diagnose phones first (Android), then PCs, then expand further. The user describes the problem in their own words; the AI guides the diagnosis, proposes fixes, and nothing runs without approval.
 
-- `class-tech` : le nouveau dépôt (GitHub petitboura/class-tech, public).
-  C'est ici qu'on travaille.
-- `classinus-backend`, `classinus-frontend` : les modèles, en lecture
-  seule. On ne les modifie jamais sauf décision explicite (l'entrée
-  officielle future du serveur diagnostic en sera une).
+## Repositories (C:\Users\dell)
 
-## Archi cible (décidée le 28/10/2026)
+- `class-tech`: the new repository (GitHub petitboura/class-tech, public). This is where work happens.
+- `classinus-backend`, `classinus-frontend`: reference repositories, read-only. They must never be modified unless explicitly decided (future official integration of the diagnostic server would be such an exception).
 
-- Le cerveau reste dans Classinus : `demander_outils`, `garder_outils`,
-  outils mémoire, confirmations, affichage. Tout ça tourne en prod.
-- `class-tech/backend` est seulement un serveur d'outils MCP de
-  diagnostic, que Classinus appellera en HTTP.
-- Branchement prévu en entrée officielle (registre + migration SQL),
-  pas en serveur personnalisé (confirmation exigée à chaque appel, même
-  en lecture, vérifié dans le code).
+## Target architecture (decided 28/10/2026)
 
-## Prod Classinus, points vérifiés (ne pas se fier aux vieux commentaires)
+- The brain stays in Classinus: `demander_outils`, `garder_outils`, memory tools, confirmations, and display. It is already running in production.
+- `class-tech/backend` is only an MCP diagnostic tools server, which Classinus calls over HTTP.
+- Integration is planned through the official registry (registry entry + SQL migration), not as a custom server (confirmation is required for every call, including reads; verified in code).
 
-- Routeur d'outils mort (`ROUTEUR_OUTILS_AUTO_DESACTIVE = True`).
-- Le frontend envoie toujours `outil_force: []` (menu Outils retiré).
-- Flux réel : paquet de départ (contexte + retenus + mémoire), puis le
-  modèle tire ses outils avec `demander_outils` et les garde avec
-  `garder_outils` (retenus en base, table `outils_retenus_conversation`).
+## Classinus production, verified facts (do not rely on old comments)
 
-## Paliers téléphone (décidés, détail à affiner)
+- The tool router is disabled (`ROUTEUR_OUTILS_AUTO_DESACTIVE = True`).
+- The frontend still sends `outil_force: []` (the Tools menu was removed).
+- Actual flow: initial packet (context + retained tools + memory), then the model selects its tools with `demander_outils` and retains them with `garder_outils` (stored in the database, table `outils_retenus_conversation`).
 
-- App seule sur le téléphone : abandonnée, trop limitée.
-- Téléphone branché au PC (câble + mode développeur) : la voie V1, sans
-  root, sans risque.
-- Root : pour après, risqué.
-- Périmètre : Android d'abord via pont PC (Windows d'abord), puis PC,
-  puis scale.
+## Phone tiers (decided, details to refine)
 
-## Règles clé de Bourama (détail dans MUSE.md et les skills)
+- Standalone phone app: abandoned, too limited.
+- Phone connected to a PC (cable + developer mode): V1 approach, no root, no risk.
+- Root: later, higher risk.
+- Scope: Android first through a PC bridge (Windows first), then PC, then scale.
 
-- Jamais supposer, jamais deviner, toujours demander avant d'agir.
-- S'en tenir strictement à la demande, ne rien ajouter par extrapolation.
-- Ni commit ni push sans consigne explicite.
-- Jamais de valeurs en dur, jamais de texte affiché avec "--".
-- Expliquer en français simple, sans jargon.
+## Bourama's key rules (details in MUSE.md and the skills)
 
-## Sessions Muse
+- Never assume or guess; always ask before acting.
+- Follow the request strictly; do not add anything by extrapolation.
+- No commit or push without explicit instruction.
+- Never hardcode values; never display text containing "--".
+- Explain in simple French, without jargon.
 
-- Session du 28/10 au matin (`01a17fdc...`, interrompue avant la fin) :
-  cadrage produit, connecteurs, chantiers A/B/C lancés (A fini, B et C
-  jamais livrés là-bas).
-- Session en cours (`01a1807a...`) : reprise, B et C relancés et livrés,
-  décision serveur d'outils, réduction faite, suivi créé.
-- Les logs vivent sous `.local/share/muse/sessions/AAAA/MM/JJ/<id>/`.
+## Muse sessions
 
-## Plan V1 outils (agréé le 28/10 au matin, ancienne session)
+- Morning session on 28/10 (`01a17fdc...`, interrupted before completion): product framing, connectors, workstreams A/B/C launched (A finished, B and C not delivered).
+- Current session (`01a1807a...`): resumed, B and C restarted and delivered, tools-server decision, reduction, tracking created.
+- Logs are stored under `.local/share/muse/sessions/YYYY/MM/DD/<id>/`.
 
-- Ordre : 80 % sans root d'abord (PC + câble), 100 % avec root après.
-  App seule abandonnée.
-- Interface : chatbot normal, langage simple, boutons tout prêts
-  configurables (pas en dur). LLM via API, jamais full auto, que des
-  appels d'outils. Lecture libre, corrections avec OK.
-- Nombres : V1 80 % simple = 12 à 15 outils ; finale 80 % complète
-  sans root = 25 à 35 ; 100 % root = 45 à 60.
-- Étapes : 1) base connexion PC-phone (détection, infos de base),
-  2) chat + 4 boutons (batterie, stockage, lenteurs, applis qui
-  plantent), 3) outils V1 (batterie, stockage, applis, système,
-  réseau, 1 test capteurs groupé), 4) finale 80 % (tests matériel
-  unitaires, mémoire/CPU/RAM, permissions, sécurité, mises à jour),
-  5) root (système profond, corrections profondes avec avertissement).
-- Risque 1 : connexion câble stable, à valider en premier sur 2 à 3
-  phones. Vie privée : seul du texte résumé part vers l'API.
-- Évolution depuis : l'interface passe en dernier (phase 3), et le
-  cerveau reste dans Classinus (décision serveur d'outils).
-- Questions restées ouvertes : 4 boutons validés ?
+## V1 tools plan (approved on the morning of 28/10, previous session)
+
+- Order: 80% without root first (PC + cable), 100% with root later. Standalone app abandoned.
+- Interface: regular chatbot, simple language, configurable quick buttons (not hardcoded). LLM through API, never fully automatic, tool calls only. Read access allowed; fixes require approval.
+- Counts: simple V1 80% = 12 to 15 tools; complete 80% without root = 25 to 35; 100% with root = 45 to 60.
+- Steps: 1) PC-phone connection baseline (detection, basic information), 2) chat + 4 buttons (battery, storage, slowness, crashing apps), 3) V1 tools (battery, storage, apps, system, network, one grouped sensor test), 4) complete 80% tier (individual hardware tests, memory/CPU/RAM, permissions, security, updates), 5) root (deep system inspection and deep fixes with warnings).
+- Main risk: stable cable connection, to be validated first on 2 to 3 phones. Privacy: only summarized text is sent to the API.
+- Evolution since then: the interface moves to the last phase (phase 3), and the brain stays in Classinus (tools-server decision).
+- Open question: were the four buttons approved?
