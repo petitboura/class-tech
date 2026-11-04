@@ -1,4 +1,4 @@
-> [English version] · [Français](./LISEZ-MOI.fr.md)
+> [English version] · [Français](./README.fr.md)
 
 # frontend/: Later Phase
 

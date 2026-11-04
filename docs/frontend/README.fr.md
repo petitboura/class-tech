@@ -1,4 +1,4 @@
-> [English version](./LISEZ-MOI.md) · **Version française**
+> [English version](./README.md) · **Version française**
 
 # frontend/ : phase plus tard
 

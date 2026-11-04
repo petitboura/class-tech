@@ -1,4 +1,4 @@
-> [English version] · [Français](./relais-pc.fr.md)
+> [English version] · [Français](./OVERVIEW.fr.md)
 
 # The Class-Tech PC Relay
 

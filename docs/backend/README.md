@@ -1,4 +1,4 @@
-> [English version] · [Français](./LISEZ-MOI.fr.md)
+> [English version] · [Français](./README.fr.md)
 
 # backend/: MCP Diagnostic Tools Server (Step 2, 80%, 100%, and Root Tiers)
 
